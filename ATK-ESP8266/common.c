@@ -469,22 +469,38 @@ u8 atk_8266_ip_set(u8* title,u8* mode,u8* port,u8* ip)
  	u8 key;
 	u8 timex=0;  
 	u8 iplen=0;			//IP长度 
+
+	int i = 100;
 	LCD_Clear(WHITE);  
 	POINT_COLOR=RED; 
 	Show_Str_Mid(0,30,title,16,240);		//显示标题	 	 	
 	Show_Str(30,90,200,16,"工作模式:",16,0);	//工作模式显示
 	Show_Str(30,110,200,16,"IP地址:",16,0);	//IP地址可以键盘设置
 	Show_Str(30,130,200,16,"端口:",16,0);	//端口号
-	kbd_fn_tbl[0]="连接";
+	kbd_fn_tbl[0]="连接";  
 	kbd_fn_tbl[1]="返回"; 
 	atk_8266_load_keyboard(0,180);			//显示键盘 
 	POINT_COLOR=BLUE;
  	Show_Str(30+72,90,200,16,mode,16,0);	//显示工作模式	
  	Show_Str(30+40,130,200,16,port,16,0);	//显示端口 	
 	ip[0]=0; 		
-	while(1)
+	while(i--)
 	{ 
+
+	/*
 		key=atk_8266_get_keynum(0,180);
+
+		iplen++;
+
+
+		*/
+		if (i == 1)
+			{
+				key =14;
+				break;
+
+			}
+		/*
 		if(key)
 		{   
 			if(key<12)
@@ -503,14 +519,13 @@ u8 atk_8266_ip_set(u8* title,u8* mode,u8* port,u8* ip)
 			LCD_Fill(30+56,110,239,110+16,WHITE);
 			Show_Str(30+56,110,200,16,ip,16,0);			//显示IP地址 	
 		} 
-		timex++;
-		if(timex==20)
-		{
-			timex=0;
-			LED0=!LED0;
-		}
+
+*/
 		delay_ms(10);
 		atk_8266_at_response(1);//WIFI模块发过来的数据,及时上传给电脑
+
+
+		
 	} 
 	return res;
 }
@@ -549,21 +564,12 @@ void atk_8266_test(void)
 	{
 		delay_ms(10); 
 		atk_8266_at_response(1);//检查ATK-ESP8266模块发送过来的数据,及时上传给电脑
-		//key=KEY_Scan(0); 
-
 
 			LCD_Clear(WHITE);
 			POINT_COLOR=RED;
 
-
-
 			atk_8266_wifista_test();//WIFI STA测试
-
-    
-			timex=0;
-		 
-		if((timex%20)==0)LED0=!LED0;//200ms闪烁 
-		timex++;	 
+ 
 	} 
 }
 

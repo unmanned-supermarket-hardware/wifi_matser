@@ -21,7 +21,7 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V2.0.14.0_KEIL
 Dialog DLL:      TCM.DLL V1.14.4.0
  
 <h2>Project:</h2>
-D:\TY\无人超市\wifi模块\13，ATK-ESP8266 WIFI模块资料\2，程序源码\（库函数版本，适合探索者STM32F4开发板）扩展实验13 ATK-ESP8266WIFI模块实验\USER\ATK_ESP8266.uvprojx
+D:\TY\无人超市\工程代码\wifi_master\USER\ATK_ESP8266.uvprojx
 Project File Date:  06/29/2017
 
 <h2>Output:</h2>
@@ -37,18 +37,22 @@ compiling wifista.c...
                         root = cJSON_Parse(getMS);
 ..\ATK-ESP8266\wifista.c(46): warning:  #177-D: variable "send" was declared but never referenced
         char send[500];
-..\ATK-ESP8266\wifista.c(244): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
-                                        printf("get data len:%d,%s",strlen(USART3_RX_BUF),USART3_RX_BUF);       //发送到串口   
-..\ATK-ESP8266\wifista.c(270): warning:  #111-D: statement is unreachable
+..\ATK-ESP8266\wifista.c(171): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+                strcpy(ipbuf, "192.168.3.158");//  服务端ip
+..\ATK-ESP8266\wifista.c(248): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+                        printf("get data len:%d,%s",strlen(USART3_RX_BUF),USART3_RX_BUF);       //发送到串口   
+..\ATK-ESP8266\wifista.c(281): warning:  #111-D: statement is unreachable
         myfree(SRAMIN,p);               //释放内存 
-..\ATK-ESP8266\wifista.c: 7 warnings, 0 errors
+..\ATK-ESP8266\wifista.c(139): warning:  #550-D: variable "timex" was set but never used
+        u8 timex=0; 
+..\ATK-ESP8266\wifista.c: 9 warnings, 0 errors
 linking...
-Program Size: Code=78572 RO-data=9196 RW-data=960 ZI-data=1226056  
+Program Size: Code=69636 RO-data=8072 RW-data=960 ZI-data=1226056  
 FromELF: creating hex file...
-"..\OBJ\ATK_ESP8266.axf" - 0 Error(s), 7 Warning(s).
+"..\OBJ\ATK_ESP8266.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  D:\TY\无人超市\wifi模块\13，ATK-ESP8266 WIFI模块资料\2，程序源码\（库函数版本，适合探索者STM32F4开发板）扩展实验13 ATK-ESP8266WIFI模块实验\USER\RTE
+  D:\TY\无人超市\工程代码\wifi_master\USER\RTE
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
