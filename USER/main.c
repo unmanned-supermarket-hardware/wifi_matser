@@ -17,13 +17,14 @@
 #include "touch.h"		
 #include "usart3.h"
 #include "common.h" 
-
+#include "AIWAC_Supermarket.h"
 
 
 
 
 int main(void)
 {        
+	int rlen = 0;
 	u8 key,fontok=0; 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置系统中断优先级分组2
 	delay_init(168);  //初始化延时函数
@@ -48,47 +49,16 @@ int main(void)
  	f_mount(fs[1],"1:",1); 		//挂载FLASH.
 
 
-
-	
-	key=KEY_Scan(0);  
-
-
-
-	
 	fontok=font_init();		//检查字库是否OK
 
 
-	/*
-	if(fontok||key==KEY1_PRES)//需要更新字库				 
-	{
-		LCD_Clear(WHITE);		   	//清屏
- 		POINT_COLOR=RED;			//设置字体为红色	   	   	  
-		LCD_ShowString(60,50,200,16,16,"ALIENTEK STM32");
-		while(SD_Init())			//检测SD卡
-		{
-			LCD_ShowString(60,70,200,16,16,"SD Card Failed!");
-			delay_ms(200);
-			LCD_Fill(60,70,200+60,70+16,WHITE);
-			delay_ms(200);		    
-		}								 						    
-		LCD_ShowString(60,70,200,16,16,"SD Card OK");
-		LCD_ShowString(60,90,200,16,16,"Font Updating...");
-		key=update_font(20,110,16,"0:");//从SD卡更新
-		while(key)//更新失败		
-		{			 		  
-			LCD_ShowString(60,110,200,16,16,"Font Update Failed!");
-			delay_ms(200);
-			LCD_Fill(20,110,200+20,110+16,WHITE);
-			delay_ms(200);		       
-		} 		  
-		LCD_ShowString(60,110,200,16,16,"Font Update Success!");
-		delay_ms(1500);	
-		LCD_Clear(WHITE);//清屏	       
-	}  
-	*/
 
-	
-	atk_8266_test();		//进入ATK_ESP8266测试
+	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
+	sendMasterID2S();			//给服务端发送主控ID
+
+
+	AIWAC_MasterGetGoods();		// 主控取货的  总逻辑开始
+
 }
 
 

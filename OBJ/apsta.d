@@ -56,3 +56,6 @@
 ..\obj\apsta.o: ..\FATFS\src\ff.h
 ..\obj\apsta.o: ..\FATFS\src\integer.h
 ..\obj\apsta.o: ..\FATFS\src\ffconf.h
+..\obj\apsta.o: ..\AIWAC\AIWAC_Supermarket.h
+..\obj\apsta.o: ..\cJSON\cJSON.h
+..\obj\apsta.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

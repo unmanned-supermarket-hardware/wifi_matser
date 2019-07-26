@@ -13,6 +13,9 @@
 #include "text.h"		
 #include "usart3.h" 
 #include "ff.h"
+
+#include "AIWAC_Supermarket.h"
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32开发板
@@ -57,12 +60,9 @@ u8 atk_8266_apsta_test(void);	//WIFI AP+STA模式测试
 u8 atk_8266_wifista_test(void);	//WIFI STA测试
 u8 atk_8266_wifiap_test(void);	//WIFI AP测试
 
-//用户配置参数
-extern const u8* portnum;			//连接端口
- 
-extern const u8* wifista_ssid;		//WIFI STA SSID
-extern const u8* wifista_encryption;//WIFI STA 加密方式
-extern const u8* wifista_password; 	//WIFI STA 密码
+
+
+
 
 extern const u8* wifiap_ssid;		//WIFI AP SSID
 extern const u8* wifiap_encryption;	//WIFI AP 加密方式

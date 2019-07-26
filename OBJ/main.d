@@ -61,3 +61,6 @@
 ..\obj\main.o: ..\HARDWARE\USART3\usart3.h
 ..\obj\main.o: ..\ATK-ESP8266\common.h
 ..\obj\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\main.o: ..\AIWAC\AIWAC_Supermarket.h
+..\obj\main.o: ..\cJSON\cJSON.h
+..\obj\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

@@ -56,3 +56,6 @@
 ..\obj\common.o: ..\FATFS\src\ff.h
 ..\obj\common.o: ..\FATFS\src\integer.h
 ..\obj\common.o: ..\FATFS\src\ffconf.h
+..\obj\common.o: ..\AIWAC\AIWAC_Supermarket.h
+..\obj\common.o: ..\cJSON\cJSON.h
+..\obj\common.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

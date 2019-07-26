@@ -15,13 +15,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 //用户配置区
 
-//连接端口号:8086,可自行修改为其他端口.
-const u8* portnum="8899";		 
 
-//WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid="AIWAC";			//路由器SSID号
-const u8* wifista_encryption="WPA/WPA2_PSK";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="epic2012"; 	//连接密码
+	 
+
 
 //WIFI AP模式,模块对外的无线参数,可自行修改.
 const u8* wifiap_ssid="ATK-ESP8266";			//对外SSID号
@@ -46,7 +42,7 @@ void atk_8266_at_response(u8 mode)
 	if(USART3_RX_STA&0X8000)		//接收到一次数据了
 	{ 
 		USART3_RX_BUF[USART3_RX_STA&0X7FFF]=0;//添加结束符
-		printf("nnnn,%s99999999",USART3_RX_BUF);	//发送到串口
+		printf("%s",USART3_RX_BUF);	//发送到串口
 		if(mode)USART3_RX_STA=0;
 	} 
 }
@@ -544,33 +540,25 @@ void atk_8266_mtest_ui(u16 x,u16 y)
 //ATK-ESP8266模块测试主函数
 void atk_8266_test(void)
 {
-//	u16 rlen=0;
-	u8 key;
-	u8 timex;
-	POINT_COLOR=RED;
-	Show_Str_Mid(0,30,"ATK-ESP8266 WIFI模块测试",16,240); 
+
 	while(atk_8266_send_cmd("AT","OK",20))//检查WIFI模块是否在线
 	{
 		atk_8266_quit_trans();//退出透传
 		atk_8266_send_cmd("AT+CIPMODE=0","OK",200);  //关闭透传模式	
-		Show_Str(40,55,200,16,"未检测到模块!!!",16,0);
-		delay_ms(800);
-		LCD_Fill(40,55,200,55+16,WHITE);
-		Show_Str(40,55,200,16,"尝试连接模块...",16,0); 
+
+		printf("未检测到模块!!!");
+		delay_ms(100);
+		printf("尝试连接模块...");
 	} 
 		while(atk_8266_send_cmd("ATE0","OK",20));//关闭回显
-		//atk_8266_mtest_ui(32,30);
-	while(1)
-	{
+
+
 		delay_ms(10); 
 		atk_8266_at_response(1);//检查ATK-ESP8266模块发送过来的数据,及时上传给电脑
 
-			LCD_Clear(WHITE);
-			POINT_COLOR=RED;
-
-			atk_8266_wifista_test();//WIFI STA测试
+		atk_8266_wifista_test();//WIFI STA测试
  
-	} 
+	
 }
 
 

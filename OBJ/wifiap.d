@@ -56,3 +56,6 @@
 ..\obj\wifiap.o: ..\FATFS\src\ff.h
 ..\obj\wifiap.o: ..\FATFS\src\integer.h
 ..\obj\wifiap.o: ..\FATFS\src\ffconf.h
+..\obj\wifiap.o: ..\AIWAC\AIWAC_Supermarket.h
+..\obj\wifiap.o: ..\cJSON\cJSON.h
+..\obj\wifiap.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

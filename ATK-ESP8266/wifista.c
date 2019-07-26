@@ -1,6 +1,9 @@
 #include "common.h"
 #include "stdlib.h"
 #include "cJSON.h"
+#include "AIWAC_Supermarket.h"
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
@@ -39,7 +42,7 @@ void  testTS(u8 *chat)
 	cJSON *root, *orderValue;  // 
 
 	int num = 0;
-	u8 getMS[1000];
+	u8 getMS[500];
 	char* strSend;
 	u8 * p =chat;
 	int numS = 0;
@@ -144,12 +147,9 @@ u8 atk_8266_wifista_test(void)
 	u16 rlen=0;
 	u8 constate=0;	//连接状态
 	p=mymalloc(SRAMIN,32);							//申请32字节内存
+	//atk_8266_send_cmd("AT+CWMODE_DEF=1","OK",50);		//设置WIFI STA模式
 	atk_8266_send_cmd("AT+CWMODE=1","OK",50);		//设置WIFI STA模式
-	atk_8266_send_cmd("AT+RST","OK",20);		//DHCP服务器关闭(仅AP模式有效) 
-	delay_ms(1000);         //延时3S等待重启成功
-	delay_ms(1000);
-	delay_ms(1000);
-	delay_ms(1000);
+
 	//设置连接到的WIFI网络名称/加密方式/密码,这几个参数需要根据您自己的路由器设置进行修改!! 
 	sprintf((char*)p,"AT+CWJAP=\"%s\",\"%s\"",wifista_ssid,wifista_password);//设置无线参数:ssid,密码
 	while(atk_8266_send_cmd(p,"WIFI GOT IP",300));					//连接目标路由器,并且获得IP
@@ -168,33 +168,23 @@ PRESTA:
 
 		atk_8266_at_response(1);//WIFI模块发过来的数据,及时上传给电脑
 
-		strcpy(ipbuf, "192.168.3.158");//  服务端ip
+		strcpy(ipbuf, AIWAC_IP);//  服务端ip
 		atk_8266_send_cmd("AT+CIPMUX=0","OK",20);   //0：单连接，1：多连接
 		sprintf((char*)p,"AT+CIPSTART=\"TCP\",\"%s\",%s",ipbuf,(u8*)portnum);    //配置目标TCP服务器
 
 		//printf("\r\np:%s len:%d",p,strlen(p));
 		while(atk_8266_send_cmd(p,"OK",200))
 		{
-				LCD_Clear(WHITE);  
-				POINT_COLOR=RED;
-				Show_Str_Mid(0,40,"WK_UP:返回重选",16,240);
-				Show_Str(30,80,200,12,"ATK-ESP 连接TCP失败",12,0); //连接失败	 
-				key=KEY_Scan(0);
-				if(key==WKUP_PRES)goto PRESTA;
+				printf("\r\n连接TCP失败");
 		}	
+		
 		atk_8266_send_cmd("AT+CIPMODE=1","OK",200);      //传输模式为：透传			
 	}
 
 
 	LCD_Clear(WHITE);
 	POINT_COLOR=RED;
-	/*
-	Show_Str_Mid(0,30,"ATK-ESP WIFI-STA 测试",16,240);
-	Show_Str(30,50,200,16,"正在配置ATK-ESP模块,请稍等...",12,0);			
-	LCD_Fill(30,50,239,50+12,WHITE);			//清除之前的显示
-	Show_Str(30,50,200,16,"WK_UP:退出测试  KEY0:发送数据",12,0);
-	LCD_Fill(30,80,239,80+12,WHITE);
-*/
+
 	// 就为获取 自己Ip展示下
 	atk_8266_get_wanip(ipbuf);//服务器模式,获取WAN IP
 	sprintf((char*)p,"IP地址:%s 端口:%s",ipbuf,(u8*)portnum);
@@ -212,6 +202,8 @@ PRESTA:
 
 
 	
+	
+	/*
 	while(1)
 	{
 
@@ -276,7 +268,7 @@ PRESTA:
 		atk_8266_at_response(1);  //  若无数据直接过，有数据即  前面 检测是否断连接的   反馈数据
 	}
 
-
+*/
 			
 	myfree(SRAMIN,p);		//释放内存 
 	return res;		

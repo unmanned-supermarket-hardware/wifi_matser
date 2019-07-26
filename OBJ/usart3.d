@@ -41,3 +41,7 @@
 ..\obj\usart3.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\usart3.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\usart3.o: ..\HARDWARE\TIMER\timer.h
+..\obj\usart3.o: ..\AIWAC\AIWAC_Supermarket.h
+..\obj\usart3.o: ..\MALLOC\malloc.h
+..\obj\usart3.o: ..\cJSON\cJSON.h
+..\obj\usart3.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

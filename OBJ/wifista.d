@@ -56,5 +56,6 @@
 ..\obj\wifista.o: ..\FATFS\src\ff.h
 ..\obj\wifista.o: ..\FATFS\src\integer.h
 ..\obj\wifista.o: ..\FATFS\src\ffconf.h
+..\obj\wifista.o: ..\AIWAC\AIWAC_Supermarket.h
 ..\obj\wifista.o: ..\cJSON\cJSON.h
 ..\obj\wifista.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
