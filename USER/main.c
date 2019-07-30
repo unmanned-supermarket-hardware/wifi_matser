@@ -52,10 +52,12 @@ int main(void)
 	fontok=font_init();		//检查字库是否OK
 
 
-
+	initSysValue();			// 初始化系统的全局变量
+	
 	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
 	sendMasterID2S();			//给服务端发送主控ID
 
+	
 
 	AIWAC_MasterGetGoods();		// 主控取货的  总逻辑开始
 

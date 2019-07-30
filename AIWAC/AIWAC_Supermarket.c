@@ -7,51 +7,71 @@
 
 
 
-//WIFI STAÄ£Ê½,ÉèÖÃÒªÈ¥Á¬½ÓµÄÂ·ÓÉÆ÷ÎŞÏß²ÎÊı,Çë¸ù¾İÄã×Ô¼ºµÄÂ·ÓÉÆ÷ÉèÖÃ,×ÔĞĞĞŞ¸Ä.
-const u8* wifista_ssid="AIWAC";			//Â·ÓÉÆ÷SSIDºÅ
-const u8* wifista_encryption="WPA/WPA2_PSK";	//wpa/wpa2 aes¼ÓÃÜ·½Ê½
-const u8* wifista_password="epic2012"; 	//Á¬½ÓÃÜÂë
+//WIFI STAæ¨¡å¼,è®¾ç½®è¦å»è¿æ¥çš„è·¯ç”±å™¨æ— çº¿å‚æ•°,è¯·æ ¹æ®ä½ è‡ªå·±çš„è·¯ç”±å™¨è®¾ç½®,è‡ªè¡Œä¿®æ”¹.
+const u8* wifista_ssid="AIWAC";			//è·¯ç”±å™¨SSIDå·
+const u8* wifista_encryption="WPA/WPA2_PSK";	//wpa/wpa2 aesåŠ å¯†æ–¹å¼
+const u8* wifista_password="epic2012"; 	//è¿æ¥å¯†ç 
 
 
-//Á¬½Ó¶Ë¿ÚºÅ:8086,¿É×ÔĞĞĞŞ¸ÄÎªÆäËû¶Ë¿Ú.
+//è¿æ¥ç«¯å£å·:8086,å¯è‡ªè¡Œä¿®æ”¹ä¸ºå…¶ä»–ç«¯å£.
 const u8* portnum="8899";	
 
-int numF1 = 0;
-int numF2 = 0;
 
-int WIFIInitOK = 0;   // ¿ÉÒÔ½øÈëÖĞ¶Ï½âÎöº¯Êı±êÖ¾
+struct systemState SystemState;
+int  printfNUM = 0	//æ‰“å°çš„è®¡æ•°
+
+
+void initSysValue(void)
+{	
+	memset(SystemState, 0, sizeof(SystemState));
+}
+
+
+
+int Car1_CorrectState = -1;
+double Car1_FDistance = -1;
+double Car1_BDistance = -1;
+int Car1_moveState = -1;
+
+int Car2_CorrectState = -1;
+double Car2_FDistance = -1;
+double Car2_BDistance = -1;
+int Car2_moveState = -1;
+
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£º³õÊ¼»¯wifiÄ£¿é
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šåˆå§‹åŒ–wifiæ¨¡å—
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void wifi_Init(void)
 {
-	atk_8266_test();		//½øÈëATK_ESP8266
+	atk_8266_test();		//è¿›å…¥ATK_ESP8266
 }
 
 
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£º½âÎöÀ´×ÔwifiÄ£¿éµÄÊı¾İ
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºbusinessType  	·şÎñÆ÷¸øÖ÷¿Ø·¢ µÄ
+å‡½æ•°åŠŸèƒ½ï¼šç­‰å¾…æ¥è‡ªæœåŠ¡å™¨çš„æŒ‡å®šæ¶ˆæ¯ç±»å‹ï¼Œè§£æå†è¿›è¡Œå¤„ç†
+å…¥å£å‚æ•°ï¼šgoalTypeï¼šç›®æ ‡ç­‰å¾…  ç±»å‹
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
-int parseOrderFromS(void)
+void parseOrderFromS(int goalType)
 {
-	u8 getMS[200];
+	u8 getMS[300];
 	cJSON *root, *orderValue;  // 
 	u16 rlen = 0;
 
 	int businessType =999;
-	
+
+
+
 	while(1)
 	{
 		if(USART3_RX_STA&0X8000)		
 		{ 
-			rlen=USART3_RX_STA&0X7FFF;	//µÃµ½±¾´Î½ÓÊÕµ½µÄÊı¾İ³¤¶È
+			rlen=USART3_RX_STA&0X7FFF;	//å¾—åˆ°æœ¬æ¬¡æ¥æ”¶åˆ°çš„æ•°æ®é•¿åº¦
 			USART3_RX_BUF[rlen]=0;	
 			printf("\r\nlen:%d",rlen);
 
@@ -84,18 +104,42 @@ int parseOrderFromS(void)
 					USART3_RX_STA = 0;
 					continue;
 				}
-				
-				orderValue = cJSON_GetObjectItem(root, "id");  //  ¡Á?D¡ê¡Á??¨¦??
+
+
+				orderValue = cJSON_GetObjectItem(root, "businessType");  //  Ã—?Dï¿¡Ã—??Ã©??
 				if (!orderValue) {
 					printf("get name faild !\n");
 					printf("Error before: [%s]\n", cJSON_GetErrorPtr());
-	
+					USART3_RX_STA = 0;
+					cJSON_Delete(root);
+					continue;
 				}
-	
-				printf("\r\n id:%s",orderValue->valuestring);
+
 				
-	
-				cJSON_Delete(root);
+				businessType = atoi(orderValue.valuestring);
+				if (businessType == goalType)  //è¿›è¡Œç›®æ ‡æ¶ˆæ¯ç±»å‹çš„å¤„ç†
+					{
+						if(goalType == 1)
+							{
+								;
+							}
+
+						if (goalType == 3)
+							{
+								// è§£æ ä½ç½®
+							}
+
+						USART3_RX_STA = 0;
+						cJSON_Delete(root);
+						return ;
+					}
+				else
+					{
+						USART3_RX_STA = 0;
+						cJSON_Delete(root);
+						continue;
+					}
+				
 			}	
 			else
 			{
@@ -108,24 +152,27 @@ int parseOrderFromS(void)
 			USART3_RX_STA = 0;
 	
 		}
-		delay_ms(20);
 
+		
+		delay_ms(100);
+		
+		printfNUM++
+		if (printfNUM ==10)
+			{
+				printf("\r\n waiting order from  server!!!");
+				printfNUM =0;
+			}
+		
 	}
-
-
-
-
-	
-	return businessType;
 
 
 }
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£º¸ø·şÎñ¶Ë·¢Ö÷¿ØµÄ½ÇÉ«
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šç»™æœåŠ¡ç«¯å‘ä¸»æ§çš„è§’è‰²
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void sendMasterID2S()
 {
@@ -138,7 +185,7 @@ void sendMasterID2S()
 	char send[300];
 
 
-	//  ¸ø·şÎñÆ÷·¢
+	//  ç»™æœåŠ¡å™¨å‘
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0000");
@@ -149,7 +196,7 @@ void sendMasterID2S()
 	cJSON_Delete(root); 
 
 
-	// È¥µôËùÓĞ\r\n.°²×¿¶ËÊÇ  Ò»ĞĞÒ»ĞĞµÄ½ÓÊÕ
+	// å»æ‰æ‰€æœ‰\r\n.å®‰å“ç«¯æ˜¯  ä¸€è¡Œä¸€è¡Œçš„æ¥æ”¶
 	num = strlen(strSend);
 	for(numS = 0;numS < num  ;numS++)
 		{
@@ -164,14 +211,14 @@ void sendMasterID2S()
 	strSend[num] = '\n';
 
 /*
-	// ¼ÓĞ­ÒéÍ·Ö¡
+	// åŠ åè®®å¤´å¸§
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
 	strncpy(send+2, strSend, num+1); 
 	*/
 
-	// ¼ÓĞ­ÒéÍ·Ö¡
+	// åŠ åè®®å¤´å¸§
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -191,82 +238,334 @@ void sendMasterID2S()
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºwifiÄ£¿éÊı¾İ·¢ËÍº¯Êı£¬·â×°ÁËÏÂ·¢ËÍµÄÂß¼­
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šwifiæ¨¡å—æ•°æ®å‘é€å‡½æ•°ï¼Œå°è£…äº†ä¸‹å‘é€çš„é€»è¾‘
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void WIFISend(char* MS)
 {
 
-	WIFIInitOK = 0;
-
 	atk_8266_quit_trans();
-	atk_8266_send_cmd("AT+CIPSEND","OK",20);		 //¿ªÊ¼Í¸´« 	   
+	atk_8266_send_cmd("AT+CIPSEND","OK",20);		 //å¼€å§‹é€ä¼  	   
 
 	u3_printf("%s",MS);
-	WIFIInitOK =1;
 	
 }
 
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºÖ÷¿ØÈ¡»õµÄÂß¼­
-Èë¿Ú²ÎÊı£ºÊı¾İÖ¸Õë
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šä¸»æ§å–è´§çš„é€»è¾‘
+å…¥å£å‚æ•°ï¼šæ•°æ®æŒ‡é’ˆ
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void  AIWAC_MasterGetGoods(void)
 {
 	while(1)
 	{
-		waitingSAskState();			// µÈ´ı·şÎñ¶Ë²éÑ¯×´Ì¬£¬²¢·´À¡
-		waitingSSendLocation();		// »ñÈ¡Î»ÖÃ£¬È¡»õ
-		DropGoods();				// ·Å»õ
-		DropPan();					// ·ÅÅÌ×Ó£¬²¢¸´Î»
+		waitingSAskState();			// ç­‰å¾…æœåŠ¡ç«¯æŸ¥è¯¢çŠ¶æ€ï¼Œå¹¶åé¦ˆ
+		waitingSSendLocation();		// è·å–ä½ç½®ï¼Œå–è´§
+		DropGoods();				// æ”¾è´§
+		DropPan();					// æ”¾ç›˜å­ï¼Œå¹¶å¤ä½
 		delay_ms(100);
 		//printf("\r\n finish one time !!");
 	}
 
+}
+
+
+/**************************************************************************
+å‡½æ•°åŠŸèƒ½ï¼šæŸ¥è¯¢å°è½¦ å–è´§å•å…ƒçš„çŠ¶æ€ï¼Œå¹¶ç­‰å¾…å›å¤
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
+**************************************************************************/
+void askState2other(void )
+{
+
+	u16 jsonSize;
+	cJSON *root;
+	char *strJson;
+	u8 strSend[300];
+
+
+
+	
+	// æŸ¥è¯¢car1
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0007");
+
+	strJson  =cJSON_PrintUnformatted(root);ï¼›
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// éœ€è¦æ‰“å¼€
+	usart2_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+
+
+	// æŸ¥è¯¢car2
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0008");
+
+	strJson  =cJSON_PrintUnformatted(root);ï¼›
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// éœ€è¦æ‰“å¼€
+	usart5_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+
+	
+	// æŸ¥è¯¢å–è´§å•å…ƒ
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0013");
+
+	strJson  =cJSON_PrintUnformatted(root);ï¼›
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// éœ€è¦æ‰“å¼€
+	usart4_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+
+
+	printfNUM = 0;
+	// ç­‰å¾…å›å¤
+	while(1)
+	{
+		if((SystemState.car1State>0) && (SystemState.car2State>0) && (SystemState.goodsGetterState>0))
+		{
+			break;
+		}
+		
+		delay_ms(100);
+		
+		printfNUM++;
+		if (printfNUM == 10)
+		{
+			printf("\r\n waiting for that other device feedback state!")
+		}
+	}
+
+	
+	printf("\r\n master has gotten other state!!")
+
 
 }
 
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºstep1:µÈ´ı  ·şÎñÆ÷  ²éÑ¯¸´Î»Çé¿ö²¢·´À¡¸´Î»Çé¿ö
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½:æ£€æŸ¥ç³»ç»Ÿçš„ çŠ¶æ€ï¼Œä¸»æ§éœ€è¦æ£€æŸ¥å½“å‰çš„ä½ç½®æ˜¯å¦åœ¨å¤ä½ç‚¹
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
-void waitingSAskState(void)
-{
+void   checkSysState(void)
+{	
+	int ret = 1; // çŠ¶æ€æ ‡å¿—		1:ok  0:error
+	char errorDesc[500]; 
+
+	cJSON *root, *data;  // 
+
+	int num = 0;
+	int numS = 0;
+
+	char* strSend;
+	char send[200];
+
+
+	
+	
+	printf("\r\nwaiting for feedbacking state")
+	delay_ms(3000);
+	
+	if (SystemState.car1State != 200)
+	{
+		ret = 0;
+		printf("\r\n the state of Car1 is bad,state:%d!!",SystemState.car1State);
+		delay_ms(10);
+		strcat(errorDesc,"  car1:");
+		strcat(errorDesc,SystemState.car1Error);
+	}
+
+	if (SystemState.car2State != 200)
+	{
+		ret = 0;
+		printf("\r\n the state of Car2 is bad,state:%d!!",SystemState.car2State);
+		delay_ms(10);
+		strcat(errorDesc,"  car2:");
+		strcat(errorDesc,SystemState.car2Error);
+	}
+
+	if (SystemState.goodsGetterState != 200 )
+	{
+		ret = 0;
+		printf("\r\n the state of goodsGetter is bad,state:%d!!",SystemState.goodsGetterState);
+		delay_ms(10);
+		strcat(errorDesc,"  goodsGetter:");
+		strcat(errorDesc,SystemState.goodsGetter);
+	}
+
+
+	// æœªåˆ°ä¸­é—´çš„ä½ç½®
+	// æ³¨æ„ï¼šåé¢éœ€è¦è°ƒæ•´
+	if ( (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.05) || (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.05))
+	{
+		ret = 0;
+		printf("\r\n the state of location is bad,Cars are not good space!!");
+		delay_ms(10);
+		strcat(errorDesc,"MIDDLE_SPACE:");
+		strcat(errorDesc,"the state of location is bad,Cars are not good space");
+	}
+
+
+
+
+
+
+	//  ç»™æœåŠ¡å™¨å‘çŠ¶æ€
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0001");
+	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
+	
+	
+	if(ret ==0 )
+	{
+		cJSON_AddStringToObject(data,"status", "0");
+		cJSON_AddStringToObject(data,"errorDesc", errorDesc);
+	}
+	else
+	{
+		cJSON_AddStringToObject(data,"status", "4");
+		cJSON_AddStringToObject(data,"errorDesc","ok");
+	}
+
+	strSend=cJSON_Print(root); 
+	cJSON_Delete(root); 
+
+
+	// å»æ‰æ‰€æœ‰\r\n.å®‰å“ç«¯æ˜¯  ä¸€è¡Œä¸€è¡Œçš„æ¥æ”¶
+	num = strlen(strSend);
+	for(numS = 0;numS < num  ;numS++)
+	{
+		if ( (strSend[numS] == '\n') ||  (strSend[numS] == '\r') )
+		{
+
+			strSend[numS] = ' ';
+		}
+	}
+
+	strSend[num] = '\n';
+
+	// åŠ åè®®å¤´å¸§
+	memset(send, 0, sizeof(send));
+	send[0] = '#';
+	send[1] = '!';
+	strncpy(send+2, strSend, num); 
+	send[num+2] = '&';
+	send[num+3] = '\n';
+
+	WIFISend(send);
+
+	printf("\r\n state to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	aiwacFree(strSend);
+
+
+	//è‹¥çŠ¶æ€æœ‰é—®é¢˜ï¼Œåœæ­¢åœ¨è¿™ä¸ªå‡½æ•°
 	while(1)
 	{
-		parseOrderFromS();
-
-
+		if(ret)
+		{
+			break;
+		}
+		
+		delay_ms(1000)
+		printf("\r\nstate error. errorDesc:%s",errorDesc);
 
 	}
 
 
 }
 
+
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºstep2:µÈ´ı  ·şÎñÆ÷  ÏÂ·¢¶©µ¥×ø±ê²¢·´À¡È¡µ½»õ
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šstep1:ç­‰å¾…  æœåŠ¡å™¨  æŸ¥è¯¢å¤ä½æƒ…å†µå¹¶åé¦ˆå¤ä½æƒ…å†µ
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
+**************************************************************************/
+void waitingSAskState(void)
+{
+	printf("\r\n enter waitingSAskState");
+	
+	parseOrderFromS(1);  // ç­‰å¾… æœåŠ¡ç«¯ å‘èµ· çŠ¶æ€æŸ¥è¯¢
+	askState2other();	 // å‘èµ·ä¸¤å°è½¦å’Œå–è´§å•å…ƒçš„çŠ¶æ€æŸ¥è¯¢,å¹¶ç­‰å¾…åé¦ˆ
+	checkSysState();
+}
+
+/**************************************************************************
+å‡½æ•°åŠŸèƒ½ï¼šstep2:ç­‰å¾…  æœåŠ¡å™¨  ä¸‹å‘è®¢å•åæ ‡å¹¶åé¦ˆå–åˆ°è´§
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void waitingSSendLocation(void)
 {
-	
+	printf("\r\n enter waitingSSendLocation");
 
 
 }
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºstep3:½øÈë·Å»õÂß¼­²¢·´À¡ÒÑ¾­·Å»õ
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šstep3:è¿›å…¥æ”¾è´§é€»è¾‘å¹¶åé¦ˆå·²ç»æ”¾è´§
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void DropGoods(void)
 {
@@ -278,15 +577,68 @@ void DropGoods(void)
 
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºstep4:½øÈë¸´Î»¶ªÅÌÂß¼­²¢·´À¡ÒÑ¾­¸´Î»
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šstep4:è¿›å…¥å¤ä½ä¸¢ç›˜é€»è¾‘å¹¶åé¦ˆå·²ç»å¤ä½
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void DropPan(void)
 {
 	
 
 
+}
+
+
+
+/**************************************************************************
+å‡½æ•°åŠŸèƒ½ï¼šè§£ææ¥è‡ªå°è½¦1çš„æ•°æ®ï¼Œä¸²å£2
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
+**************************************************************************/
+void PaserCar1_State(void)
+{
+
+
+
+}
+
+
+/**************************************************************************
+å‡½æ•°åŠŸèƒ½ï¼šè§£ææ¥è‡ªå°è½¦2çš„æ•°æ®ï¼Œä¸²å£5
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
+**************************************************************************/
+void PaserCar2_State(void)
+{
+
+
+
+}
+
+/**************************************************************************
+å‡½æ•°åŠŸèƒ½ï¼šè§£ææ¥è‡ªå–è´§å•å…ƒçš„æ•°æ®ï¼Œä¸²å£4
+å…¥å£å‚æ•°ï¼šæ— 
+è¿”å›  å€¼ï¼šæ— 
+**************************************************************************/
+void PaserGoodsGetter_State(void)
+{
+
+
+
+}
+
+
+/**************************************************************************
+å‡½æ•°åŠŸèƒ½ï¼šç»å¯¹å€¼å‡½æ•°
+å…¥å£å‚æ•°ï¼šdouble
+è¿”å›  å€¼ï¼šunsigned int
+**************************************************************************/
+double myabs_double(double a)
+{ 		   
+	  double temp;
+		if(a<0)  temp=-a;  
+	  else temp=a;
+	  return temp;
 }
 
 

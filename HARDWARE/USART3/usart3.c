@@ -42,7 +42,6 @@ void USART3_IRQHandler(void)
 		res =USART_ReceiveData(USART3);		
 		if((USART3_RX_STA&(1<<15))==0)//接收完的一批数据,还没有被处理,则不再接收其他数据
 		{ 
-			numF1++;
 			if(USART3_RX_STA<USART3_MAX_RECV_LEN)		//还可以接收数据
 			{
 				TIM_SetCounter(TIM7,0);//计数器清空        				 //  在  串口初始化里初始化了定时器，定时器的 中断函数  是      		USART3_RX_STA|=1<<15;
