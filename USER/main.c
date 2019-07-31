@@ -32,6 +32,9 @@ int main(void)
 	
 	uart_init(115200);		//初始化串口波特率为115200
 	usart3_init(115200);  //初始化串口3波特率为115200
+	uart2_init(115200); 	// car1
+	uart4_init(115200); 	// getter
+	uart5_init(115200); 	// car2
 
 	
 	LED_Init();					//初始化LED  

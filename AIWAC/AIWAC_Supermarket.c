@@ -1,9 +1,6 @@
 #include "AIWAC_Supermarket.h"
 
-#define MASTER_AREA_1 "Area1"
-#define MASTER_AREA_2 "Area2"
 
-#define MASTER_ID MASTER_AREA_1
 
 
 
@@ -22,7 +19,11 @@ struct goodsLocation GoodsLocation;
 
 int GotGoodsResult ;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
 int LoseGoodsResult ;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
-int LosePanResult ;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
+int LosePanResult ;			// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
+
+
+int LocationNow = 2;	//A:1  B:2  C:3
+
 
 void initSysValue(void)
 {	
@@ -1119,6 +1120,11 @@ void feedbackStartGetGoods(void)
 **************************************************************************/
 void controlCarToGoodsSpace(void)
 {
+	
+
+
+
+
 
 
 
@@ -1574,6 +1580,758 @@ void feedbackGoInit(void)
 
 	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
+
+}
+
+
+
+/**************************************************************************
+函数功能：	指定方向，运动到某方向剩余的距离处
+入口参数：	 direction：方向    		needDistance：剩余的距离
+返回  值：		无
+**************************************************************************/
+void goToLocation(int direction,double needDistance)
+{
+
+	//起步阶段，需要两车平行起步
+	goStartTogether(direction);
+
+	// 运动到某方向的，指定地点
+	goGoalPosition( direction,needDistance);
+
+}
+
+
+/**************************************************************************
+函数功能：	两车起步的逻辑，在指定方向让后面的车 移动到前面，然后等矫正
+入口参数： int direction  方向 
+返回  值：		无
+**************************************************************************/
+void goStartTogether(int direction)
+{
+	double goalLocation = 0 ;
+	double TogetherGap = 0.02;
+
+	while(( Car1_moveState > 1 )|| (Car2_moveState > 1) ) //  当前有  小车在  转弯
+	{
+		printf("\r\nwaiting for turing,  Car1_moveState :%d,  Car2_moveState:%d ",Car1_moveState ,Car2_moveState );
+		delay_ms(50); //   等待转完
+	}
+
+
+
+	AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+	delay_ms(1000);
+
+	while (1)
+		{
+			if ((Car1_FDistance>0) && (Car2_FDistance>0))  //未获取到前方距离
+				{
+
+					break;
+				}
+
+			delay_ms(50);
+			printf("\r\n waiting	goStartTogether get FDistance");
+
+		}
+
+
+	
+
+	//等校正
+	while (1) 
+		{
+			delay_ms(50);
+			
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			{
+				
+				break;
+			}
+			printf("\r\n waiting	goStartTogether correction ");
+
+		}
+	
+	printf("\r\n step1	goStartTogether correction ok");
+	
+
+	
+	//往前走
+	if (direction == FRONT_DIRECTION)
+		{
+
+			if(Car1_FDistance <Car2_FDistance)
+				{
+
+						goalLocation = Car1_FDistance;
+						printf("\r\n step1	goStartTogether : Car1_FDistance  is goal ");
+				}
+			else
+				{
+						goalLocation = Car2_FDistance;
+						printf("\r\n step1	goStartTogether : Car2_FDistance  is goal ");
+				}
+
+				
+			if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap)  // 车1是标准位置
+				{
+					printf("\r\n goStartTogether:study from car1 ");
+					
+					while (1)
+					{
+						delay_ms(80);
+	
+
+						if (myabs_double(Car2_FDistance- goalLocation) <= TogetherGap) // 车2 ok
+							{
+								printf("\r\n goStartTogether:CorrectState   ok");
+								AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+								break;
+							}
+
+						
+						if( (Car2_FDistance)< goalLocation - TogetherGap) //走超了
+							{
+								AiwacMasterSendOrderCar2(-MIN_SPEED , STATE_STRAIGHT) ;
+								printf("\r\n goStartTogether:over");
+
+							}
+						else if ((Car2_FDistance)> 4*TogetherGap+ goalLocation) //还较远
+							{
+
+								AiwacMasterSendOrderCar2(4*MIN_SPEED , STATE_STRAIGHT) ; 
+								printf("\r\n goStartTogether:too far");
+							}
+						else if ((Car2_FDistance)> TogetherGap+ goalLocation) //较近
+							{
+								AiwacMasterSendOrderCar2(MIN_SPEED , STATE_STRAIGHT) ; 
+								printf("\r\n goStartTogether:too  too far");
+							}
+
+					}
+				}
+			else
+				{
+					printf("\r\ngoStartTogether: study from car2 ");
+					while (1)
+					{
+						delay_ms(80);
+
+						printf("\r\n Car1:Car1_CorrectState :%d,  Car1_FDistance:%f,   Car1_moveState:%d",Car1_CorrectState ,Car1_FDistance, Car1_moveState);
+						printf("\r\n Car2:Car2_CorrectState :%d,  Car2_FDistance:%f,   Car2_moveState:%d",Car2_CorrectState ,Car2_FDistance, Car2_moveState);
+
+						if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap) // 车1 ok
+							{
+								printf("\r\n goStartTogether:CorrectState   ok");
+								AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+								break;
+							}
+
+						
+						if( (Car1_FDistance)< goalLocation - TogetherGap) //走超了
+							{
+								AiwacMasterSendOrderCar1(-MIN_SPEED , STATE_STRAIGHT) ;
+								printf("\r\n goStartTogether:over");
+
+							}
+						else if ((Car1_FDistance)> 4*TogetherGap+ goalLocation) //还较远
+							{
+
+								AiwacMasterSendOrderCar1(4*MIN_SPEED , STATE_STRAIGHT) ; 
+								printf("\r\n goStartTogether:too far");
+							}
+						else if ((Car1_FDistance)> TogetherGap+ goalLocation) //较近
+							{
+								AiwacMasterSendOrderCar1(MIN_SPEED , STATE_STRAIGHT) ; 
+								printf("\r\n goStartTogether:too  too far");
+							}
+	
+
+					}
+
+
+				}
+
+
+		}
+	else  // 往后走
+		{
+
+		/*
+			goalLocation = ((Car1_FDistance >Car2_FDistance)? Car1_FDistance:Car2_FDistance);
+				
+			if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap)  // 车1是标准位置
+				{
+
+					while (1)
+					{
+						delay_ms(50);
+						AiwacMasterSendOrderCar2(MIN_SPEED , STATE_STRAIGHT) ;  
+						
+						if (myabs_double(Car2_FDistance- goalLocation) <= TogetherGap) // 车2 ok
+							{
+								break;
+							}
+					}
+				}
+			else
+				{
+				
+					while (1)
+					{
+						delay_ms(50);
+						AiwacMasterSendOrderCar1(MIN_SPEED , STATE_STRAIGHT) ;	
+						
+						if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap) // 车1 ok
+							{
+								break;
+							}
+					}
+
+
+				}
+
+		*/
+		}
+		delay_ms(60);
+
+		AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+		AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+		delay_ms(1000);
+
+
+
+
+	//等校正
+	while (1) 
+		{
+			delay_ms(50);
+			
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			{
+				printf("\r\n step3  goStartTogether correction ok ");
+				break;
+			}
+
+		}
+
+
+}
+
+
+
+/**************************************************************************
+函数功能：	两车已经平行，在指定方向运动到目标地点
+入口参数： int direction  方向 
+返回  值：		无
+**************************************************************************/
+void goGoalPosition(int direction,double NeedDistance)
+{
+	double goalGAP = 0.015;   //m
+	double iniTDistance = 0; // 起步距离，用于 渐进起步
+	double needDistance = NeedDistance;
+	
+
+	
+	AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+
+	delay_ms(300);
+
+	while (1)
+		{
+			if ((Car1_FDistance>0) && (Car2_FDistance>0))  //为获取到前方距离
+				{
+
+					break;
+				}
+
+			delay_ms(50);
+
+		}
+	
+
+	//等校正
+	while (1) 
+		{
+			delay_ms(80);
+			
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			{
+				printf("\r\n step1  goGoalPosition correction ok ");
+				break;
+			}
+
+		}
+
+
+	
+	// 运动到目标地点
+	if (direction == FRONT_DIRECTION)
+		{
+
+			iniTDistance = (Car2_FDistance + Car1_FDistance)/2;
+
+			while(1)
+				{
+					delay_ms(50);
+
+					printf("\r\n Car1:Car1_CorrectState :%d,  Car1_FDistance:%f,   Car1_moveState:%d",Car1_CorrectState ,Car1_FDistance, Car1_moveState);
+					printf("\r\n Car2:Car2_CorrectState :%d,  Car2_FDistance:%f,   Car2_moveState:%d",Car2_CorrectState ,Car2_FDistance, Car2_moveState);
+								
+
+
+				
+					if (( ( myabs_double(Car1_FDistance- needDistance ) <  goalGAP*10 ) || ( ( myabs_double(Car2_FDistance- needDistance ) <  goalGAP*10 )) )
+
+					||((Car1_FDistance- needDistance )<0)  || (Car2_FDistance- needDistance ) <0)
+						{
+
+							// 到达目的位置
+							if ( ( myabs_double(Car1_FDistance- needDistance ) <  goalGAP ) && ( ( myabs_double(Car2_FDistance- needDistance ) <  goalGAP )) )
+								{
+
+
+									AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+									AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+									delay_ms(200);
+									break;
+
+								}
+
+
+							
+						
+							// 车1 的情况
+							if (Car1_FDistance >= (needDistance + goalGAP))
+								{
+								
+									AiwacMasterSendOrderCar1(MIN_SPEED , STATE_STRAIGHT) ;
+									printf("\r\ncar1  go on");
+								}
+							else if (Car1_FDistance <= (needDistance-goalGAP) )
+								{
+									AiwacMasterSendOrderCar1(-MIN_SPEED , STATE_STRAIGHT) ;
+									printf("\r\ncar1  go back");
+								}
+							
+							else{
+									AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+									printf("\r\ncar1  wait for turing order");
+								}
+
+
+							
+						
+						// 车2 的情况
+							if (Car2_FDistance >= (needDistance +goalGAP))
+								{
+								
+									AiwacMasterSendOrderCar2(MIN_SPEED , STATE_STRAIGHT) ;
+									printf("\r\ncar2  go on");
+								}
+							else if (Car2_FDistance <= (needDistance-goalGAP ))
+								{
+									AiwacMasterSendOrderCar2(-MIN_SPEED , STATE_STRAIGHT) ;
+									printf("\r\ncar2  go back");
+								}
+								else{
+									AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+									printf("\r\ncar2  wait for turing order");
+								}
+
+
+						}
+					else // 未到目标位置
+						{
+							if( myabs_double(Car1_FDistance - Car2_FDistance ) < goalGAP*4)  //  两车的	前进 距离ok
+							{
+								// 下发  继续 默认前进 
+								AiwacMasterSendOrderCar1(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) , STATE_STRAIGHT) ;
+								AiwacMasterSendOrderCar2(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) , STATE_STRAIGHT) ;
+								printf("\r\ngo on straight");
+							}
+							else // 两车的  前进 距离  no
+							{
+								if (Car1_FDistance - Car2_FDistance >0)  // 1车在后 
+									{
+										// 发送 2车默认速度，1车 比默认快点
+										AiwacMasterSendOrderCar1(designFSpeed2(Car1_FDistance, needDistance,iniTDistance)  +MIN_SPEED*2, STATE_STRAIGHT) ;
+										AiwacMasterSendOrderCar2((designFSpeed2(Car2_FDistance, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
+										printf("\r\n car1 needs to go fast");
+									}
+								else
+									{
+										// 发送 1车默认速度，2车 比默认快点
+										AiwacMasterSendOrderCar1(designFSpeed2(Car1_FDistance, needDistance,iniTDistance) , STATE_STRAIGHT) ;
+										AiwacMasterSendOrderCar2(designFSpeed2(Car2_FDistance, needDistance,iniTDistance)+ MIN_SPEED*2 , STATE_STRAIGHT) ;
+										printf("\r\n car2 needs to go fast");
+									}
+								
+							}
+
+						}
+				}
+
+	}
+	else		//后面的值
+		{
+
+			;
+
+		}
+
+
+
+
+
+	AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
+	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
+	delay_ms(50);
+
+		//等校正
+	while (1) 
+		{
+			delay_ms(50);
+			
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			{
+				printf("\r\n step3  goGoalPosition correction ok ");
+				break;
+			}
+
+		}
+
+
+}
+
+
+void sendTuringOrder(int Left_or_Right)
+{
+
+	//	转弯的  方向 要看 在 超市哪边
+	AiwacMasterSendOrderCar1(CAR_STOP , Left_or_Right) ;
+	AiwacMasterSendOrderCar2(CAR_STOP , Left_or_Right) ;
+	delay_ms(120);
+
+	//若未进入转弯
+	while ((Car2_moveState <2 ) || (Car1_moveState <2 ) )  //有车未转弯
+		{
+
+			
+			if 	(Car1_moveState <2 )
+				{
+						AiwacMasterSendOrderCar1(CAR_STOP , Left_or_Right) ;
+				}
+
+						
+			if 	(Car2_moveState <2 )
+				{
+						AiwacMasterSendOrderCar2(CAR_STOP , Left_or_Right) ;
+				}
+			delay_ms(70);
+			
+		}
+
+	
+	// 检查  是否结束
+	while((( Car1_moveState > 1 )|| (Car2_moveState > 1) ))
+		{
+
+			printf("\r\nwaiting for turing,  Car1_moveState :%d,  Car2_moveState:%d ",Car1_moveState ,Car2_moveState );
+			delay_ms(10);
+		}
+
+	
+	printf("\r\nturing  over");
+}
+
+
+
+/**************************************************************************
+函数功能：	根据前方距离 定小车前进速度
+入口参数：	 前方
+返回  值：		前方速度
+**************************************************************************/
+double  designFSpeed2(double FD, double FD_care,double iniTDistance)
+{
+	double FSpeed = 30;		// 低速的速度 mm
+
+	double FDSMax = FD_MAX_SPEED;  // 规定的最大  前方速度  mm
+
+	double startSpeed = 0;
+	FD_care = FD_care + 0.10 ;	// 前方警戒距离，需要  低速前进
+
+
+
+	if ((iniTDistance >=FD) || (iniTDistance -FD)*1000 <100)
+		{
+			startSpeed = (iniTDistance -FD)*1000*2+FSpeed;
+	
+		}
+
+	
+	if (FD>FD_care)  // 离危险距离较远
+	{
+		FSpeed = (FD - FD_care)*700 + FSpeed;
+	}
+
+
+	if (startSpeed >0)
+		FSpeed = (FSpeed>startSpeed) ? startSpeed:FSpeed;
+
+	
+	if (FSpeed > FDSMax)
+	{
+		FSpeed = FDSMax;
+	}
+
+
+	return FSpeed;
+
+}
+
+
+/**************************************************************************
+函数功能：	给小车1发 速度 和 小车的运动状态指令 
+入口参数：	 X_V  : X轴的速度,前进速度			     moveState：小车的运动状态指令
+返回  值：		无
+**************************************************************************/
+void AiwacMasterSendOrderCar1(double X_V, int moveState)
+{
+	u16 jsonSize;
+	cJSON *root;
+	char *strJson;
+	char strSend[100];
+	
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+
+	root=cJSON_CreateObject();
+
+
+	cJSON_AddNumberToObject(root,"X_V", X_V);
+	cJSON_AddNumberToObject(root,"mo", moveState);
+
+
+	//strJson=cJSON_Print(root); 
+	//printf("\r\n cJSON_Print Len:%d",strlen(strJson));
+
+	strJson  =cJSON_PrintUnformatted(root);
+
+	//printf("\r\n cJSON_PrintUnformatted Len:%d",strlen(strJson));
+	
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+
+	// 需要打开
+	usart2_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+
+}
+
+
+
+/**************************************************************************
+函数功能：	给小车2发 速度 和 小车的运动状态指令 
+入口参数：	 X_V  : X轴的速度,前进速度			     moveState：小车的运动状态指令
+返回  值：		无
+**************************************************************************/
+void AiwacMasterSendOrderCar2(double X_V, int moveState)
+{
+	u16 jsonSize;
+	cJSON *root;
+	char *strJson;
+	u8 strSend[100];
+	
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddNumberToObject(root,"X_V", X_V);
+	cJSON_AddNumberToObject(root,"mo", moveState);
+
+
+	//strJson=cJSON_Print(root); 
+	strJson  =cJSON_PrintUnformatted(root);
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+
+
+		
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// 需要打开
+	uart5_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+
+}
+
+
+
+/**************************************************************************
+函数功能：	给定当前位置 和   目标位置 控制小车运动
+入口参数：goalSide：目标边   ,		nowSide：当前边   	goDistance；按图的距离
+返回  值：		无
+**************************************************************************/
+void goToEverywhere(int goalSide,int nowSide, double goDistance)
+{
+	//按分区进行  主控逻辑
+	if (strcmp("Area1", MASTER_ID)  == 0)
+	{
+
+
+
+		// 当前在A 
+		
+		if ((nowSide == 1))
+		{
+			// 在A,去A
+			if (goalSide == 1)		
+			{
+				if (Car1_FDistance >= goDistance)
+				{
+					goToLocation(FRONT_DIRECTION, goDistance);
+				}
+				else
+				{
+					goToLocation(BACK_DIRECTION, HALF_A - goDistance);
+				}
+			}
+				
+			// 在A,去B
+			if (goalSide == 2)		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, B_LEN - goDistance);
+			}
+			
+			// 在A,去c
+			if (goalSide == 3)	
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, HALF_C - goDistance);
+			}
+
+		}
+		
+
+
+		// 当前在B 
+		if (nowSide == 2)
+		{
+			// 在B,去A
+			if (goalSide == 1) 		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, goDistance);
+			
+			}
+			
+			// 在B,去B
+			if (goalSide == 2) 		
+			{
+				if (Car1_FDistance >= goDistance)
+					{
+						goToLocation(FRONT_DIRECTION, goDistance);
+					}
+				else
+					{
+						goToLocation(BACK_DIRECTION, B_LEN - goDistance);
+					}
+
+			}
+
+			// 在B,去C
+			if (goalSide == 3) 		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, HALF_C - goDistance);
+			}
+
+		}
+
+
+
+		// 当前在C 
+		if (nowSide == 3)
+		{
+			
+			// 在C,去A
+			if (goalSide == 1) 		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, goDistance);
+				
+			
+			}
+
+			// 在C,去B
+			if (goalSide == 2) 		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, goDistance);
+			}
+
+			// 在C,去C
+			if (goalSide == 3) 		
+			{
+				if (Car1_FDistance >= goDistance)
+					{
+						goToLocation(FRONT_DIRECTION, goDistance);
+					}
+				else
+					{
+						goToLocation(BACK_DIRECTION, HALF_C - goDistance);
+					}
+			}
+
+		}
+
+	}
+	else
+	{
+		goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+		sendTuringOrder(STATE_TURN_LEFT);
+		LocationNow = 1;
+		goToLocation(BACK_DIRECTION, atof(GoodsLocation.distance));
+	}
+
+
 
 }
 

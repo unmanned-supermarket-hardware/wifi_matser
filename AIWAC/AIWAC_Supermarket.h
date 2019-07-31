@@ -7,6 +7,35 @@
 #include  "stdio.h"
 #include "stdlib.h"
 
+#define MASTER_AREA_1 "Area1"
+#define MASTER_AREA_2 "Area2"
+
+#define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
+
+
+
+#define TURING_DISTANCE 0.52  // 前方需要转弯的  时候 m
+#define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
+
+#define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离差 m
+#define DEFUALT_SPEED 100  //  小车的默认速度
+#define MIN_SPEED 30  //小车 运动的最小速度   mm/s
+#define ACC_SPEED 150  //  小车的加速速度
+#define CAR_STOP 0  // 小车速度停止
+#define FD_MAX_SPEED 600  // 小车运动的 最大速度  mm/s
+
+// 小车的运动状态
+#define STATE_STOP 0
+#define STATE_STRAIGHT 1
+#define STATE_TURN_RIGHT 2
+#define STATE_TURN_LEFT 3
+
+
+
+// 小车前进方向用
+#define FRONT_DIRECTION  1
+#define BACK_DIRECTION  2
+
 
 #define MIDDLE_SPACE 2
 
@@ -18,6 +47,8 @@ extern const u8* wifista_ssid;		//WIFI STA SSID
 extern const u8* wifista_encryption;//WIFI STA 加密方式
 extern const u8* wifista_password; 	//WIFI STA 密码
 extern int  printfNUM ; //打印计数
+extern int LocationNow;
+
 
 // 全局存储  系统的  状态
 struct systemState {
@@ -89,6 +120,13 @@ void notifyGoodsGetterDropPan(void );
 void waitingGetterLosePan(void);
 void controlCarToInitSpace(void);
 void feedbackGoInit(void);
+void goGoalPosition(int direction,double needDistance);
+void goStartTogether(int direction);
+void goToLocation(int direction,double needDistance);
+double  designFSpeed2(double FD, double FD_care,double iniTDistance);
+void sendTuringOrder(int Left_or_Right);
+void AiwacMasterSendOrderCar1(double X_V, int moveState);
+void AiwacMasterSendOrderCar2(double X_V, int moveState);
 
 
 
