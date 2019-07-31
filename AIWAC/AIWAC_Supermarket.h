@@ -33,6 +33,17 @@ struct systemState {
 extern struct systemState SystemState;
 
 
+// 存储安卓端下发的  货物位置信息
+struct goodsLocation {
+	char side[3];
+	char distance[8];
+	char height[8];
+	char depth[8];
+
+}  ;
+extern struct goodsLocation GoodsLocation;
+
+
 extern int Car1_CorrectState ;
 extern double Car1_FDistance ;
 extern double Car1_BDistance ;
@@ -43,6 +54,10 @@ extern double Car2_FDistance ;
 double Car2_BDistance ;
 extern int Car2_moveState ;
 
+
+extern int GotGoodsResult;
+extern int LoseGoodsResult;
+extern int LosePanResult;
 
 
 
@@ -60,6 +75,22 @@ void PaserCar1_State(void);
 void PaserCar2_State(void);
 void PaserGoodsGetter_State(void);
 double myabs_double(double a);
+void feedbackGotOrder(void);
+void feedbackStartGetGoods(void);
+void notifyGoodsGetterLocation(void);
+void waitingGetterGotGoods(void);
+void feedbackGotGoodsResult(void);
+void controlCarToGate(void);
+void notifyGoodsGetterLoseGoods(void );
+void waitingGetterLoseGoods(void);
+void feedbackLoseGoodsResult(void);
+void controlCarToDropPan(void);
+void notifyGoodsGetterDropPan(void );
+void waitingGetterLosePan(void);
+void controlCarToInitSpace(void);
+void feedbackGoInit(void);
+
+
 
   
 

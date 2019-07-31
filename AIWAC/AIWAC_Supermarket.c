@@ -19,11 +19,22 @@ const u8* portnum="8899";
 
 struct systemState SystemState;
 int  printfNUM = 0	//打印的计数
+struct goodsLocation GoodsLocation;
 
+int GotGoodsResult ;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
+int LoseGoodsResult ;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
+int LosePanResult ;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
 
 void initSysValue(void)
 {	
 	memset(SystemState, 0, sizeof(SystemState));
+	memset(GoodsLocation, 0, sizeof(GoodsLocation));
+	
+	GotGoodsResult = 666;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
+	LoseGoodsResult = 666;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
+	LosePanResult = 666;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
+
+	
 }
 
 
@@ -60,7 +71,7 @@ void wifi_Init(void)
 void parseOrderFromS(int goalType)
 {
 	u8 getMS[300];
-	cJSON *root, *orderValue;  // 
+	cJSON *root, *orderValue,*data;  // 
 	u16 rlen = 0;
 
 	int businessType =999;
@@ -127,10 +138,61 @@ void parseOrderFromS(int goalType)
 						if (goalType == 3)
 							{
 								// 解析 位置
+								data = cJSON_GetObjectItem(root, "data");
+								if (!data) {
+									printf("get name faild !\n");
+									printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									continue;
+								}
+
+								orderValue = cJSON_GetObjectItem(data, "side");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									continue;
+								}	
+								strcpy(GoodsLocation.side,orderValue.valuestring);
+
+								orderValue = cJSON_GetObjectItem(data, "distance");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									continue;
+								}	
+								strcpy(GoodsLocation.distance,orderValue.valuestring);
+
+
+								orderValue = cJSON_GetObjectItem(data, "height");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									continue;
+								}	
+								strcpy(GoodsLocation.height,orderValue.valuestring);
+
+								orderValue = cJSON_GetObjectItem(data, "depth");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									continue;
+								}	
+								strcpy(GoodsLocation.depth,orderValue.valuestring);
+	
 							}
 
 						USART3_RX_STA = 0;
 						cJSON_Delete(root);
+						printf("\r\n master get businessType:%d from server",businessType);
 						return ;
 					}
 				else
@@ -545,8 +607,9 @@ void waitingSAskState(void)
 	printf("\r\n enter waitingSAskState");
 	
 	parseOrderFromS(1);  // 等待 服务端 发起 状态查询
+	feedbackGotOrder(1); //向服务端反馈收到额指令
 	askState2other();	 // 发起两小车和取货单元的状态查询,并等待反馈
-	checkSysState();
+	checkSysState();	// 检查状态，反馈给服务端
 }
 
 /**************************************************************************
@@ -557,9 +620,14 @@ void waitingSAskState(void)
 void waitingSSendLocation(void)
 {
 	printf("\r\n enter waitingSSendLocation");
-
-
-}
+	parseOrderFromS(3);  			// 等待 android端向主控提供需要取的货物的位置信息。
+	feedbackGotOrder(3); 			// 向服务端反馈收到额指令
+	feedbackStartGetGoods(); 		// 通知服务端开始取货
+	controlCarToGoodsSpace();		// 控制小车运动到货物点
+	notifyGoodsGetterLocation();	// 给取货单元  商品的位置和深度
+	waitingGetterGotGoods();		// 等待取货单元反馈取到货
+	feedbackGotGoodsResult();		// 反馈已经取到货物
+} 
 
 
 /**************************************************************************
@@ -569,9 +637,11 @@ void waitingSSendLocation(void)
 **************************************************************************/
 void DropGoods(void)
 {
-	
-
-
+	printf("\r\n enter DropGoods");
+	controlCarToGate();				// 控制小车到 放货点
+	notifyGoodsGetterLoseGoods();	// 通知取货单元放货
+	waitingGetterLoseGoods();		// 等待取货单元放货
+	feedbackLoseGoodsResult();		// 给服务端反馈 放货情况
 }
 
 
@@ -583,9 +653,11 @@ void DropGoods(void)
 **************************************************************************/
 void DropPan(void)
 {
-	
-
-
+	controlCarToDropPan();		// 控制小车到丢盘子的地方
+	notifyGoodsGetterDropPan();	// 通知取货单元丢盘子
+	waitingGetterLosePan();	// 等待取货单元丢盘子
+	controlCarToInitSpace();	// 控制小车到复位点
+	feedbackGoInit();			// 反馈已经复位
 }
 
 
@@ -639,6 +711,591 @@ double myabs_double(double a)
 		if(a<0)  temp=-a;  
 	  else temp=a;
 	  return temp;
+}
+
+
+
+/**************************************************************************
+函数功能：向服务端反馈收到的指令
+入口参数：businessTypeGot： 收到的指令
+返回  值：无
+**************************************************************************/
+void feedbackGotOrder(int businessTypeGot)
+{
+	cJSON *root, *data;  // 
+
+	int num = 0;
+	int numS = 0;
+
+	char* strSend;
+	char send[200];
+
+	//	给服务器发状态
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0024");
+	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
+	cJSON_AddStringToObject(data,"businessTypeGot", stoi(businessTypeGot));
+
+
+
+	strSend=cJSON_Print(root); 
+	cJSON_Delete(root); 
+
+
+	// 去掉所有\r\n.安卓端是  一行一行的接收
+	num = strlen(strSend);
+	for(numS = 0;numS < num  ;numS++)
+	{
+		if ( (strSend[numS] == '\n') ||  (strSend[numS] == '\r') )
+		{
+
+			strSend[numS] = ' ';
+		}
+	}
+
+	strSend[num] = '\n';
+
+	// 加协议头帧
+	memset(send, 0, sizeof(send));
+	send[0] = '#';
+	send[1] = '!';
+	strncpy(send+2, strSend, num); 
+	send[num+2] = '&';
+	send[num+3] = '\n';
+
+	WIFISend(send);
+
+	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	aiwacFree(strSend);
+
+
+}
+
+
+/**************************************************************************
+函数功能：向服务端反馈开始取货
+入口参数：无
+返回  值：无
+**************************************************************************/
+void feedbackStartGetGoods(void)
+{
+
+	cJSON *root, *data;  // 
+
+	int num = 0;
+	int numS = 0;
+
+	char* strSend;
+	char send[200];
+
+	//	给服务器发状态
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0004");
+	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
+	cJSON_AddStringToObject(data,"status", "1");
+	cJSON_AddStringToObject(data,"errorDesc", "fff");
+
+	strSend=cJSON_Print(root); 
+	cJSON_Delete(root); 
+
+
+	// 去掉所有\r\n.安卓端是  一行一行的接收
+	num = strlen(strSend);
+	for(numS = 0;numS < num  ;numS++)
+	{
+		if ( (strSend[numS] == '\n') ||  (strSend[numS] == '\r') )
+		{
+
+			strSend[numS] = ' ';
+		}
+	}
+
+	strSend[num] = '\n';
+
+	// 加协议头帧
+	memset(send, 0, sizeof(send));
+	send[0] = '#';
+	send[1] = '!';
+	strncpy(send+2, strSend, num); 
+	send[num+2] = '&';
+	send[num+3] = '\n';
+
+	WIFISend(send);
+
+	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	aiwacFree(strSend);
+
+
+
+
+}
+
+
+/**************************************************************************
+函数功能：控制小车到货物点
+入口参数：无
+返回  值：无
+**************************************************************************/
+void controlCarToGoodsSpace(void)
+{
+
+
+
+}
+
+
+/**************************************************************************
+函数功能：通知取货单元，商品 高度和深度
+入口参数：无
+返回  值：无
+**************************************************************************/
+void notifyGoodsGetterLocation(void )
+{
+	u16 jsonSize;
+	cJSON *root;
+	char *strJson;
+	u8 strSend[300];
+
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+	cJSON_AddStringToObject(root,"businessType", "0014");
+	cJSON_AddNumberToObject(root,"Height", atof(GoodsLocation.height));
+	cJSON_AddNumberToObject(root,"Depth",  atof(GoodsLocation.depth));
+
+	strJson  =cJSON_PrintUnformatted(root);；
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// 需要打开
+	usart4_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
+
+
+}
+
+
+/**************************************************************************
+函数功能：等待取货单元反馈取到货
+入口参数：无
+返回  值：无
+**************************************************************************/
+void waitingGetterGotGoods(void)
+{
+	GotGoodsResult = 666;
+	printfNUM = 0;
+	
+	while(1)
+	{
+		delay_ms(100);
+		if (GotGoodsResult != 666)
+			{
+				break;
+			}
+		
+		printfNUM++;
+		if (printfNUM == 10)
+			{
+				printf("\r\n wating to geting  Goods")
+			}
+		
+	}
+	delay_ms(100);
+	
+	printf("\r\n waitingGetterGotGoods,result:%d",GotGoodsResult);
+
+}
+
+
+/**************************************************************************
+函数功能：向服务端反馈取货情况
+入口参数：无
+返回  值：无
+**************************************************************************/
+void feedbackGotGoodsResult(void)
+{
+
+	cJSON *root, *data;  // 
+
+	int num = 0;
+	int numS = 0;
+
+	char* strSend;
+	char send[200];
+
+	//	给服务器发状态
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0005");
+	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
+	
+	if (GotGoodsResult == 0)
+		{
+			cJSON_AddStringToObject(data,"status", "2");
+		}
+	else
+		{
+			cJSON_AddStringToObject(data,"status", "0");
+		}
+	
+	cJSON_AddStringToObject(data,"errorDesc", "fff");
+
+	strSend=cJSON_Print(root); 
+	cJSON_Delete(root); 
+
+
+	// 去掉所有\r\n.安卓端是  一行一行的接收
+	num = strlen(strSend);
+	for(numS = 0;numS < num  ;numS++)
+	{
+		if ( (strSend[numS] == '\n') ||  (strSend[numS] == '\r') )
+		{
+
+			strSend[numS] = ' ';
+		}
+	}
+
+	strSend[num] = '\n';
+
+	// 加协议头帧
+	memset(send, 0, sizeof(send));
+	send[0] = '#';
+	send[1] = '!';
+	strncpy(send+2, strSend, num); 
+	send[num+2] = '&';
+	send[num+3] = '\n';
+
+	WIFISend(send);
+
+	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	aiwacFree(strSend);
+
+}
+
+
+
+/**************************************************************************
+函数功能：控制小车到放货点
+入口参数：无
+返回  值：无
+**************************************************************************/
+void controlCarToGate(void)
+{
+	
+
+
+}
+
+
+/**************************************************************************
+函数功能：通知取货单元放货
+入口参数：无
+返回  值：无
+**************************************************************************/
+void notifyGoodsGetterLoseGoods(void )
+{
+	u16 jsonSize;
+	cJSON *root;
+	char *strJson;
+	u8 strSend[300];
+
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+	cJSON_AddStringToObject(root,"businessType", "0018");
+
+	strJson  =cJSON_PrintUnformatted(root);；
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// 需要打开
+	usart4_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
+
+
+}
+
+/**************************************************************************
+函数功能：等待取货单元反馈放货
+入口参数：无
+返回  值：无
+**************************************************************************/
+void waitingGetterLoseGoods(void)
+{
+	LoseGoodsResult = 666;
+
+	printfNUM = 0;
+	
+	while(1)
+	{
+		delay_ms(100);
+		if (LoseGoodsResult != 666)
+			{
+				break;
+			}
+		
+		printfNUM++;
+		if (printfNUM == 10)
+			{
+				printf("\r\n wating losing Goods")
+			}
+	}
+	delay_ms(100);
+	
+	printf("\r\n waitingGetterGotGoods,result:%d",LoseGoodsResult);
+
+}
+
+
+
+
+/**************************************************************************
+函数功能：向服务端反馈放货情况
+入口参数：无
+返回  值：无
+**************************************************************************/
+void feedbackLoseGoodsResult(void)
+{
+
+	cJSON *root, *data;  // 
+
+	int num = 0;
+	int numS = 0;
+
+	char* strSend;
+	char send[200];
+
+	//	给服务器发状态
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0006");
+	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
+	
+	if (LoseGoodsResult == 0)
+		{
+			cJSON_AddStringToObject(data,"status", "3");
+		}
+	else
+		{
+			cJSON_AddStringToObject(data,"status", "0");
+		}
+	
+	cJSON_AddStringToObject(data,"errorDesc", "fff");
+
+	strSend=cJSON_Print(root); 
+	cJSON_Delete(root); 
+
+
+	// 去掉所有\r\n.安卓端是  一行一行的接收
+	num = strlen(strSend);
+	for(numS = 0;numS < num  ;numS++)
+	{
+		if ( (strSend[numS] == '\n') ||  (strSend[numS] == '\r') )
+		{
+
+			strSend[numS] = ' ';
+		}
+	}
+
+	strSend[num] = '\n';
+
+	// 加协议头帧
+	memset(send, 0, sizeof(send));
+	send[0] = '#';
+	send[1] = '!';
+	strncpy(send+2, strSend, num); 
+	send[num+2] = '&';
+	send[num+3] = '\n';
+
+	WIFISend(send);
+
+	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	aiwacFree(strSend);
+
+}
+
+
+/**************************************************************************
+函数功能：控制小车到丢盘子的地方
+入口参数：无
+返回  值：无
+**************************************************************************/
+void controlCarToDropPan(void)
+{
+
+
+
+}
+
+
+/**************************************************************************
+函数功能：通知取货单元，丢盘子
+入口参数：无
+返回  值：无
+**************************************************************************/
+void notifyGoodsGetterDropPan(void )
+{
+	u16 jsonSize;
+	cJSON *root;
+	char *strJson;
+	u8 strSend[300];
+
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+	cJSON_AddStringToObject(root,"businessType", "0018");
+
+	strJson  =cJSON_PrintUnformatted(root);；
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// 需要打开
+	usart4_sendString(strSend,7 + jsonSize);
+	myfree(strJson);
+
+	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
+
+
+}
+
+/**************************************************************************
+函数功能：等待取货单元丢盘子
+入口参数：无
+返回  值：无
+**************************************************************************/
+void waitingGetterLosePan(void)
+{
+	LosePanResult = 666;
+
+	printfNUM = 0;
+	
+	while(1)
+	{
+		delay_ms(100);
+		if (LosePanResult != 666)
+			{
+				break;
+			}
+		
+		printfNUM++;
+		if (printfNUM == 10)
+			{
+				printf("\r\n wating losing Pan")
+			}
+	}
+	delay_ms(100);
+	
+	printf("\r\n waitingGetterGotGoods,result:%d",LosePanResult);
+
+}
+
+
+
+/**************************************************************************
+函数功能：控制小车到复位点
+入口参数：无
+返回  值：无
+**************************************************************************/
+void controlCarToInitSpace(void)
+{
+
+
+
+}
+
+/**************************************************************************
+函数功能：向服务端反馈复位情况
+入口参数：无
+返回  值：无
+**************************************************************************/
+void feedbackGoInit(void)
+{
+
+	cJSON *root, *data;  // 
+
+	int num = 0;
+	int numS = 0;
+
+	char* strSend;
+	char send[200];
+
+	//	给服务器发状态
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0002");
+	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
+	cJSON_AddStringToObject(data,"status", "4");
+	cJSON_AddStringToObject(data,"errorDesc", "fff");
+
+	strSend=cJSON_Print(root); 
+	cJSON_Delete(root); 
+
+
+	// 去掉所有\r\n.安卓端是  一行一行的接收
+	num = strlen(strSend);
+	for(numS = 0;numS < num  ;numS++)
+	{
+		if ( (strSend[numS] == '\n') ||  (strSend[numS] == '\r') )
+		{
+
+			strSend[numS] = ' ';
+		}
+	}
+
+	strSend[num] = '\n';
+
+	// 加协议头帧
+	memset(send, 0, sizeof(send));
+	send[0] = '#';
+	send[1] = '!';
+	strncpy(send+2, strSend, num); 
+	send[num+2] = '&';
+	send[num+3] = '\n';
+
+	WIFISend(send);
+
+	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	aiwacFree(strSend);
+
 }
 
 
