@@ -26,7 +26,7 @@ struct systemState {
 	int car2State;
 	char car2Error[100];
 	int goodsGetterState;
-	char goodsGetter[100];
+	char goodsGetterEorror[100];
 	int masterState;  
 	char[200] allErrorDesc;  // 嵌入式的状态
 }  ;

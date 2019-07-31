@@ -94,7 +94,7 @@
 	int USART2_dataLen = -1; // json字符串的长度
 	u8 USART2_jsonBuF[300]; // 在中断的时候 存储接收的json 字符串
 	int USART2_jsonDataCount = 0; //当前接收的 json 字符串数
-	u8 USART2_jsonParseBuF[300]; 
+	u8 USART2_Car1_jsonParseBuF[300]; 
 	int uart2ByteNum = 0; // 串口2 接收符合协议的字节数目
 	u8 uart2CRC =0;
 	
@@ -219,8 +219,8 @@
 						{
 							if ( uart2CRC == crc8_calculate(USART2_jsonBuF, USART2_dataLen) )
 								{
-									memset(USART2_jsonParseBuF, 0, sizeof(USART2_jsonParseBuF));
-									strcpy(USART2_jsonParseBuF,USART2_jsonBuF);
+									memset(USART2_Car1_jsonParseBuF, 0, sizeof(USART2_Car1_jsonParseBuF));
+									strcpy(USART2_Car1_jsonParseBuF,USART2_jsonBuF);
 									PaserCar1_State();
 								}
 							
@@ -316,7 +316,7 @@
 	int USART4_dataLen = -1; // json字符串的长度
 	u8 USART4_jsonBuF[300]; // 在中断的时候 存储接收的json 字符串
 	int USART4_jsonDataCount = 0; //当前接收的 json 字符串数
-	u8 USART4_jsonParseBuF[300]; 
+	u8 USART4_Getter_jsonParseBuF[300]; 
 	int uart4ByteNum = 0; // 串口2 接收符合协议的字节数目
 	u8 uart4CRC =0;
 	
@@ -441,8 +441,8 @@
 						{
 							if ( uart4CRC == crc8_calculate(USART4_jsonBuF, USART4_dataLen) )
 								{
-									memset(USART4_jsonParseBuF, 0, sizeof(USART4_jsonParseBuF));
-									strcpy(USART4_jsonParseBuF,USART4_jsonBuF);
+									memset(USART4_Getter_jsonParseBuF, 0, sizeof(USART4_Getter_jsonParseBuF));
+									strcpy(USART4_Getter_jsonParseBuF,USART4_jsonBuF);
 									PaserGoodsGetter_State();
 								}
 							
@@ -549,7 +549,7 @@
 	int USART5_dataLen = -1; // json字符串的长度
 	u8 USART5_jsonBuF[300]; // 在中断的时候 存储接收的json 字符串
 	int USART5_jsonDataCount = 0; //当前接收的 json 字符串数
-	u8 USART5_jsonParseBuF[300]; 
+	u8 USART5_Car2_jsonParseBuF[300]; 
 	int uart5ByteNum = 0; // 串口2 接收符合协议的字节数目
 	u8 uart5CRC =0;
 	
@@ -675,8 +675,8 @@
 						{
 							if ( uart5CRC == crc8_calculate(USART5_jsonBuF, USART5_dataLen) )
 								{
-									memset(USART5_jsonParseBuF, 0, sizeof(USART5_jsonParseBuF));
-									strcpy(USART5_jsonParseBuF,USART5_jsonBuF);
+									memset(USART5_Car2_jsonParseBuF, 0, sizeof(USART5_Car2_jsonParseBuF));
+									strcpy(USART5_Car2_jsonParseBuF,USART5_jsonBuF);
 									PaserCar2_State();
 								}
 							

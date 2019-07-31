@@ -12,7 +12,6 @@ const u8* wifista_ssid="AIWAC";			//路由器SSID号
 const u8* wifista_encryption="WPA/WPA2_PSK";	//wpa/wpa2 aes加密方式
 const u8* wifista_password="epic2012"; 	//连接密码
 
-
 //连接端口号:8086,可自行修改为其他端口.
 const u8* portnum="8899";	
 
@@ -34,11 +33,13 @@ void initSysValue(void)
 	LoseGoodsResult = 666;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
 	LosePanResult = 666;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
 
-	
+	USART2_Car1_jsonParseBuF[0] = '-' ;
+	USART4_Getter_jsonParseBuF[0] = '-' ;
+	USART5_Car2_jsonParseBuF[0] = '-' ;
 }
 
 
-
+// 小车的情况
 int Car1_CorrectState = -1;
 double Car1_FDistance = -1;
 double Car1_BDistance = -1;
@@ -653,6 +654,8 @@ void DropGoods(void)
 **************************************************************************/
 void DropPan(void)
 {
+	printf("\r\n enter DropPan");
+
 	controlCarToDropPan();		// 控制小车到丢盘子的地方
 	notifyGoodsGetterDropPan();	// 通知取货单元丢盘子
 	waitingGetterLosePan();	// 等待取货单元丢盘子
@@ -669,8 +672,97 @@ void DropPan(void)
 **************************************************************************/
 void PaserCar1_State(void)
 {
+	cJSON *root, *orderValue;  // 
+	
+	
+	if (USART2_Car1_jsonParseBuF[0] == '-' ) //  还未收到运动命令
+	{
+		return;
+	}
+	
+	root = cJSON_Parse(USART2_Car1_jsonParseBuF);
+	if (!root) 
+		{
+			printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+		return;
+	}
+
+	orderValue = cJSON_GetObjectItem(root, "businessType");  //  businessType
+	if (!orderValue) {
+			//printf("get name faild !\n");
+			//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+			goto end;
+		}
 
 
+	// 反馈小车的状态
+	if (strcmp(orderValue.valuestring, "0007")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "errorCode");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			SystemState.car1State = orderValue.valueint;
+
+
+			orderValue = cJSON_GetObjectItem(root, "errorDesc");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			strcpy(SystemState.car1Error,orderValue.valuestring );
+
+			goto end;
+
+		}
+
+	// 反馈小车的方向距离
+	if (strcmp(orderValue.valuestring, "0011")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "CorrectState");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car1_CorrectState = orderValue.valuedouble;
+
+			orderValue = cJSON_GetObjectItem(root, "FDistance");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car1_FDistance = orderValue.valuedouble;
+
+			orderValue = cJSON_GetObjectItem(root, "BDistance");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car1_BDistance = orderValue.valuedouble;
+
+			orderValue = cJSON_GetObjectItem(root, "moveState");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car1_moveState = orderValue.valuedouble;
+
+
+			goto end;
+
+		}
+
+
+
+end :
+	cJSON_Delete(root);
 
 }
 
@@ -682,7 +774,98 @@ void PaserCar1_State(void)
 **************************************************************************/
 void PaserCar2_State(void)
 {
+	
+	cJSON *root, *orderValue;  // 
+	
+	
+	if (USART5_Car2_jsonParseBuF[0] == '-' ) //  还未收到运动命令
+	{
+		return;
+	}
+	
+	root = cJSON_Parse(USART5_Car2_jsonParseBuF);
+	if (!root) 
+		{
+			printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+		return;
+	}
 
+	orderValue = cJSON_GetObjectItem(root, "businessType");  //  businessType
+	if (!orderValue) {
+			//printf("get name faild !\n");
+			//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+			goto end;
+		}
+
+
+	// 反馈小车的状态
+	if (strcmp(orderValue.valuestring, "0008")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "errorCode");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			SystemState.car2State = orderValue.valueint;
+
+
+			orderValue = cJSON_GetObjectItem(root, "errorDesc");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			strcpy(SystemState.car2Error,orderValue.valuestring );
+
+			goto end;
+
+		}
+
+	// 反馈小车的方向距离
+	if (strcmp(orderValue.valuestring, "0012")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "CorrectState");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car2_CorrectState = orderValue.valuedouble;
+
+			orderValue = cJSON_GetObjectItem(root, "FDistance");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car2_FDistance = orderValue.valuedouble;
+
+			orderValue = cJSON_GetObjectItem(root, "BDistance");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car2_BDistance = orderValue.valuedouble;
+
+			orderValue = cJSON_GetObjectItem(root, "moveState");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			Car2_moveState = orderValue.valuedouble;
+
+
+			goto end;
+
+		}
+
+
+
+end :
+	cJSON_Delete(root);
 
 
 }
@@ -694,7 +877,103 @@ void PaserCar2_State(void)
 **************************************************************************/
 void PaserGoodsGetter_State(void)
 {
+	cJSON *root, *orderValue;  // 
+	
+	
+	if (USART4_Getter_jsonParseBuF[0] == '-' ) //  还未收到运动命令
+	{
+		return;
+	}
+	
+	root = cJSON_Parse(USART4_Getter_jsonParseBuF);
+	if (!root) 
+		{
+			printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+		return;
+	}
 
+	orderValue = cJSON_GetObjectItem(root, "businessType");  //  businessType
+	if (!orderValue) {
+			//printf("get name faild !\n");
+			//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+			goto end;
+		}
+
+
+
+	// 取货单元给主控反馈 状态
+	if (strcmp(orderValue.valuestring, "0013")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "errorCode");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			SystemState.goodsGetterState = orderValue.valueint;
+
+			orderValue = cJSON_GetObjectItem(root, "errorDesc");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			strcpy(SystemState.goodsGetterEorror,orderValue.valuestring );
+
+			goto end;
+
+
+
+		}
+
+	// 取货单元给主控反馈 取货情况
+	if (strcmp(orderValue.valuestring, "0015")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "Result");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			GotGoodsResult = orderValue.valueint;
+
+			goto end;
+
+		}
+
+	// 取货单元给主控反馈 卸货情况
+	if (strcmp(orderValue.valuestring, "0017")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "Result");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			LoseGoodsResult = orderValue.valueint;
+
+			goto end;
+
+		}
+
+		// 取货单元给主控反馈 丢盘子情况
+	if (strcmp(orderValue.valuestring, "0019")==0)  
+		{
+			orderValue = cJSON_GetObjectItem(root, "Result");  
+			if (!orderValue) {
+					//printf("get name faild !\n");
+					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+					goto end;
+				}
+			LosePanResult = orderValue.valueint;
+
+			goto end;
+
+		}
+
+
+end :
+	cJSON_Delete(root);
 
 
 }
