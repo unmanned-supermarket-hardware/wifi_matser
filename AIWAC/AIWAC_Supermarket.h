@@ -13,6 +13,9 @@
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
 
+#define C_HALF_LEN      2 	//单位 ：m      
+#define B_LEN	    4   // 单位：m
+#define A_HALF_LEN      2   // 单位  ：m 
 
 #define TURING_DISTANCE 0.52  // 前方需要转弯的  时候 m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m

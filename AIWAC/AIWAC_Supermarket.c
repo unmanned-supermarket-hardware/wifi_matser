@@ -2219,7 +2219,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				}
 				else
 				{
-					goToLocation(BACK_DIRECTION, HALF_A - goDistance);
+					goToLocation(BACK_DIRECTION, A_HALF_LEN - goDistance);
 				}
 			}
 				
@@ -2238,7 +2238,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
-				goToLocation(BACK_DIRECTION, HALF_C - goDistance);
+				goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
 			}
 
 		}
@@ -2276,7 +2276,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			{
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
-				goToLocation(BACK_DIRECTION, HALF_C - goDistance);
+				goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
 			}
 
 		}
@@ -2316,19 +2316,129 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 					}
 				else
 					{
-						goToLocation(BACK_DIRECTION, HALF_C - goDistance);
+						goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
 					}
 			}
 
 		}
 
 	}
-	else
+	else	// Area2  master
 	{
-		goToLocation(BACK_DIRECTION, TURING_DISTANCE);
-		sendTuringOrder(STATE_TURN_LEFT);
-		LocationNow = 1;
-		goToLocation(BACK_DIRECTION, atof(GoodsLocation.distance));
+		// 当前在A 
+		if ((nowSide == 1))
+		{
+			// 在A,去A
+			if (goalSide == 1)		
+			{
+				if (Car1_BDistance >= goDistance)
+				{
+					goToLocation(BACK_DIRECTION, goDistance);
+				}
+				else
+				{
+					goToLocation(FRONT_DIRECTION, A_HALF_LEN - goDistance);
+				}
+			}
+				
+			// 在A,去B
+			if (goalSide == 2)		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, B_LEN - goDistance);
+			}
+			
+			// 在A,去c
+			if (goalSide == 3)	
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, C_HALF_LEN - goDistance);
+			}
+
+		}
+		
+
+
+		// 当前在B 
+		if (nowSide == 2)
+		{
+			// 在B,去A
+			if (goalSide == 1) 		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, goDistance);
+			
+			}
+			
+			// 在B,去B
+			if (goalSide == 2) 		
+			{
+				if (Car1_BDistance >= goDistance)
+					{
+						goToLocation(BACK_DIRECTION, goDistance);
+					}
+				else
+					{
+						goToLocation(FRONT_DIRECTION, B_LEN - goDistance);
+					}
+
+			}
+
+			// 在B,去C
+			if (goalSide == 3) 		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, C_HALF_LEN - goDistance);
+			}
+
+		}
+
+
+
+		// 当前在C 
+		if (nowSide == 3)
+		{
+			
+			// 在C,去A
+			if (goalSide == 1) 		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, goDistance);
+				
+			
+			}
+
+			// 在C,去B
+			if (goalSide == 2) 		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, goDistance);
+			}
+
+			// 在C,去C
+			if (goalSide == 3) 		
+			{
+				if (Car1_BDistance >= goDistance)
+					{
+						goToLocation(BACK_DIRECTION, goDistance);
+					}
+				else
+					{
+						goToLocation(FRONT_DIRECTION, C_HALF_LEN - goDistance);
+					}
+			}
+
+		}
 	}
 
 
