@@ -6,12 +6,19 @@
 #include "usart3.h"
 #include  "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 
+// 主控角色
 #define MASTER_AREA_1 "Area1"
 #define MASTER_AREA_2 "Area2"
-
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
+
+
+// 各个关键位置对照参考图的位置
+#define DROP_GOODS_SPACE 0.5   //出货口距A边中心的距离
+#define DROP_PAN_SPACE 0.9   //丢盘子的位置距A边中心的距离
+#define CAR_INIT_SPACE 1.6   //丢盘子的位置距A边中心的距离
 
 #define C_HALF_LEN      2 	//单位 ：m      
 #define B_LEN	    4   // 单位：m
@@ -50,7 +57,7 @@ extern const u8* wifista_ssid;		//WIFI STA SSID
 extern const u8* wifista_encryption;//WIFI STA 加密方式
 extern const u8* wifista_password; 	//WIFI STA 密码
 extern int  printfNUM ; //打印计数
-extern int LocationNow;
+extern int LocationNow;	//A:1  B:2  C:3
 
 
 // 全局存储  系统的  状态

@@ -2,8 +2,6 @@
 
 
 
-
-
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
 const u8* wifista_ssid="AIWAC";			//路由器SSID号
 const u8* wifista_encryption="WPA/WPA2_PSK";	//wpa/wpa2 aes加密方式
@@ -1122,13 +1120,36 @@ void feedbackStartGetGoods(void)
 **************************************************************************/
 void controlCarToGoodsSpace(void)
 {
+	int goalSide = 0;
 	
+	if (strcmp(GoodsLocation.side, "A") == 0)
+		{
+			goalSide = 1;
+		}
+	else if (strcmp(GoodsLocation.side, "B") == 0)
+		{
+			goalSide = 2;
+		}
+	else if(strcmp(GoodsLocation.side, "C") == 0) 
+		{
+			goalSide = 3;
+		}
+
+	if (goalSide == 0)
+		{
+			while(1)
+				{
+					delay_ms(1000);
+					printf("\r\n controlCarToGoodsSpace: goalSide  error!!!");
+				}
+		}
 
 
-
-
-
-
+	printf("\r\n controlCarToGoodsSpace:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
+	
+	goToEverywhere(goalSide, LocationNow, atof(GoodsLocation.distance));
+	
+	LocationNow = goalSide;
 
 }
 
@@ -1283,7 +1304,16 @@ void feedbackGotGoodsResult(void)
 **************************************************************************/
 void controlCarToGate(void)
 {
+	int goalSide = 0;
+	goalSide = 1;  // 出货门 在A  -> 1
+
+
+
+	printf("\r\n controlCarToGate:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
+	goToEverywhere(goalSide, LocationNow, DROP_GOODS_SPACE);
+	
+	LocationNow = goalSide;
 
 
 }
@@ -1437,8 +1467,14 @@ void feedbackLoseGoodsResult(void)
 **************************************************************************/
 void controlCarToDropPan(void)
 {
+	int goalSide = 0;
+	goalSide = 1;  // 丢盘子 在A  -> 1
 
-
+	printf("\r\n controlCarToDropPan:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
+	
+	goToEverywhere(goalSide, LocationNow, DROP_PAN_SPACE);
+	
+	LocationNow = goalSide;
 
 }
 
@@ -1524,7 +1560,16 @@ void waitingGetterLosePan(void)
 **************************************************************************/
 void controlCarToInitSpace(void)
 {
+	int goalSide = 0;
+	goalSide = 2;  // 复位点 在B  -> 2
 
+
+
+	printf("\r\n controlCarToInitSpace:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
+	
+	goToEverywhere(goalSide, LocationNow, CAR_INIT_SPACE);
+	
+	LocationNow = goalSide;
 
 
 }
@@ -2385,6 +2430,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				{
 					goToLocation(BACK_DIRECTION, A_HALF_LEN - goDistance);
 				}
+
+				return;
 			}
 				
 			// 在A,去B
@@ -2393,6 +2440,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, B_LEN - goDistance);
+
+				return;
 			}
 			
 			// 在A,去c
@@ -2403,6 +2452,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
+				return;
 			}
 
 		}
@@ -2418,6 +2468,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, goDistance);
+				return;
 			
 			}
 			
@@ -2433,6 +2484,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 						goToLocation(BACK_DIRECTION, B_LEN - goDistance);
 					}
 
+				return;
+
 			}
 
 			// 在B,去C
@@ -2441,6 +2494,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
+				return;
 			}
 
 		}
@@ -2460,7 +2514,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, goDistance);
 				
-			
+				return;
 			}
 
 			// 在C,去B
@@ -2469,6 +2523,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, goDistance);
+
+				return;
 			}
 
 			// 在C,去C
@@ -2482,6 +2538,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 					{
 						goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
 					}
+				return;
+				
 			}
 
 		}
@@ -2503,6 +2561,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				{
 					goToLocation(FRONT_DIRECTION, A_HALF_LEN - goDistance);
 				}
+				return;
 			}
 				
 			// 在A,去B
@@ -2511,6 +2570,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, B_LEN - goDistance);
+
+				return;
 			}
 			
 			// 在A,去c
@@ -2521,6 +2582,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, C_HALF_LEN - goDistance);
+
+				return;
 			}
 
 		}
@@ -2536,7 +2599,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, goDistance);
-			
+				return;
 			}
 			
 			// 在B,去B
@@ -2550,6 +2613,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 					{
 						goToLocation(FRONT_DIRECTION, B_LEN - goDistance);
 					}
+				return;
 
 			}
 
@@ -2559,6 +2623,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, C_HALF_LEN - goDistance);
+				return;
 			}
 
 		}
@@ -2577,7 +2642,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, goDistance);
-				
+				return;
 			
 			}
 
@@ -2587,6 +2652,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, goDistance);
+				return;
 			}
 
 			// 在C,去C
@@ -2600,6 +2666,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 					{
 						goToLocation(FRONT_DIRECTION, C_HALF_LEN - goDistance);
 					}
+				return;
 			}
 
 		}
