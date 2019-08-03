@@ -134,11 +134,13 @@ void parseOrderFromS(int goalType)
 					{
 						if(goalType == 1)
 							{
-								;
+								printf("\r\n master gets businessTy:%d",businessType);
 							}
 
 						if (goalType == 3)
 							{
+								printf("\r\n master gets businessTy:%d",businessType);
+								
 								// 解析 位置
 								data = cJSON_GetObjectItem(root, "data");
 								if (!data) {
@@ -406,7 +408,7 @@ void askState2other(void )
 	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 	strSend[jsonSize+6] = '&';
 	// 需要打开
-	usart5_sendString(strSend,7 + jsonSize);
+	uart5_sendString(strSend,7 + jsonSize);
 	myfree(strJson);
 
 
@@ -434,7 +436,7 @@ void askState2other(void )
 	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 	strSend[jsonSize+6] = '&';
 	// 需要打开
-	usart4_sendString(strSend,7 + jsonSize);
+	uart4_sendString(strSend,7 + jsonSize);
 	myfree(strJson);
 
 
@@ -723,7 +725,7 @@ void PaserCar1_State(void)
 	// 反馈小车的方向距离
 	if (strcmp(orderValue.valuestring, "0011")==0)  
 		{
-			orderValue = cJSON_GetObjectItem(root, "CorrectState");  
+			orderValue = cJSON_GetObjectItem(root, "Co");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -731,7 +733,7 @@ void PaserCar1_State(void)
 				}
 			Car1_CorrectState = orderValue.valuedouble;
 
-			orderValue = cJSON_GetObjectItem(root, "FDistance");  
+			orderValue = cJSON_GetObjectItem(root, "FD");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -739,7 +741,7 @@ void PaserCar1_State(void)
 				}
 			Car1_FDistance = orderValue.valuedouble;
 
-			orderValue = cJSON_GetObjectItem(root, "BDistance");  
+			orderValue = cJSON_GetObjectItem(root, "BD");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -747,7 +749,7 @@ void PaserCar1_State(void)
 				}
 			Car1_BDistance = orderValue.valuedouble;
 
-			orderValue = cJSON_GetObjectItem(root, "moveState");  
+			orderValue = cJSON_GetObjectItem(root, "mo");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -826,7 +828,7 @@ void PaserCar2_State(void)
 	// 反馈小车的方向距离
 	if (strcmp(orderValue.valuestring, "0012")==0)  
 		{
-			orderValue = cJSON_GetObjectItem(root, "CorrectState");  
+			orderValue = cJSON_GetObjectItem(root, "Co");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -834,7 +836,7 @@ void PaserCar2_State(void)
 				}
 			Car2_CorrectState = orderValue.valuedouble;
 
-			orderValue = cJSON_GetObjectItem(root, "FDistance");  
+			orderValue = cJSON_GetObjectItem(root, "FD");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -842,7 +844,7 @@ void PaserCar2_State(void)
 				}
 			Car2_FDistance = orderValue.valuedouble;
 
-			orderValue = cJSON_GetObjectItem(root, "BDistance");  
+			orderValue = cJSON_GetObjectItem(root, "BD");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -850,7 +852,7 @@ void PaserCar2_State(void)
 				}
 			Car2_BDistance = orderValue.valuedouble;
 
-			orderValue = cJSON_GetObjectItem(root, "moveState");  
+			orderValue = cJSON_GetObjectItem(root, "mo");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -1584,7 +1586,6 @@ void feedbackGoInit(void)
 }
 
 
-
 /**************************************************************************
 函数功能：	指定方向，运动到某方向剩余的距离处
 入口参数：	 direction：方向    		needDistance：剩余的距离
@@ -1600,6 +1601,7 @@ void goToLocation(int direction,double needDistance)
 	goGoalPosition( direction,needDistance);
 
 }
+
 
 
 /**************************************************************************
@@ -1875,6 +1877,8 @@ void goStartTogether(int direction)
 
 
 }
+
+
 
 
 
@@ -2165,6 +2169,7 @@ void goGoalPosition(int direction,double NeedDistance)
 }
 
 
+
 void sendTuringOrder(int Left_or_Right)
 {
 
@@ -2204,6 +2209,7 @@ void sendTuringOrder(int Left_or_Right)
 	
 	printf("\r\nturing  over");
 }
+
 
 
 
@@ -2269,7 +2275,7 @@ void AiwacMasterSendOrderCar1(double X_V, int moveState)
 
 	root=cJSON_CreateObject();
 
-
+	cJSON_AddStringToObject(root,"businessType", "0009");
 	cJSON_AddNumberToObject(root,"X_V", X_V);
 	cJSON_AddNumberToObject(root,"mo", moveState);
 
@@ -2321,6 +2327,7 @@ void AiwacMasterSendOrderCar2(double X_V, int moveState)
 
 	root=cJSON_CreateObject();
 
+	cJSON_AddStringToObject(root,"businessType", "0010");
 	cJSON_AddNumberToObject(root,"X_V", X_V);
 	cJSON_AddNumberToObject(root,"mo", moveState);
 
