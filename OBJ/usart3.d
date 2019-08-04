@@ -45,3 +45,5 @@
 ..\obj\usart3.o: ..\MALLOC\malloc.h
 ..\obj\usart3.o: ..\cJSON\cJSON.h
 ..\obj\usart3.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+..\obj\usart3.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\obj\usart3.o: ..\HARDWARE\UART_2_4_5\usart2_4_5.h

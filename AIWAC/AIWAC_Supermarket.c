@@ -3,16 +3,16 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid="AIWAC";			//路由器SSID号
-const u8* wifista_encryption="WPA/WPA2_PSK";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="epic2012"; 	//连接密码
+const u8* wifista_ssid="AIWAC0.9";			//路由器SSID号
+const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
+const u8* wifista_password="epic2019"; 	//连接密码
 
 //连接端口号:8086,可自行修改为其他端口.
 const u8* portnum="8899";	
 
 
 struct systemState SystemState;
-int  printfNUM = 0	//打印的计数
+int  printfNUM = 0	;//打印的计数
 struct goodsLocation GoodsLocation;
 
 int GotGoodsResult ;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
@@ -22,20 +22,6 @@ int LosePanResult ;			// 丢盘结果  "Result": int类型, 0 表示成功，-1�
 
 int LocationNow = 2;	//A:1  B:2  C:3
 
-
-void initSysValue(void)
-{	
-	memset(SystemState, 0, sizeof(SystemState));
-	memset(GoodsLocation, 0, sizeof(GoodsLocation));
-	
-	GotGoodsResult = 666;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
-	LoseGoodsResult = 666;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
-	LosePanResult = 666;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
-
-	USART2_Car1_jsonParseBuF[0] = '-' ;
-	USART4_Getter_jsonParseBuF[0] = '-' ;
-	USART5_Car2_jsonParseBuF[0] = '-' ;
-}
 
 
 // 小车的情况
@@ -50,6 +36,38 @@ double Car2_BDistance = -1;
 int Car2_moveState = -1;
 
 
+
+void initSysValue(void)
+{	
+	memset((void*)(&SystemState), 0, sizeof(SystemState));
+	memset((void*)(&GoodsLocation), 0, sizeof(GoodsLocation));
+	
+	GotGoodsResult = 666;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
+	LoseGoodsResult = 666;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
+	LosePanResult = 666;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
+
+	USART2_Car1_jsonParseBuF[0] = '-' ;
+	USART4_Getter_jsonParseBuF[0] = '-' ;
+	USART5_Car2_jsonParseBuF[0] = '-' ;
+
+
+
+	// 小车的情况
+	Car1_CorrectState = -1;
+	 Car1_FDistance = -1;
+	Car1_BDistance = -1;
+	Car1_moveState = -1;
+
+	Car2_CorrectState = -1;
+	Car2_FDistance = -1;
+	Car2_BDistance = -1;
+	Car2_moveState = -1;
+}
+
+
+
+
+
 /**************************************************************************
 函数功能：初始化wifi模块
 入口参数：无
@@ -57,7 +75,10 @@ int Car2_moveState = -1;
 **************************************************************************/
 void wifi_Init(void)
 {
+	printf("\r\n start wifi_Init");
 	atk_8266_test();		//进入ATK_ESP8266
+	delay_ms(200);
+	atk_8266_at_response(1);
 }
 
 
@@ -86,26 +107,14 @@ void parseOrderFromS(int goalType)
 			USART3_RX_BUF[rlen]=0;	
 			printf("\r\nlen:%d",rlen);
 
-		/*
-			if(atk_8266_check_cmd("OK"))
-			{
-				printf("\r\n form 8266 MS");
-				printf("\r\n USART3_RX_BUF:%s!!!",USART3_RX_BUF);
-				memset(USART3_RX_BUF, 0, sizeof(USART3_RX_BUF));
-				USART3_RX_STA==0;
-				continue;
-			}
-
-		*/
-
 
 			if (	(USART3_RX_BUF[0] == '#') 
 				&&	(USART3_RX_BUF[1] == '!')
-				&&	(USART3_RX_BUF[rlen-1] == '&')
+				&&	(USART3_RX_BUF[rlen-2] == '&')
 				)
 			{
 	
-				strncpy(getMS, USART3_RX_BUF+2, rlen-3); 
+				strncpy(getMS, USART3_RX_BUF+2, rlen-4); 
 				printf("\r\n getMs:%s",getMS);
 				
 				root = cJSON_Parse(getMS);
@@ -127,7 +136,7 @@ void parseOrderFromS(int goalType)
 				}
 
 				
-				businessType = atoi(orderValue.valuestring);
+				businessType = atoi(orderValue->valuestring);
 				if (businessType == goalType)  //进行目标消息类型的处理
 					{
 						if(goalType == 1)
@@ -157,7 +166,7 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.side,orderValue.valuestring);
+								strcpy(GoodsLocation.side,orderValue->valuestring);
 
 								orderValue = cJSON_GetObjectItem(data, "distance");
 								if (!orderValue) {
@@ -167,7 +176,7 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.distance,orderValue.valuestring);
+								strcpy(GoodsLocation.distance,orderValue->valuestring);
 
 
 								orderValue = cJSON_GetObjectItem(data, "height");
@@ -178,7 +187,7 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.height,orderValue.valuestring);
+								strcpy(GoodsLocation.height,orderValue->valuestring);
 
 								orderValue = cJSON_GetObjectItem(data, "depth");
 								if (!orderValue) {
@@ -188,14 +197,15 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.depth,orderValue.valuestring);
+								strcpy(GoodsLocation.depth,orderValue->valuestring);
+								printf("\r\nside:%s,distance:%s,height:%s,depth:%s",GoodsLocation.side, GoodsLocation.distance, GoodsLocation.height, GoodsLocation.depth);
 	
 							}
 
 						USART3_RX_STA = 0;
 						cJSON_Delete(root);
 						printf("\r\n master get businessType:%d from server",businessType);
-						return ;
+						return ;  //get goalType.exit
 					}
 				else
 					{
@@ -209,8 +219,6 @@ void parseOrderFromS(int goalType)
 			{
 				printf("\r\n the ms   error!!!");
 				printf("\r\n USART3_RX_BUF:%s!!!",USART3_RX_BUF);
-				
-			
 			}
 
 			USART3_RX_STA = 0;
@@ -220,7 +228,7 @@ void parseOrderFromS(int goalType)
 		
 		delay_ms(100);
 		
-		printfNUM++
+		printfNUM++;
 		if (printfNUM ==10)
 			{
 				printf("\r\n waiting order from  server!!!");
@@ -327,12 +335,13 @@ void  AIWAC_MasterGetGoods(void)
 {
 	while(1)
 	{
+		initSysValue();				// 初始化系统的全局变量
 		waitingSAskState();			// 等待服务端查询状态，并反馈
 		waitingSSendLocation();		// 获取位置，取货
 		DropGoods();				// 放货
 		DropPan();					// 放盘子，并复位
 		delay_ms(100);
-		//printf("\r\n finish one time !!");
+		printf("\r\n finish one time !!");
 	}
 
 }
@@ -364,7 +373,7 @@ void askState2other(void )
 
 	cJSON_AddStringToObject(root,"businessType", "0007");
 
-	strJson  =cJSON_PrintUnformatted(root);；
+	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
 	
 	jsonSize = strlen(strJson);
@@ -379,7 +388,7 @@ void askState2other(void )
 	strSend[jsonSize+6] = '&';
 	// 需要打开
 	usart2_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	aiwacFree(strJson);
 
 
 
@@ -392,7 +401,7 @@ void askState2other(void )
 
 	cJSON_AddStringToObject(root,"businessType", "0008");
 
-	strJson  =cJSON_PrintUnformatted(root);；
+	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
 	
 	jsonSize = strlen(strJson);
@@ -407,7 +416,7 @@ void askState2other(void )
 	strSend[jsonSize+6] = '&';
 	// 需要打开
 	uart5_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	aiwacFree(strJson);
 
 
 	
@@ -420,7 +429,7 @@ void askState2other(void )
 
 	cJSON_AddStringToObject(root,"businessType", "0013");
 
-	strJson  =cJSON_PrintUnformatted(root);；
+	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
 	
 	jsonSize = strlen(strJson);
@@ -435,7 +444,7 @@ void askState2other(void )
 	strSend[jsonSize+6] = '&';
 	// 需要打开
 	uart4_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	aiwacFree(strJson);
 
 
 
@@ -453,12 +462,12 @@ void askState2other(void )
 		printfNUM++;
 		if (printfNUM == 10)
 		{
-			printf("\r\n waiting for that other device feedback state!")
+			printf("\r\n waiting for that other device feedback state!");
 		}
 	}
 
 	
-	printf("\r\n master has gotten other state!!")
+	printf("\r\n master has gotten other state!!");
 
 
 }
@@ -486,7 +495,7 @@ void   checkSysState(void)
 
 	
 	
-	printf("\r\nwaiting for feedbacking state")
+	printf("\r\nwaiting for feedbacking state");
 	delay_ms(3000);
 	
 	if (SystemState.car1State != 200)
@@ -513,7 +522,7 @@ void   checkSysState(void)
 		printf("\r\n the state of goodsGetter is bad,state:%d!!",SystemState.goodsGetterState);
 		delay_ms(10);
 		strcat(errorDesc,"  goodsGetter:");
-		strcat(errorDesc,SystemState.goodsGetter);
+		strcat(errorDesc,SystemState.goodsGetterEorror);
 	}
 
 
@@ -590,7 +599,7 @@ void   checkSysState(void)
 			break;
 		}
 		
-		delay_ms(1000)
+		delay_ms(1000);
 		printf("\r\nstate error. errorDesc:%s",errorDesc);
 
 	}
@@ -627,7 +636,8 @@ void waitingSSendLocation(void)
 	feedbackStartGetGoods(); 		// 通知服务端开始取货
 	controlCarToGoodsSpace();		// 控制小车运动到货物点
 	notifyGoodsGetterLocation();	// 给取货单元  商品的位置和深度
-	waitingGetterGotGoods();		// 等待取货单元反馈取到货
+	waitingGetterGotGoods();		// 等待取货单元反馈取到货
+
 	feedbackGotGoodsResult();		// 反馈已经取到货物
 } 
 
@@ -659,7 +669,8 @@ void DropPan(void)
 
 	controlCarToDropPan();		// 控制小车到丢盘子的地方
 	notifyGoodsGetterDropPan();	// 通知取货单元丢盘子
-	waitingGetterLosePan();	// 等待取货单元丢盘子
+	waitingGetterLosePan()
+;	// 等待取货单元丢盘子
 	controlCarToInitSpace();	// 控制小车到复位点
 	feedbackGoInit();			// 反馈已经复位
 }
@@ -697,7 +708,7 @@ void PaserCar1_State(void)
 
 
 	// 反馈小车的状态
-	if (strcmp(orderValue.valuestring, "0007")==0)  
+	if (strcmp(orderValue->valuestring, "0007")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "errorCode");  
 			if (!orderValue) {
@@ -705,7 +716,7 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			SystemState.car1State = orderValue.valueint;
+			SystemState.car1State = orderValue->valueint;
 
 
 			orderValue = cJSON_GetObjectItem(root, "errorDesc");  
@@ -714,14 +725,14 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			strcpy(SystemState.car1Error,orderValue.valuestring );
+			strcpy(SystemState.car1Error,orderValue->valuestring );
 
 			goto end;
 
 		}
 
 	// 反馈小车的方向距离
-	if (strcmp(orderValue.valuestring, "0011")==0)  
+	if (strcmp(orderValue->valuestring, "0011")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Co");  
 			if (!orderValue) {
@@ -729,7 +740,7 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car1_CorrectState = orderValue.valuedouble;
+			Car1_CorrectState = orderValue->valuedouble;
 
 			orderValue = cJSON_GetObjectItem(root, "FD");  
 			if (!orderValue) {
@@ -737,7 +748,7 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car1_FDistance = orderValue.valuedouble;
+			Car1_FDistance = orderValue->valuedouble;
 
 			orderValue = cJSON_GetObjectItem(root, "BD");  
 			if (!orderValue) {
@@ -745,7 +756,7 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car1_BDistance = orderValue.valuedouble;
+			Car1_BDistance = orderValue->valuedouble;
 
 			orderValue = cJSON_GetObjectItem(root, "mo");  
 			if (!orderValue) {
@@ -753,7 +764,7 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car1_moveState = orderValue.valuedouble;
+			Car1_moveState = orderValue->valuedouble;
 
 
 			goto end;
@@ -800,7 +811,7 @@ void PaserCar2_State(void)
 
 
 	// 反馈小车的状态
-	if (strcmp(orderValue.valuestring, "0008")==0)  
+	if (strcmp(orderValue->valuestring, "0008")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "errorCode");  
 			if (!orderValue) {
@@ -808,7 +819,7 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			SystemState.car2State = orderValue.valueint;
+			SystemState.car2State = orderValue->valueint;
 
 
 			orderValue = cJSON_GetObjectItem(root, "errorDesc");  
@@ -817,14 +828,14 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			strcpy(SystemState.car2Error,orderValue.valuestring );
+			strcpy(SystemState.car2Error,orderValue->valuestring );
 
 			goto end;
 
 		}
 
 	// 反馈小车的方向距离
-	if (strcmp(orderValue.valuestring, "0012")==0)  
+	if (strcmp(orderValue->valuestring, "0012")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Co");  
 			if (!orderValue) {
@@ -832,7 +843,7 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car2_CorrectState = orderValue.valuedouble;
+			Car2_CorrectState = orderValue->valuedouble;
 
 			orderValue = cJSON_GetObjectItem(root, "FD");  
 			if (!orderValue) {
@@ -840,7 +851,7 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car2_FDistance = orderValue.valuedouble;
+			Car2_FDistance = orderValue->valuedouble;
 
 			orderValue = cJSON_GetObjectItem(root, "BD");  
 			if (!orderValue) {
@@ -848,7 +859,7 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car2_BDistance = orderValue.valuedouble;
+			Car2_BDistance = orderValue->valuedouble;
 
 			orderValue = cJSON_GetObjectItem(root, "mo");  
 			if (!orderValue) {
@@ -856,7 +867,7 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car2_moveState = orderValue.valuedouble;
+			Car2_moveState = orderValue->valuedouble;
 
 
 			goto end;
@@ -903,7 +914,7 @@ void PaserGoodsGetter_State(void)
 
 
 	// 取货单元给主控反馈 状态
-	if (strcmp(orderValue.valuestring, "0013")==0)  
+	if (strcmp(orderValue->valuestring, "0013")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "errorCode");  
 			if (!orderValue) {
@@ -911,7 +922,7 @@ void PaserGoodsGetter_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			SystemState.goodsGetterState = orderValue.valueint;
+			SystemState.goodsGetterState = orderValue->valueint;
 
 			orderValue = cJSON_GetObjectItem(root, "errorDesc");  
 			if (!orderValue) {
@@ -919,7 +930,7 @@ void PaserGoodsGetter_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			strcpy(SystemState.goodsGetterEorror,orderValue.valuestring );
+			strcpy(SystemState.goodsGetterEorror,orderValue->valuestring );
 
 			goto end;
 
@@ -928,7 +939,7 @@ void PaserGoodsGetter_State(void)
 		}
 
 	// 取货单元给主控反馈 取货情况
-	if (strcmp(orderValue.valuestring, "0015")==0)  
+	if (strcmp(orderValue->valuestring, "0015")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Result");  
 			if (!orderValue) {
@@ -936,14 +947,14 @@ void PaserGoodsGetter_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			GotGoodsResult = orderValue.valueint;
+			GotGoodsResult = orderValue->valueint;
 
 			goto end;
 
 		}
 
 	// 取货单元给主控反馈 卸货情况
-	if (strcmp(orderValue.valuestring, "0017")==0)  
+	if (strcmp(orderValue->valuestring, "0017")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Result");  
 			if (!orderValue) {
@@ -951,14 +962,14 @@ void PaserGoodsGetter_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			LoseGoodsResult = orderValue.valueint;
+			LoseGoodsResult = orderValue->valueint;
 
 			goto end;
 
 		}
 
 		// 取货单元给主控反馈 丢盘子情况
-	if (strcmp(orderValue.valuestring, "0019")==0)  
+	if (strcmp(orderValue->valuestring, "0019")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Result");  
 			if (!orderValue) {
@@ -966,7 +977,7 @@ void PaserGoodsGetter_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			LosePanResult = orderValue.valueint;
+			LosePanResult = orderValue->valueint;
 
 			goto end;
 
@@ -1003,19 +1014,24 @@ double myabs_double(double a)
 void feedbackGotOrder(int businessTypeGot)
 {
 	cJSON *root, *data;  // 
-
+	char TypeGot[10];
+	
 	int num = 0;
 	int numS = 0;
 
 	char* strSend;
 	char send[200];
+	
+	sprintf(TypeGot, "%04d", businessTypeGot); 
 
 	//	给服务器发状态
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0024");
 	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
-	cJSON_AddStringToObject(data,"businessTypeGot", stoi(businessTypeGot));
+
+	
+	cJSON_AddStringToObject(data,"businessTypeGot", TypeGot);
 
 
 
@@ -1175,7 +1191,7 @@ void notifyGoodsGetterLocation(void )
 	cJSON_AddNumberToObject(root,"Height", atof(GoodsLocation.height));
 	cJSON_AddNumberToObject(root,"Depth",  atof(GoodsLocation.depth));
 
-	strJson  =cJSON_PrintUnformatted(root);；
+	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
 	
 	jsonSize = strlen(strJson);
@@ -1189,8 +1205,8 @@ void notifyGoodsGetterLocation(void )
 	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 	strSend[jsonSize+6] = '&';
 	// 需要打开
-	usart4_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	uart4_sendString(strSend,7 + jsonSize);
+	aiwacFree(strJson);
 
 	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
 
@@ -1203,7 +1219,8 @@ void notifyGoodsGetterLocation(void )
 入口参数：无
 返回  值：无
 **************************************************************************/
-void waitingGetterGotGoods(void)
+void waitingGetterGotGoods(void)
+
 {
 	GotGoodsResult = 666;
 	printfNUM = 0;
@@ -1219,7 +1236,7 @@ void waitingGetterGotGoods(void)
 		printfNUM++;
 		if (printfNUM == 10)
 			{
-				printf("\r\n wating to geting  Goods")
+				printf("\r\n wating to geting  Goods");
 			}
 		
 	}
@@ -1338,7 +1355,7 @@ void notifyGoodsGetterLoseGoods(void )
 	root=cJSON_CreateObject();
 	cJSON_AddStringToObject(root,"businessType", "0018");
 
-	strJson  =cJSON_PrintUnformatted(root);；
+	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
 	
 	jsonSize = strlen(strJson);
@@ -1352,8 +1369,8 @@ void notifyGoodsGetterLoseGoods(void )
 	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 	strSend[jsonSize+6] = '&';
 	// 需要打开
-	usart4_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	uart4_sendString(strSend,7 + jsonSize);
+	aiwacFree(strJson);
 
 	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
 
@@ -1365,7 +1382,8 @@ void notifyGoodsGetterLoseGoods(void )
 入口参数：无
 返回  值：无
 **************************************************************************/
-void waitingGetterLoseGoods(void)
+void waitingGetterLoseGoods(void)
+
 {
 	LoseGoodsResult = 666;
 
@@ -1382,7 +1400,7 @@ void waitingGetterLoseGoods(void)
 		printfNUM++;
 		if (printfNUM == 10)
 			{
-				printf("\r\n wating losing Goods")
+				printf("\r\n wating losing Goods");
 			}
 	}
 	delay_ms(100);
@@ -1498,7 +1516,7 @@ void notifyGoodsGetterDropPan(void )
 	root=cJSON_CreateObject();
 	cJSON_AddStringToObject(root,"businessType", "0018");
 
-	strJson  =cJSON_PrintUnformatted(root);；
+	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
 	
 	jsonSize = strlen(strJson);
@@ -1512,8 +1530,8 @@ void notifyGoodsGetterDropPan(void )
 	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 	strSend[jsonSize+6] = '&';
 	// 需要打开
-	usart4_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	uart4_sendString(strSend,7 + jsonSize);
+	aiwacFree(strJson);
 
 	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
 
@@ -1525,7 +1543,8 @@ void notifyGoodsGetterDropPan(void )
 入口参数：无
 返回  值：无
 **************************************************************************/
-void waitingGetterLosePan(void)
+void waitingGetterLosePan(void)
+
 {
 	LosePanResult = 666;
 
@@ -1542,7 +1561,7 @@ void waitingGetterLosePan(void)
 		printfNUM++;
 		if (printfNUM == 10)
 			{
-				printf("\r\n wating losing Pan")
+				printf("\r\n wating losing Pan");
 			}
 	}
 	delay_ms(100);
@@ -2347,7 +2366,7 @@ void AiwacMasterSendOrderCar1(double X_V, int moveState)
 
 	// 需要打开
 	usart2_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	aiwacFree(strJson);
 
 
 }
@@ -2395,7 +2414,7 @@ void AiwacMasterSendOrderCar2(double X_V, int moveState)
 	strSend[jsonSize+6] = '&';
 	// 需要打开
 	uart5_sendString(strSend,7 + jsonSize);
-	myfree(strJson);
+	aiwacFree(strJson);
 
 
 }
@@ -2411,7 +2430,8 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 {
 	//按分区进行  主控逻辑
 	if (strcmp("Area1", MASTER_ID)  == 0)
-	{
+	{
+
 
 
 
@@ -2676,4 +2696,136 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 
 }
 
+
+void test11(void)
+{
+	u8 getMS[300];
+	cJSON *root, *orderValue,*data;  // 
+	int rlen = 0;
+
+	int businessType =999;
+	int goalType =3;
+
+
+	
+	char testChar[300] = "#!{	\"businessType\": \"0003\", 	\"data\": {               		\"side\": \"A\",       		\"distance\": \"1200\", 		\"height\": \"1000\", 		\"depth\": \"100\"    }}&";
+	rlen = strlen(testChar);
+
+	if (	(testChar[0] == '#') 
+				&&	(testChar[1] == '!')
+				&&	(testChar[rlen-1] == '&')
+				)
+			{
+
+				strncpy(getMS, testChar+2, rlen-3); 
+				printf("\r\n getMs:%s",getMS);
+				
+				root = cJSON_Parse(getMS);
+				if (!root) 
+				{
+					printf("root :Error before: [%s]\n",cJSON_GetErrorPtr());
+					USART3_RX_STA = 0;
+					return;
+				}
+
+
+				orderValue = cJSON_GetObjectItem(root, "businessType");  //  ×?D￡×??é??
+				if (!orderValue) {
+					printf("get name faild !\n");
+					printf("businessType :Error before: [%s]\n", cJSON_GetErrorPtr());
+					USART3_RX_STA = 0;
+					cJSON_Delete(root);
+					return;
+				}
+
+				
+				businessType = atoi(orderValue->valuestring);
+				if (businessType == goalType)  //进行目标消息类型的处理
+					{
+						if(goalType == 1)
+							{
+								printf("\r\n master gets businessTy:%d",businessType);
+							}
+
+						if (goalType == 3)
+							{
+								printf("\r\n master gets businessTy:%d",businessType);
+								
+								// 解析 位置
+								data = cJSON_GetObjectItem(root, "data");
+								if (!data) {
+									printf("get name faild !\n");
+									printf("data:Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									return;
+								}
+
+								orderValue = cJSON_GetObjectItem(data, "side");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("side:Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									return;
+								}	
+								strcpy(GoodsLocation.side,orderValue->valuestring);
+
+								orderValue = cJSON_GetObjectItem(data, "distance");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("distance:Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									return;
+								}	
+								strcpy(GoodsLocation.distance,orderValue->valuestring);
+
+
+								orderValue = cJSON_GetObjectItem(data, "height");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("height:Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									return;
+								}	
+								strcpy(GoodsLocation.height,orderValue->valuestring);
+
+								orderValue = cJSON_GetObjectItem(data, "depth");
+								if (!orderValue) {
+									printf("get name faild !\n");
+									printf("depth:Error before: [%s]\n", cJSON_GetErrorPtr());
+									USART3_RX_STA = 0;
+									cJSON_Delete(root);
+									return;
+								}	
+								strcpy(GoodsLocation.depth,orderValue->valuestring);
+								printf("\r\nside:%s,distance:%s,height:%s,depth:%s",GoodsLocation.side, GoodsLocation.distance, GoodsLocation.height, GoodsLocation.depth);
+
+							}
+
+						USART3_RX_STA = 0;
+						cJSON_Delete(root);
+						printf("\r\n master get businessType:%d from server",businessType);
+						return ;
+					}
+				else
+					{
+						USART3_RX_STA = 0;
+						cJSON_Delete(root);
+						return;
+					}
+				
+			}	
+			else
+			{
+				printf("\r\n the ms   error!!!");
+				printf("\r\n USART3_RX_BUF:%s!!!",testChar);
+				
+			
+			}
+
+
+}
 

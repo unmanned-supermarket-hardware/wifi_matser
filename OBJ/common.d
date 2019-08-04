@@ -59,3 +59,4 @@
 ..\obj\common.o: ..\AIWAC\AIWAC_Supermarket.h
 ..\obj\common.o: ..\cJSON\cJSON.h
 ..\obj\common.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+..\obj\common.o: ..\HARDWARE\UART_2_4_5\usart2_4_5.h

@@ -4,9 +4,12 @@
 #include "malloc.h"
 #include "cJSON.h"
 #include "usart3.h"
-#include  "stdio.h"
-#include "stdlib.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "string.h"
+#include "usart2_4_5.h"
+
 
 // 主控角色
 #define MASTER_AREA_1 "Area1"
@@ -49,7 +52,7 @@
 
 #define MIDDLE_SPACE 2
 
-#define AIWAC_IP "192.168.3.158"
+#define AIWAC_IP "192.168.1.105"
 //用户配置参数
 extern const u8* portnum;			//连接端口
  
@@ -69,7 +72,7 @@ struct systemState {
 	int goodsGetterState;
 	char goodsGetterEorror[100];
 	int masterState;  
-	char[200] allErrorDesc;  // 嵌入式的状态
+	char allErrorDesc[200];  // 嵌入式的状态
 }  ;
 extern struct systemState SystemState;
 
@@ -92,7 +95,7 @@ extern int Car1_moveState;
 
 extern int Car2_CorrectState ;
 extern double Car2_FDistance ;
-double Car2_BDistance ;
+extern double Car2_BDistance ;
 extern int Car2_moveState ;
 
 
@@ -107,7 +110,7 @@ void askState2other(void );
 void wifi_Init(void);
 void parseOrderFromS(int goalType);
 void WIFISend(char* MS);
-void  AIWAC_MasterGetGoods(void);
+void AIWAC_MasterGetGoods(void);
 void waitingSAskState(void);
 void waitingSSendLocation(void);
 void DropGoods(void);
@@ -116,27 +119,30 @@ void PaserCar1_State(void);
 void PaserCar2_State(void);
 void PaserGoodsGetter_State(void);
 double myabs_double(double a);
-void feedbackGotOrder(void);
+void feedbackGotOrder(int businessTypeGot);
 void feedbackStartGetGoods(void);
 void notifyGoodsGetterLocation(void);
-void waitingGetterGotGoods(void);
+void waitingGetterGotGoods(void);
 void feedbackGotGoodsResult(void);
-void controlCarToGate(void);
 void notifyGoodsGetterLoseGoods(void );
-void waitingGetterLoseGoods(void);
+void waitingGetterLoseGoods(void);
 void feedbackLoseGoodsResult(void);
-void controlCarToDropPan(void);
 void notifyGoodsGetterDropPan(void );
-void waitingGetterLosePan(void);
-void controlCarToInitSpace(void);
+void waitingGetterLosePan(void);
 void feedbackGoInit(void);
 void goGoalPosition(int direction,double needDistance);
 void goStartTogether(int direction);
 void goToLocation(int direction,double needDistance);
-double  designFSpeed2(double FD, double FD_care,double iniTDistance);
+double designFSpeed2(double FD, double FD_care,double iniTDistance);
 void sendTuringOrder(int Left_or_Right);
 void AiwacMasterSendOrderCar1(double X_V, int moveState);
 void AiwacMasterSendOrderCar2(double X_V, int moveState);
+void controlCarToGoodsSpace(void);
+void controlCarToDropPan(void);
+void controlCarToInitSpace(void);
+void controlCarToGate(void);
+void goToEverywhere(int goalSide,int nowSide, double goDistance);
+void test11(void);
 
 
 

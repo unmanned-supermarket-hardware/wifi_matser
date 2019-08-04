@@ -59,3 +59,4 @@
 ..\obj\wifista.o: ..\AIWAC\AIWAC_Supermarket.h
 ..\obj\wifista.o: ..\cJSON\cJSON.h
 ..\obj\wifista.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+..\obj\wifista.o: ..\HARDWARE\UART_2_4_5\usart2_4_5.h

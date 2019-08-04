@@ -61,3 +61,4 @@
 ..\obj\usmart_config.o: ..\AIWAC\AIWAC_Supermarket.h
 ..\obj\usmart_config.o: ..\cJSON\cJSON.h
 ..\obj\usmart_config.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+..\obj\usmart_config.o: ..\HARDWARE\UART_2_4_5\usart2_4_5.h

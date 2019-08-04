@@ -59,3 +59,4 @@
 ..\obj\apsta.o: ..\AIWAC\AIWAC_Supermarket.h
 ..\obj\apsta.o: ..\cJSON\cJSON.h
 ..\obj\apsta.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+..\obj\apsta.o: ..\HARDWARE\UART_2_4_5\usart2_4_5.h

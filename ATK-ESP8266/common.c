@@ -550,15 +550,15 @@ void atk_8266_test(void)
 		delay_ms(100);
 		printf("尝试连接模块...");
 	} 
+
+	
+		printf("连接模块 ok...");
 		while(atk_8266_send_cmd("ATE0","OK",20));//关闭回显
-
-
 		delay_ms(10); 
 		atk_8266_at_response(1);//检查ATK-ESP8266模块发送过来的数据,及时上传给电脑
 
+		printf("enter ..WIFI STA  test.");
 		atk_8266_wifista_test();//WIFI STA测试
- 
-	
 }
 
 

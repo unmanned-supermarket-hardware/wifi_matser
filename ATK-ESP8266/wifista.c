@@ -6,15 +6,15 @@
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-//±¾³ÌĞòÖ»¹©Ñ§Ï°Ê¹ÓÃ£¬Î´¾­×÷ÕßĞí¿É£¬²»µÃÓÃÓÚÆäËüÈÎºÎÓÃÍ¾
-//ALIENTEK STM32¿ª·¢°å
-//ATK-ESP8266 WIFIÄ£¿é WIFI STAÇı¶¯´úÂë	   
-//ÕıµãÔ­×Ó@ALIENTEK
-//¼¼ÊõÂÛÌ³:www.openedv.com
-//ĞŞ¸ÄÈÕÆÚ:2015/4/3
-//°æ±¾£ºV1.0
-//°æÈ¨ËùÓĞ£¬µÁ°æ±Ø¾¿¡£
-//Copyright(C) ¹ãÖİÊĞĞÇÒíµç×Ó¿Æ¼¼ÓĞÏŞ¹«Ë¾ 2009-2019
+//æœ¬ç¨‹åºåªä¾›å­¦ä¹ ä½¿ç”¨ï¼Œæœªç»ä½œè€…è®¸å¯ï¼Œä¸å¾—ç”¨äºå…¶å®ƒä»»ä½•ç”¨é€”
+//ALIENTEK STM32å¼€å‘æ¿
+//ATK-ESP8266 WIFIæ¨¡å— WIFI STAé©±åŠ¨ä»£ç 	   
+//æ­£ç‚¹åŸå­@ALIENTEK
+//æŠ€æœ¯è®ºå›:www.openedv.com
+//ä¿®æ”¹æ—¥æœŸ:2015/4/3
+//ç‰ˆæœ¬ï¼šV1.0
+//ç‰ˆæƒæ‰€æœ‰ï¼Œç›—ç‰ˆå¿…ç©¶ã€‚
+//Copyright(C) å¹¿å·å¸‚æ˜Ÿç¿¼ç”µå­ç§‘æŠ€æœ‰é™å…¬å¸ 2009-2019
 //All rights reserved									  
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
@@ -62,7 +62,7 @@ void  testTS(u8 *chat)
 			
 			root = cJSON_Parse(getMS);
 		
-			orderValue = cJSON_GetObjectItem(root, "id");  //  ¡Á?D¡ê¡Á??¨¦??
+			orderValue = cJSON_GetObjectItem(root, "id");  //  Ã—?Dï¿¡Ã—??Ã©??
 			if (!orderValue) {
 				printf("get name faild !\n");
 				printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -84,7 +84,7 @@ void  testTS(u8 *chat)
 					}
 
 				
-				//  ¸ø·şÎñÆ÷·¢
+				//  ç»™æœåŠ¡å™¨å‘
 				root=cJSON_CreateObject();
 				
 				
@@ -130,147 +130,76 @@ void  testTS(u8 *chat)
 
 }
 
-//ATK-ESP8266 WIFI STA²âÊÔ
-//ÓÃÓÚ²âÊÔTCP/UDPÁ¬½Ó
-//·µ»ØÖµ:0,Õı³£
-//    ÆäËû,´íÎó´úÂë
-u8 netpro=0;	//ÍøÂçÄ£Ê½
+//ATK-ESP8266 WIFI STAæµ‹è¯•
+//ç”¨äºæµ‹è¯•TCP/UDPè¿æ¥
+//è¿”å›å€¼:0,æ­£å¸¸
+//    å…¶ä»–,é”™è¯¯ä»£ç 
+u8 netpro=0;	//ç½‘ç»œæ¨¡å¼
 u8 atk_8266_wifista_test(void)
 {
-	//u8 netpro=0;	//ÍøÂçÄ£Ê½
-	u8 key;
-	u8 timex=0; 
-	u8 ipbuf[16]; 	//IP»º´æ
-	u8 *p;
-	u16 t=999;		//¼ÓËÙµÚÒ»´Î»ñÈ¡Á´½Ó×´Ì¬
+	u8 ipbuf[16]; 	//IPç¼“å­˜
 	u8 res=0;
 	u16 rlen=0;
-	u8 constate=0;	//Á¬½Ó×´Ì¬
-	p=mymalloc(SRAMIN,32);							//ÉêÇë32×Ö½ÚÄÚ´æ
-	//atk_8266_send_cmd("AT+CWMODE_DEF=1","OK",50);		//ÉèÖÃWIFI STAÄ£Ê½
-	atk_8266_send_cmd("AT+CWMODE=1","OK",50);		//ÉèÖÃWIFI STAÄ£Ê½
-
-	//ÉèÖÃÁ¬½Óµ½µÄWIFIÍøÂçÃû³Æ/¼ÓÃÜ·½Ê½/ÃÜÂë,Õâ¼¸¸ö²ÎÊıĞèÒª¸ù¾İÄú×Ô¼ºµÄÂ·ÓÉÆ÷ÉèÖÃ½øĞĞĞŞ¸Ä!! 
-	sprintf((char*)p,"AT+CWJAP=\"%s\",\"%s\"",wifista_ssid,wifista_password);//ÉèÖÃÎŞÏß²ÎÊı:ssid,ÃÜÂë
-	while(atk_8266_send_cmd(p,"WIFI GOT IP",300));					//Á¬½ÓÄ¿±êÂ·ÓÉÆ÷,²¢ÇÒ»ñµÃIP
-PRESTA:
+	u8 *p;
+	p=mymalloc(SRAMIN,32);							//ç”³è¯·32å­—èŠ‚å†…å­˜
 
 
-
-	// ÏÂÃæÊÇÁ¬½Ó³É¹¦µÄÂß¼­
-	netpro = 1;
-
-  //TCP
-	
-	if(1)     //TCP Client    Í¸´«Ä£Ê½²âÊÔ
+	//è®¾ç½®WIFI STAæ¨¡å¼
+	while(atk_8266_send_cmd("AT+CWMODE=1","OK",50))
 	{
-		delay_ms(500);
-
-		atk_8266_at_response(1);//WIFIÄ£¿é·¢¹ıÀ´µÄÊı¾İ,¼°Ê±ÉÏ´«¸øµçÄÔ
-
-		strcpy(ipbuf, AIWAC_IP);//  ·şÎñ¶Ëip
-		atk_8266_send_cmd("AT+CIPMUX=0","OK",20);   //0£ºµ¥Á¬½Ó£¬1£º¶àÁ¬½Ó
-		sprintf((char*)p,"AT+CIPSTART=\"TCP\",\"%s\",%s",ipbuf,(u8*)portnum);    //ÅäÖÃÄ¿±êTCP·şÎñÆ÷
-
-		//printf("\r\np:%s len:%d",p,strlen(p));
-		while(atk_8266_send_cmd(p,"OK",200))
-		{
-				printf("\r\nÁ¬½ÓTCPÊ§°Ü");
-		}	
-		
-		atk_8266_send_cmd("AT+CIPMODE=1","OK",200);      //´«ÊäÄ£Ê½Îª£ºÍ¸´«			
+		printf("\r\n set  WIFI STA  mode faied, try...");
+		delay_ms(10);
 	}
+	atk_8266_send_cmd("AT+RST","OK",20);		//DHCPæœåŠ¡å™¨å…³é—­(ä»…APæ¨¡å¼æœ‰æ•ˆ) 		
+	delay_ms(1000); 		//å»¶æ—¶3Sç­‰å¾…é‡å¯æˆåŠŸ
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	printf("\r\n set  WIFI STA  mode ok");
 
 
-	LCD_Clear(WHITE);
-	POINT_COLOR=RED;
-
-	// ¾ÍÎª»ñÈ¡ ×Ô¼ºIpÕ¹Ê¾ÏÂ
-	atk_8266_get_wanip(ipbuf);//·şÎñÆ÷Ä£Ê½,»ñÈ¡WAN IP
-	sprintf((char*)p,"IPµØÖ·:%s ¶Ë¿Ú:%s",ipbuf,(u8*)portnum);
-	Show_Str(30,65,200,12,p,12,0);				//ÏÔÊ¾IPµØÖ·ºÍ¶Ë¿Ú	
-	Show_Str(30,80,200,12,"×´Ì¬:",12,0); 		//Á¬½Ó×´Ì¬
-	Show_Str(120,80,200,12,"Ä£Ê½:",12,0); 		//Á¬½Ó×´Ì¬
-	Show_Str(30,100,200,12,"·¢ËÍÊı¾İ:",12,0); 	//·¢ËÍÊı¾İ
-	Show_Str(30,115,200,12,"½ÓÊÕÊı¾İ:",12,0);	//½ÓÊÕÊı¾İ
-
-	// ÆÁÄ»Õ¹Ê¾´úÂë
-	atk_8266_wificonf_show(30,180,"ÇëÉèÖÃÂ·ÓÉÆ÷ÎŞÏß²ÎÊıÎª:",(u8*)wifista_ssid,(u8*)wifista_encryption,(u8*)wifista_password);
-	POINT_COLOR=BLUE;
-	Show_Str(120+30,80,200,12,(u8*)ATK_ESP8266_WORKMODE_TBL[netpro],12,0); 		//Á¬½Ó×´Ì¬
-	USART3_RX_STA=0;
-
-
-	
-	
-	/*
-	while(1)
-	{
-
-
-		//KEY0 ·¢ËÍÊı¾İ 
-		key=KEY_Scan(0);
-		if(key==KEY0_PRES)	
+	//è¿æ¥ç›®æ ‡è·¯ç”±å™¨,å¹¶ä¸”è·å¾—IP
+	printf("\r\n start to connect  the  router");
+	//è®¾ç½®è¿æ¥åˆ°çš„WIFIç½‘ç»œåç§°/åŠ å¯†æ–¹å¼/å¯†ç ,è¿™å‡ ä¸ªå‚æ•°éœ€è¦æ ¹æ®æ‚¨è‡ªå·±çš„è·¯ç”±å™¨è®¾ç½®è¿›è¡Œä¿®æ”¹!! 
+	sprintf((char*)p,"AT+CWJAP=\"%s\",\"%s\"",wifista_ssid,wifista_password);//è®¾ç½®æ— çº¿å‚æ•°:ssid,å¯†ç 
+	while(atk_8266_send_cmd(p,"WIFI GOT IP",300))					
 		{
-		
+			printf("\r\n wating link to router");
+			delay_ms(10);
+		}
+	printf("\r\n connect the router succussfully ");
+
+	
 
 
-			{
-				atk_8266_quit_trans();
-				atk_8266_send_cmd("AT+CIPSEND","OK",20);         //¿ªÊ¼Í¸´«           
-				sprintf((char*)p,"ATK-8266%d\r\n",t/10);//²âÊÔÊı¾İ
-				Show_Str(30+54,100,200,12,p,12,0);
+	delay_ms(500);
 
-				//  ·¢ËÍÊı¾İ
-				u3_printf("%s",p);
-				timex=100;
-			}
+	atk_8266_at_response(1);//WIFIæ¨¡å—å‘è¿‡æ¥çš„æ•°æ®,åŠæ—¶ä¸Šä¼ ç»™ç”µè„‘
 
-		}else;
-
-		t++;
+	strcpy(ipbuf, AIWAC_IP);//  æœåŠ¡ç«¯ip
+	while(atk_8266_send_cmd("AT+CIPMUX=0","OK",20))
+	{
+		printf("\r\n waiting for setting the one link");
 		delay_ms(10);
 
+	}  //0ï¼šå•è¿æ¥ï¼Œ1ï¼šå¤šè¿æ¥
 
-		//½ÓÊÕµ½Ò»´ÎÊı¾İ
-		if(USART3_RX_STA&0X8000)		
-		{ 
-			rlen=USART3_RX_STA&0X7FFF;	//µÃµ½±¾´Î½ÓÊÕµ½µÄÊı¾İ³¤¶È
-			USART3_RX_BUF[rlen]=0;		//Ìí¼Ó½áÊø·û 
-			printf("get data len:%d,%s",strlen(USART3_RX_BUF),USART3_RX_BUF);	//·¢ËÍµ½´®¿Ú   
-			 testTS(USART3_RX_BUF);
+
+	printf("\r\nstart built a TCP link with srever ");
+	sprintf((char*)p,"AT+CIPSTART=\"TCP\",\"%s\",%s",ipbuf,(u8*)portnum);    //é…ç½®ç›®æ ‡TCPæœåŠ¡å™¨
+	while(atk_8266_send_cmd(p,"OK",200))  //  ä¸€ç›´è¿æœåŠ¡ç«¯ï¼Œ
+	{
+		printf("\r\n  link TCP  failedï¼Œthe server may not work!!!  ");
+		delay_ms(10);
+	}	
+	printf("\r\n link TCP   ok");
+	
+	while(atk_8266_send_cmd("AT+CIPMODE=1","OK",200));      //ä¼ è¾“æ¨¡å¼ä¸ºï¼šé€ä¼ 			
+	
+	
+	printf("\r\n My ip :%s",ipbuf);
 			
-			sprintf((char*)p,"ÊÕµ½%d×Ö½Ú,ÄÚÈİÈçÏÂ",rlen);//½ÓÊÕµ½µÄ×Ö½ÚÊı 
-			LCD_Fill(30+54,115,239,130,WHITE);
-			POINT_COLOR=BRED;
-			Show_Str(30+54,115,156,12,p,12,0); 			//ÏÔÊ¾½ÓÊÕµ½µÄÊı¾İ³¤¶È
-			POINT_COLOR=BLUE;
-			LCD_Fill(30,130,239,319,WHITE);
-			Show_Str(30,130,180,190,USART3_RX_BUF,12,0);//ÏÔÊ¾½ÓÊÕµ½µÄÊı¾İ  
-			USART3_RX_STA=0;
-			if(constate!='+')t=1000;		//×´Ì¬Îª»¹Î´Á¬½Ó,Á¢¼´¸üĞÂÁ¬½Ó×´Ì¬
-			else t=0;                   //×´Ì¬ÎªÒÑ¾­Á¬½ÓÁË,10ÃëºóÔÙ¼ì²é
-		}  
-
-
-
-		//Á¬Ğø10ÃëÖÓÃ»ÓĞÊÕµ½ÈÎºÎÊı¾İ,¼ì²éÁ¬½ÓÊÇ²»ÊÇ»¹´æÔÚ.
-		if(t ==1000)
-		{
-			LCD_Fill(30+54,125,239,130,WHITE);
-			LCD_Fill(60,80,120,92,WHITE);
-			constate=atk_8266_consta_check();//µÃµ½Á¬½Ó×´Ì¬
-			if(constate=='+')Show_Str(30+30,80,200,12,"Á¬½Ó³É¹¦",12,0);  //Á¬½Ó×´Ì¬
-			else Show_Str(30+30,80,200,12,"Á¬½ÓÊ§°Ü",12,0); 	 
-			t=0;
-		}
-
-		atk_8266_at_response(1);  //  ÈôÎŞÊı¾İÖ±½Ó¹ı£¬ÓĞÊı¾İ¼´  Ç°Ãæ ¼ì²âÊÇ·ñ¶ÏÁ¬½ÓµÄ   ·´À¡Êı¾İ
-	}
-
-*/
-			
-	myfree(SRAMIN,p);		//ÊÍ·ÅÄÚ´æ 
+	myfree(SRAMIN,p);		//é‡Šæ”¾å†…å­˜ 
 	return res;		
 } 
 

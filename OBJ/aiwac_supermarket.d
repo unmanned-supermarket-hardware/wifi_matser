@@ -40,4 +40,7 @@
 ..\obj\aiwac_supermarket.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 ..\obj\aiwac_supermarket.o: ..\HARDWARE\USART3\usart3.h
 ..\obj\aiwac_supermarket.o: ..\SYSTEM\sys\sys.h
+..\obj\aiwac_supermarket.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\aiwac_supermarket.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\aiwac_supermarket.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\aiwac_supermarket.o: ..\HARDWARE\UART_2_4_5\usart2_4_5.h

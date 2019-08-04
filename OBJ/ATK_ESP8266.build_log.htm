@@ -22,40 +22,46 @@ Dialog DLL:      TCM.DLL V1.14.4.0
  
 <h2>Project:</h2>
 D:\TY\ÎÞÈË³¬ÊÐ\¹¤³Ì´úÂë\wifi_master\USER\ATK_ESP8266.uvprojx
-Project File Date:  06/29/2017
+Project File Date:  08/04/2019
 
 <h2>Output:</h2>
 Build target 'Target 1'
-compiling AIWAC_Supermarket.c...
-..\AIWAC\AIWAC_Supermarket.c(31): warning:  #223-D: function "atk_8266_test" declared implicitly
-        atk_8266_test();                //½øÈëATK_ESP8266
-..\AIWAC\AIWAC_Supermarket.c(77): warning:  #223-D: function "strncpy" declared implicitly
-                                strncpy(getMS, USART3_RX_BUF+2, rlen-3); 
-..\AIWAC\AIWAC_Supermarket.c(80): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
-                                root = cJSON_Parse(getMS);
-..\AIWAC\AIWAC_Supermarket.c(111): warning:  #223-D: function "delay_ms" declared implicitly
-                delay_ms(20);
-..\AIWAC\AIWAC_Supermarket.c(119): warning:  #111-D: statement is unreachable
-        return businessType;
-..\AIWAC\AIWAC_Supermarket.c(153): warning:  #223-D: function "strlen" declared implicitly
-        num = strlen(strSend);
-..\AIWAC\AIWAC_Supermarket.c(175): warning:  #223-D: function "memset" declared implicitly
-        memset(send, 0, sizeof(send));
-..\AIWAC\AIWAC_Supermarket.c(178): warning:  #223-D: function "strncpy" declared implicitly
-        strncpy(send+2, strSend, num); 
-..\AIWAC\AIWAC_Supermarket.c(184): warning:  #192-D: unrecognized character escape sequence
-        printf("\r\nstrSend:%s  LEN:%\d",strSend,strlen(strSend));
-..\AIWAC\AIWAC_Supermarket.c(203): warning:  #223-D: function "atk_8266_quit_trans" declared implicitly
-        atk_8266_quit_trans();
-..\AIWAC\AIWAC_Supermarket.c(204): warning:  #223-D: function "atk_8266_send_cmd" declared implicitly
-        atk_8266_send_cmd("AT+CIPSEND","OK",20);                 //¿ªÊ¼Í¸´«        
-..\AIWAC\AIWAC_Supermarket.c(226): warning:  #223-D: function "delay_ms" declared implicitly
-                delay_ms(100);
-..\AIWAC\AIWAC_Supermarket.c: 12 warnings, 0 errors
+compiling common.c...
+..\ATK-ESP8266\common.c(465): warning:  #550-D: variable "key" was set but never used
+        u8 key;
+..\ATK-ESP8266\common.c(466): warning:  #177-D: variable "timex" was declared but never referenced
+        u8 timex=0;  
+..\ATK-ESP8266\common.c(467): warning:  #177-D: variable "iplen" was declared but never referenced
+        u8 iplen=0;                     //IP³¤¶È 
+..\ATK-ESP8266\common.c: 3 warnings, 0 errors
+compiling wifista.c...
+..\ATK-ESP8266\wifista.c(54): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+                        num = strlen(chat);
+..\ATK-ESP8266\wifista.c(55): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+                        strncpy(getMS, p+2, num); 
+..\ATK-ESP8266\wifista.c(55): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *restrict"
+                        strncpy(getMS, p+2, num); 
+..\ATK-ESP8266\wifista.c(63): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+                        root = cJSON_Parse(getMS);
+..\ATK-ESP8266\wifista.c(49): warning:  #177-D: variable "send" was declared but never referenced
+        char send[500];
+..\ATK-ESP8266\wifista.c(184): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+        strcpy(ipbuf, AIWAC_IP);//  æœåŠ¡ç«¯ip
+..\ATK-ESP8266\wifista.c(141): warning:  #177-D: variable "key" was declared but never referenced
+        u8 key;
+..\ATK-ESP8266\wifista.c(142): warning:  #177-D: variable "timex" was declared but never referenced
+        u8 timex=0; 
+..\ATK-ESP8266\wifista.c(145): warning:  #177-D: variable "t" was declared but never referenced
+        u16 t=999;              //åŠ é€Ÿç¬¬ä¸€æ¬¡èŽ·å–é“¾æŽ¥çŠ¶æ€?         ^
+..\ATK-ESP8266\wifista.c(147): warning:  #177-D: variable "rlen" was declared but never referenced
+        u16 rlen=0;
+..\ATK-ESP8266\wifista.c(148): warning:  #177-D: variable "constate" was declared but never referenced
+        u8 constate=0;  //è¿žæŽ¥çŠ¶æ€?             ^
+..\ATK-ESP8266\wifista.c: 11 warnings, 0 errors
 linking...
-Program Size: Code=68636 RO-data=8072 RW-data=972 ZI-data=1226076  
+Program Size: Code=61648 RO-data=2000 RW-data=884 ZI-data=1228364  
 FromELF: creating hex file...
-"..\OBJ\ATK_ESP8266.axf" - 0 Error(s), 12 Warning(s).
+"..\OBJ\ATK_ESP8266.axf" - 0 Error(s), 14 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   D:\TY\ÎÞÈË³¬ÊÐ\¹¤³Ì´úÂë\wifi_master\USER\RTE

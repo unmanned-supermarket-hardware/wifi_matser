@@ -31,19 +31,19 @@ int main(void)
 
 	
 	uart_init(115200);		//初始化串口波特率为115200
-	usart3_init(115200);  //初始化串口3波特率为115200
+	usart3_init(115200);  	//初始化串口3波特率为115200
 	uart2_init(115200); 	// car1
 	uart4_init(115200); 	// getter
 	uart5_init(115200); 	// car2
 
 	
-	LED_Init();					//初始化LED  
- 	LCD_Init();					//LCD初始化  
+	//LED_Init();					//初始化LED  
+ 	//LCD_Init();					//LCD初始化  
  	KEY_Init();					//按键初始化  
 
 	
-	W25QXX_Init();				//初始化W25Q128
-	tp_dev.init();				//初始化触摸屏
+	// W25QXX_Init();				//初始化W25Q128
+	// tp_dev.init();				//初始化触摸屏
 	usmart_dev.init(168);		//初始化USMART
 	my_mem_init(SRAMIN);		//初始化内部内存池 
 	my_mem_init(SRAMCCM);		//初始化CCM内存池 
@@ -52,16 +52,27 @@ int main(void)
  	f_mount(fs[1],"1:",1); 		//挂载FLASH.
 
 
-	fontok=font_init();		//检查字库是否OK
+	// fontok=font_init();		//检查字库是否OK
 
 
-	initSysValue();			// 初始化系统的全局变量
+
 	
 	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
 	sendMasterID2S();			//给服务端发送主控ID
+	//delay_ms(100)
+	//atk_8266_at_response(1);
 
-	
+	parseOrderFromS(3);
 
+	/*
+	test11();
+
+	parseOrderFromS(3);
+		while (1)
+			{
+				delay_us(100);
+			}
+*/
 	AIWAC_MasterGetGoods();		// 主控取货的  总逻辑开始
 
 }
