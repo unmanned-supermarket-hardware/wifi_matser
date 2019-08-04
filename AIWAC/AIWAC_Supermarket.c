@@ -360,112 +360,124 @@ void askState2other(void )
 	char *strJson;
 	u8 strSend[300];
 
-
-
-	
-	// 查询car1
-	memset(strSend, 0, sizeof(strSend));
-	strSend[0] = '#';
-	strSend[1] = '!';
-
-
-	root=cJSON_CreateObject();
-
-	cJSON_AddStringToObject(root,"businessType", "0007");
-
-	strJson  =cJSON_PrintUnformatted(root);
-	cJSON_Delete(root); 
-	
-	jsonSize = strlen(strJson);
-
-	strSend[2] = jsonSize >> 8;
-	strSend[3] = jsonSize;
-
-	strncpy(strSend+4,strJson,jsonSize);
-	
-	strSend[jsonSize+4] = '*';
-	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
-	strSend[jsonSize+6] = '&';
-	// 需要打开
-	usart2_sendString(strSend,7 + jsonSize);
-	aiwacFree(strJson);
-
-
-
-	// 查询car2
-	memset(strSend, 0, sizeof(strSend));
-	strSend[0] = '#';
-	strSend[1] = '!';
-
-	root=cJSON_CreateObject();
-
-	cJSON_AddStringToObject(root,"businessType", "0008");
-
-	strJson  =cJSON_PrintUnformatted(root);
-	cJSON_Delete(root); 
-	
-	jsonSize = strlen(strJson);
-
-	strSend[2] = jsonSize >> 8;
-	strSend[3] = jsonSize;
-
-	strncpy(strSend+4,strJson,jsonSize);
-	
-	strSend[jsonSize+4] = '*';
-	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
-	strSend[jsonSize+6] = '&';
-	// 需要打开
-	uart5_sendString(strSend,7 + jsonSize);
-	aiwacFree(strJson);
-
-
-	
-	// 查询取货单元
-	memset(strSend, 0, sizeof(strSend));
-	strSend[0] = '#';
-	strSend[1] = '!';
-
-	root=cJSON_CreateObject();
-
-	cJSON_AddStringToObject(root,"businessType", "0013");
-
-	strJson  =cJSON_PrintUnformatted(root);
-	cJSON_Delete(root); 
-	
-	jsonSize = strlen(strJson);
-
-	strSend[2] = jsonSize >> 8;
-	strSend[3] = jsonSize;
-
-	strncpy(strSend+4,strJson,jsonSize);
-	
-	strSend[jsonSize+4] = '*';
-	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
-	strSend[jsonSize+6] = '&';
-	// 需要打开
-	uart4_sendString(strSend,7 + jsonSize);
-	aiwacFree(strJson);
-
-
-
-	printfNUM = 0;
-	// 等待回复
-	while(1)
+	while (1)
 	{
-		if((SystemState.car1State>0) && (SystemState.car2State>0) && (SystemState.goodsGetterState>0))
+		// 查询car1
+		memset(strSend, 0, sizeof(strSend));
+		strSend[0] = '#';
+		strSend[1] = '!';
+
+
+		root=cJSON_CreateObject();
+
+		cJSON_AddStringToObject(root,"businessType", "0007");
+
+		strJson  =cJSON_PrintUnformatted(root);
+		cJSON_Delete(root); 
+
+		jsonSize = strlen(strJson);
+
+		strSend[2] = jsonSize >> 8;
+		strSend[3] = jsonSize;
+
+		strncpy(strSend+4,strJson,jsonSize);
+
+		strSend[jsonSize+4] = '*';
+		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+		strSend[jsonSize+6] = '&';
+		// 需要打开
+		usart2_sendString(strSend,7 + jsonSize);
+		aiwacFree(strJson);
+
+		delay_ms(200);
+		if(SystemState.car1State>0)
 		{
 			break;
 		}
+
+		printf("\r\nwaiting car1  feedback State!!");
 		
-		delay_ms(100);
+	}
+	
+
+
+	while (1)
+	{
+
+		// 查询car2
+		memset(strSend, 0, sizeof(strSend));
+		strSend[0] = '#';
+		strSend[1] = '!';
+
+		root=cJSON_CreateObject();
+
+		cJSON_AddStringToObject(root,"businessType", "0008");
+
+		strJson  =cJSON_PrintUnformatted(root);
+		cJSON_Delete(root); 
 		
-		printfNUM++;
-		if (printfNUM == 10)
+		jsonSize = strlen(strJson);
+
+		strSend[2] = jsonSize >> 8;
+		strSend[3] = jsonSize;
+
+		strncpy(strSend+4,strJson,jsonSize);
+		
+		strSend[jsonSize+4] = '*';
+		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+		strSend[jsonSize+6] = '&';
+		// 需要打开
+		uart5_sendString(strSend,7 + jsonSize);
+		aiwacFree(strJson);
+		
+		delay_ms(200);
+		if(SystemState.car2State>0)
 		{
-			printf("\r\n waiting for that other device feedback state!");
+			break;
 		}
+
+		printf("\r\nwaiting car2  feedback State!!");
+		
 	}
 
+
+	while (1)
+	{
+		// 查询取货单元
+		memset(strSend, 0, sizeof(strSend));
+		strSend[0] = '#';
+		strSend[1] = '!';
+
+		root=cJSON_CreateObject();
+
+		cJSON_AddStringToObject(root,"businessType", "0013");
+
+		strJson  =cJSON_PrintUnformatted(root);
+		cJSON_Delete(root); 
+		
+		jsonSize = strlen(strJson);
+
+		strSend[2] = jsonSize >> 8;
+		strSend[3] = jsonSize;
+
+		strncpy(strSend+4,strJson,jsonSize);
+		
+		strSend[jsonSize+4] = '*';
+		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+		strSend[jsonSize+6] = '&';
+		// 需要打开
+		uart4_sendString(strSend,7 + jsonSize);
+		aiwacFree(strJson);
+
+		delay_ms(200);
+		if(SystemState.goodsGetterState>0)
+		{
+			break;
+		}
+
+		printf("\r\nwaiting getter feedback State!!");
+		
+	}
 	
 	printf("\r\n master has gotten other state!!");
 

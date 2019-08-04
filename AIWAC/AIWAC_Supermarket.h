@@ -16,6 +16,13 @@
 #define MASTER_AREA_2 "Area2"
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
+#define AIWAC_IP "192.168.1.105"
+//用户配置参数
+extern const u8* portnum;			//连接端口
+extern const u8* wifista_ssid;		//WIFI STA SSID
+extern const u8* wifista_encryption;//WIFI STA 加密方式  // 可以不用设置
+extern const u8* wifista_password; 	//WIFI STA 密码
+
 
 
 // 各个关键位置对照参考图的位置
@@ -52,13 +59,7 @@
 
 #define MIDDLE_SPACE 2
 
-#define AIWAC_IP "192.168.1.105"
-//用户配置参数
-extern const u8* portnum;			//连接端口
- 
-extern const u8* wifista_ssid;		//WIFI STA SSID
-extern const u8* wifista_encryption;//WIFI STA 加密方式
-extern const u8* wifista_password; 	//WIFI STA 密码
+
 extern int  printfNUM ; //打印计数
 extern int LocationNow;	//A:1  B:2  C:3
 
