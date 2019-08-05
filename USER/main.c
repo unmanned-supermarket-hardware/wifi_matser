@@ -58,6 +58,7 @@ int main(void)
 
 	
 	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
+	
 	sendMasterID2S();			//给服务端发送主控ID
 	//delay_ms(100)
 	//atk_8266_at_response(1);

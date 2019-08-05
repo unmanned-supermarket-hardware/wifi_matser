@@ -28,11 +28,17 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 // 各个关键位置对照参考图的位置
 #define DROP_GOODS_SPACE 0.5   //出货口距A边中心的距离
 #define DROP_PAN_SPACE 0.9   //丢盘子的位置距A边中心的距离
+
+
+// 下面两个差不多吧，找时间整合下
 #define CAR_INIT_SPACE 1.6   //丢盘子的位置距A边中心的距离
+#define MIDDLE_SPACE CAR_INIT_SPACE   		//复位点，m，在区的
 
 #define C_HALF_LEN      2 	//单位 ：m      
 #define B_LEN	    4   // 单位：m
 #define A_HALF_LEN      2   // 单位  ：m 
+
+
 
 #define TURING_DISTANCE 0.52  // 前方需要转弯的  时候 m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
@@ -57,7 +63,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 #define BACK_DIRECTION  2
 
 
-#define MIDDLE_SPACE 2
+
 
 
 extern int  printfNUM ; //打印计数

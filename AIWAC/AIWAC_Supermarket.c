@@ -62,6 +62,10 @@ void initSysValue(void)
 	Car2_FDistance = -1;
 	Car2_BDistance = -1;
 	Car2_moveState = -1;
+
+	LocationNow = 2;  // 初始位置在B区
+
+	printf("\r\n initSysValue  OK");
 }
 
 
@@ -79,6 +83,7 @@ void wifi_Init(void)
 	atk_8266_test();		//进入ATK_ESP8266
 	delay_ms(200);
 	atk_8266_at_response(1);
+	printf("\r\n wifi_Init OK");
 }
 
 
@@ -142,6 +147,7 @@ void parseOrderFromS(int goalType)
 						if(goalType == 1)
 							{
 								printf("\r\n master gets businessTy:%d",businessType);
+								printf("\r\n get the mesg form android  to ask master state");
 							}
 
 						if (goalType == 3)
@@ -257,6 +263,8 @@ void sendMasterID2S()
 	char send[300];
 
 
+	printf("\r\n start sendMasterID2S");
+	
 	//  给服务器发
 	root=cJSON_CreateObject();
 
@@ -264,7 +272,7 @@ void sendMasterID2S()
 	cJSON_AddItemToObject(root, "data", data=cJSON_CreateObject());
 	cJSON_AddStringToObject(data,"ID", MASTER_ID);
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -303,6 +311,8 @@ void sendMasterID2S()
 	printf("\r\nstrSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
 
+	printf("\r\n sendMasterID2S  OK");
+	
 
 }
 
@@ -336,6 +346,7 @@ void  AIWAC_MasterGetGoods(void)
 	while(1)
 	{
 		initSysValue();				// 初始化系统的全局变量
+		controlCarToInitSpace();	// 回到复位点
 		waitingSAskState();			// 等待服务端查询状态，并反馈
 		waitingSSendLocation();		// 获取位置，取货
 		DropGoods();				// 放货
@@ -479,7 +490,7 @@ void askState2other(void )
 		
 	}
 	
-	printf("\r\n master has gotten other state!!");
+	printf("\r\n askState2other:master has gotten other state!!");
 
 
 }
@@ -508,7 +519,7 @@ void   checkSysState(void)
 	
 	
 	printf("\r\nwaiting for feedbacking state");
-	delay_ms(3000);
+	delay_ms(1000);
 	
 	if (SystemState.car1State != 200)
 	{
@@ -540,7 +551,7 @@ void   checkSysState(void)
 
 	// 未到中间的位置
 	// 注意：后面需要调整
-	if ( (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.05) || (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.05))
+	if ( (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.03) || (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.03))
 	{
 		ret = 0;
 		printf("\r\n the state of location is bad,Cars are not good space!!");
@@ -572,7 +583,7 @@ void   checkSysState(void)
 		cJSON_AddStringToObject(data,"errorDesc","ok");
 	}
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -616,6 +627,8 @@ void   checkSysState(void)
 
 	}
 
+
+	printf("\r\ncheckSysState ok");
 
 }
 
@@ -681,8 +694,7 @@ void DropPan(void)
 
 	controlCarToDropPan();		// 控制小车到丢盘子的地方
 	notifyGoodsGetterDropPan();	// 通知取货单元丢盘子
-	waitingGetterLosePan()
-;	// 等待取货单元丢盘子
+	waitingGetterLosePan();	// 等待取货单元丢盘子
 	controlCarToInitSpace();	// 控制小车到复位点
 	feedbackGoInit();			// 反馈已经复位
 }
@@ -1047,7 +1059,7 @@ void feedbackGotOrder(int businessTypeGot)
 
 
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -1105,7 +1117,7 @@ void feedbackStartGetGoods(void)
 	cJSON_AddStringToObject(data,"status", "1");
 	cJSON_AddStringToObject(data,"errorDesc", "fff");
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -1135,7 +1147,7 @@ void feedbackStartGetGoods(void)
 	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
 
-
+	printf("\r\n feedbackStartGetGoods");
 
 
 }
@@ -1178,6 +1190,8 @@ void controlCarToGoodsSpace(void)
 	goToEverywhere(goalSide, LocationNow, atof(GoodsLocation.distance));
 	
 	LocationNow = goalSide;
+	printf("\r\n controlCarToGoodsSpace");
+	
 
 }
 
@@ -1292,7 +1306,7 @@ void feedbackGotGoodsResult(void)
 	
 	cJSON_AddStringToObject(data,"errorDesc", "fff");
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -1322,6 +1336,9 @@ void feedbackGotGoodsResult(void)
 	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
 
+	printf("\r\n feedbackGotGoodsResult");
+	
+
 }
 
 
@@ -1343,6 +1360,8 @@ void controlCarToGate(void)
 	goToEverywhere(goalSide, LocationNow, DROP_GOODS_SPACE);
 	
 	LocationNow = goalSide;
+	printf("\r\n controlCarToGate");
+		
 
 
 }
@@ -1365,7 +1384,7 @@ void notifyGoodsGetterLoseGoods(void )
 	strSend[1] = '!';
 
 	root=cJSON_CreateObject();
-	cJSON_AddStringToObject(root,"businessType", "0018");
+	cJSON_AddStringToObject(root,"businessType", "0016");
 
 	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
@@ -1417,7 +1436,7 @@ void waitingGetterLoseGoods(void)
 	}
 	delay_ms(100);
 	
-	printf("\r\n waitingGetterGotGoods,result:%d",LoseGoodsResult);
+	printf("\r\n waitingGetterLoseGoods,result:%d",LoseGoodsResult);
 
 }
 
@@ -1457,7 +1476,7 @@ void feedbackLoseGoodsResult(void)
 	
 	cJSON_AddStringToObject(data,"errorDesc", "fff");
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -1486,6 +1505,8 @@ void feedbackLoseGoodsResult(void)
 
 	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
+	printf("\r\n feedbackLoseGoodsResult");
+	
 
 }
 
@@ -1505,6 +1526,8 @@ void controlCarToDropPan(void)
 	goToEverywhere(goalSide, LocationNow, DROP_PAN_SPACE);
 	
 	LocationNow = goalSide;
+	printf("\r\n controlCarToDropPan");
+		
 
 }
 
@@ -1578,7 +1601,7 @@ void waitingGetterLosePan(void)
 	}
 	delay_ms(100);
 	
-	printf("\r\n waitingGetterGotGoods,result:%d",LosePanResult);
+	printf("\r\n waitingGetterLosePan,result:%d",LosePanResult);
 
 }
 
@@ -1601,6 +1624,8 @@ void controlCarToInitSpace(void)
 	goToEverywhere(goalSide, LocationNow, CAR_INIT_SPACE);
 	
 	LocationNow = goalSide;
+	
+	printf("\r\n controlCarToInitSpace OK");
 
 
 }
@@ -1629,7 +1654,7 @@ void feedbackGoInit(void)
 	cJSON_AddStringToObject(data,"status", "4");
 	cJSON_AddStringToObject(data,"errorDesc", "fff");
 
-	strSend=cJSON_Print(root); 
+	strSend=cJSON_PrintUnformatted(root); 
 	cJSON_Delete(root); 
 
 
@@ -1658,6 +1683,7 @@ void feedbackGoInit(void)
 
 	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
+	printf("\r\n ffeedbackGoInit");
 
 }
 
@@ -2669,11 +2695,11 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在C,去A
 			if (goalSide == 1) 		
 			{
-				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
-				sendTuringOrder(STATE_TURN_RIGHT);
-				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
-				sendTuringOrder(STATE_TURN_RIGHT);
-				goToLocation(FRONT_DIRECTION, goDistance);
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, goDistance);
 				return;
 			
 			}
