@@ -55,26 +55,19 @@ int main(void)
 	// fontok=font_init();		//检查字库是否OK
 
 
+	initSysValue(); 			// 初始化系统的全局变量
+	controlCarToInitSpace();	// 回到复位点
+	goToEverywhere(1, 2, 0.3);
 
+
+	/*
 	
 	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
 	
 	sendMasterID2S();			//给服务端发送主控ID
-	//delay_ms(100)
-	//atk_8266_at_response(1);
 
-	parseOrderFromS(3);
-
-	/*
-	test11();
-
-	parseOrderFromS(3);
-		while (1)
-			{
-				delay_us(100);
-			}
-*/
 	AIWAC_MasterGetGoods();		// 主控取货的  总逻辑开始
+	*/
 
 }
 

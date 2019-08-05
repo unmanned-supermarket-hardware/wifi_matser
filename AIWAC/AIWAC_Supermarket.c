@@ -344,7 +344,7 @@ void WIFISend(char* MS)
 void  AIWAC_MasterGetGoods(void)
 {
 	while(1)
-	{
+	{   
 		initSysValue();				// 初始化系统的全局变量
 		controlCarToInitSpace();	// 回到复位点
 		waitingSAskState();			// 等待服务端查询状态，并反馈
@@ -1696,6 +1696,19 @@ void feedbackGoInit(void)
 void goToLocation(int direction,double needDistance)
 {
 
+	while (1)
+	{	
+		if( (Car1_CorrectState > -1) && (Car2_CorrectState > -1)) // 还未完全收到两小车的  数据
+		{
+			
+			break;
+		}
+
+		printf("\r\n waiting for data from cars");	
+		delay_ms(100); 
+	}
+
+			
 	//起步阶段，需要两车平行起步
 	goStartTogether(direction);
 
