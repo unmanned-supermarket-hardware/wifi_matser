@@ -3,28 +3,28 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid="AIWAC0.9";			//路由器SSID号
+const u8* wifista_ssid="redmi";			//路由器SSID�?
 const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="epic2019"; 	//连接密码
+const u8* wifista_password="tangyuan"; 	//连接密码
 
-//连接端口号:8086,可自行修改为其他端口.
-const u8* portnum="8899";	
+//连接端口�?8086,可自行修改为其他端口.
+const u8* portnum="8890";	
 
 
 struct systemState SystemState;
-int  printfNUM = 0	;//打印的计数
+int  printfNUM = 0	;//打印的计�?
 struct goodsLocation GoodsLocation;
 
-int GotGoodsResult ;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
-int LoseGoodsResult ;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
-int LosePanResult ;			// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
+int GotGoodsResult ;		// 取货结果  "Result": int类型, 0 表示成功�?1表示失败
+int LoseGoodsResult ;		// 丢货结果  "Result": int类型, 0 表示成功�?1表示失败
+int LosePanResult ;			// 丢盘结果  "Result": int类型, 0 表示成功�?1表示失败
 
 
 int LocationNow = 2;	//A:1  B:2  C:3
 
 
 
-// 小车的情况
+// 小车的情�?
 int Car1_CorrectState = -1;
 double Car1_FDistance = -1;
 double Car1_BDistance = -1;
@@ -35,16 +35,16 @@ double Car2_FDistance = -1;
 double Car2_BDistance = -1;
 int Car2_moveState = -1;
 
-
+int netTime = 0;
 
 void initSysValue(void)
 {	
 	memset((void*)(&SystemState), 0, sizeof(SystemState));
 	memset((void*)(&GoodsLocation), 0, sizeof(GoodsLocation));
 	
-	GotGoodsResult = 666;		// 取货结果  "Result": int类型, 0 表示成功，-1表示失败
-	LoseGoodsResult = 666;		// 丢货结果  "Result": int类型, 0 表示成功，-1表示失败
-	LosePanResult = 666;		// 丢盘结果  "Result": int类型, 0 表示成功，-1表示失败
+	GotGoodsResult = 666;		// 取货结果  "Result": int类型, 0 表示成功�?1表示失败
+	LoseGoodsResult = 666;		// 丢货结果  "Result": int类型, 0 表示成功�?1表示失败
+	LosePanResult = 666;		// 丢盘结果  "Result": int类型, 0 表示成功�?1表示失败
 
 	USART2_Car1_jsonParseBuF[0] = '-' ;
 	USART4_Getter_jsonParseBuF[0] = '-' ;
@@ -52,7 +52,7 @@ void initSysValue(void)
 
 
 
-	// 小车的情况
+	// 小车的情�?
 	Car1_CorrectState = -1;
 	 Car1_FDistance = -1;
 	Car1_BDistance = -1;
@@ -63,7 +63,9 @@ void initSysValue(void)
 	Car2_BDistance = -1;
 	Car2_moveState = -1;
 
-	LocationNow = 2;  // 初始位置在B区
+	LocationNow = 2;  // 初始位置在B�?
+
+	printfNUM = 0;
 
 	printf("\r\n initSysValue  OK");
 }
@@ -75,7 +77,7 @@ void initSysValue(void)
 /**************************************************************************
 函数功能：初始化wifi模块
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void wifi_Init(void)
 {
@@ -90,13 +92,13 @@ void wifi_Init(void)
 
 
 /**************************************************************************
-函数功能：等待来自服务器的指定消息类型，解析再进行处理
-入口参数：goalType：目标等待  类型
-返回  值：无
+函数功能：等待来自服务器的指定消息类型，解析再进行处�?
+入口参数：goalType：目标等�? 类型
+返回  值：�?
 **************************************************************************/
 void parseOrderFromS(int goalType)
 {
-	u8 getMS[300];
+	char getMS[200];
 	cJSON *root, *orderValue,*data;  // 
 	u16 rlen = 0;
 
@@ -110,28 +112,30 @@ void parseOrderFromS(int goalType)
 		{ 
 			rlen=USART3_RX_STA&0X7FFF;	//得到本次接收到的数据长度
 			USART3_RX_BUF[rlen]=0;	
-			printf("\r\nlen:%d",rlen);
+			//printf("\r\nlen:%d",rlen);
 
+			netTime = 0;
 
 			if (	(USART3_RX_BUF[0] == '#') 
 				&&	(USART3_RX_BUF[1] == '!')
 				&&	(USART3_RX_BUF[rlen-2] == '&')
 				)
 			{
-	
-				strncpy(getMS, USART3_RX_BUF+2, rlen-4); 
-				printf("\r\n getMs:%s",getMS);
+				memset(getMS, 0, sizeof(getMS));
+				
+				strncpy(getMS, USART3_RX_BUF+2, rlen-4);   //  后面要测试下
+				//printf("\r\n getMs:%s,getMslast:%c,,first:%c,len:%d,VS:%d",getMS,getMS[strlen(getMS)-1],getMS[0],strlen(getMS),strncmp("{\"businessType\": \"0001\" }",getMS, 1));
 				
 				root = cJSON_Parse(getMS);
 				if (!root) 
 				{
-					printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+					printf("\r\nError before: [%s]\n",cJSON_GetErrorPtr());
 					USART3_RX_STA = 0;
 					continue;
 				}
 
 
-				orderValue = cJSON_GetObjectItem(root, "businessType");  //  ×?D￡×??é??
+				orderValue = cJSON_GetObjectItem(root, "businessType");  //  ×?D￡�??é??
 				if (!orderValue) {
 					printf("get name faild !\n");
 					printf("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -142,7 +146,7 @@ void parseOrderFromS(int goalType)
 
 				
 				businessType = atoi(orderValue->valuestring);
-				if (businessType == goalType)  //进行目标消息类型的处理
+				if (businessType == goalType)  //进行目标消息类型的处�?
 					{
 						if(goalType == 1)
 							{
@@ -232,13 +236,25 @@ void parseOrderFromS(int goalType)
 		}
 
 		
-		delay_ms(100);
+		delay_ms(200);
 		
 		printfNUM++;
 		if (printfNUM ==10)
 			{
-				printf("\r\n waiting order from  server!!!");
+				printf("\r\n waiting  order from  server!!!");
+				printf("\r\need businessType:%d",goalType);
+				
+				
 				printfNUM =0;
+			}
+
+		
+
+		netTime++;
+		if (netTime == 100)
+			{
+				checkORReconnect();
+				netTime = 0;
 			}
 		
 	}
@@ -248,9 +264,9 @@ void parseOrderFromS(int goalType)
 
 
 /**************************************************************************
-函数功能：给服务端发主控的角色
+函数功能：给服务端发主控的角�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void sendMasterID2S()
 {
@@ -265,7 +281,7 @@ void sendMasterID2S()
 
 	printf("\r\n start sendMasterID2S");
 	
-	//  给服务器发
+	//  给服务器�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0000");
@@ -291,14 +307,14 @@ void sendMasterID2S()
 	strSend[num] = '\n';
 
 /*
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
 	strncpy(send+2, strSend, num+1); 
 	*/
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -322,7 +338,7 @@ void sendMasterID2S()
 /**************************************************************************
 函数功能：wifi模块数据发送函数，封装了下发送的逻辑
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void WIFISend(char* MS)
 {
@@ -338,19 +354,19 @@ void WIFISend(char* MS)
 
 /**************************************************************************
 函数功能：主控取货的逻辑
-入口参数：数据指针
-返回  值：无
+入口参数：数据指�?
+返回  值：�?
 **************************************************************************/
 void  AIWAC_MasterGetGoods(void)
 {
 	while(1)
 	{   
 		initSysValue();				// 初始化系统的全局变量
-		controlCarToInitSpace();	// 回到复位点
-		waitingSAskState();			// 等待服务端查询状态，并反馈
-		waitingSSendLocation();		// 获取位置，取货
+		controlCarToInitSpace();	// 回到复位�?
+		waitingSAskState();			// 等待服务端查询状态，并反�?
+		waitingSSendLocation();		// 获取位置，取�?
 		DropGoods();				// 放货
-		DropPan();					// 放盘子，并复位
+		DropPan();					// 放盘子，并复�?
 		delay_ms(100);
 		printf("\r\n finish one time !!");
 	}
@@ -359,9 +375,9 @@ void  AIWAC_MasterGetGoods(void)
 
 
 /**************************************************************************
-函数功能：查询小车 取货单元的状态，并等待回复
+函数功能：查询小�?取货单元的状态，并等待回�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void askState2other(void )
 {
@@ -369,7 +385,7 @@ void askState2other(void )
 	u16 jsonSize;
 	cJSON *root;
 	char *strJson;
-	u8 strSend[300];
+	u8 strSend[100];
 
 	while (1)
 	{
@@ -500,11 +516,11 @@ void askState2other(void )
 /**************************************************************************
 函数功能:检查系统的 状态，主控需要检查当前的位置是否在复位点
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void   checkSysState(void)
 {	
-	int ret = 1; // 状态标志		1:ok  0:error
+	int ret = 1; // 状态标�?	1:ok  0:error
 	char errorDesc[500]; 
 
 	cJSON *root, *data;  // 
@@ -549,8 +565,10 @@ void   checkSysState(void)
 	}
 
 
-	// 未到中间的位置
-	// 注意：后面需要调整
+// 为了测试
+/*
+	// 未到中间的位�?
+	// 注意：后面需要调�?
 	if ( (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.03) || (myabs_double(Car1_FDistance-MIDDLE_SPACE)>0.03))
 	{
 		ret = 0;
@@ -560,12 +578,12 @@ void   checkSysState(void)
 		strcat(errorDesc,"the state of location is bad,Cars are not good space");
 	}
 
+*/
 
 
 
 
-
-	//  给服务器发状态
+	//  给服务器发状�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0001");
@@ -600,7 +618,7 @@ void   checkSysState(void)
 
 	strSend[num] = '\n';
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -634,48 +652,48 @@ void   checkSysState(void)
 
 
 /**************************************************************************
-函数功能：step1:等待  服务器  查询复位情况并反馈复位情况
+函数功能：step1:等待  服务�? 查询复位情况并反馈复位情�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void waitingSAskState(void)
 {
 	printf("\r\n enter waitingSAskState");
 	
-	parseOrderFromS(1);  // 等待 服务端 发起 状态查询
-	feedbackGotOrder(1); //向服务端反馈收到额指令
-	askState2other();	 // 发起两小车和取货单元的状态查询,并等待反馈
+	parseOrderFromS(1);  // 等待 服务�?发起 状态查�?
+	feedbackGotOrder(1); //向服务端反馈收到额指�?
+	askState2other();	 // 发起两小车和取货单元的状态查�?并等待反�?
 	checkSysState();	// 检查状态，反馈给服务端
 }
 
 /**************************************************************************
-函数功能：step2:等待  服务器  下发订单坐标并反馈取到货
+函数功能：step2:等待  服务�? 下发订单坐标并反馈取到货
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void waitingSSendLocation(void)
 {
 	printf("\r\n enter waitingSSendLocation");
-	parseOrderFromS(3);  			// 等待 android端向主控提供需要取的货物的位置信息。
-	feedbackGotOrder(3); 			// 向服务端反馈收到额指令
-	feedbackStartGetGoods(); 		// 通知服务端开始取货
+	parseOrderFromS(3);  			// 等待 android端向主控提供需要取的货物的位置信息�?
+	feedbackGotOrder(3); 			// 向服务端反馈收到额指�?
+	feedbackStartGetGoods(); 		// 通知服务端开始取�?
 	controlCarToGoodsSpace();		// 控制小车运动到货物点
-	notifyGoodsGetterLocation();	// 给取货单元  商品的位置和深度
-	waitingGetterGotGoods();		// 等待取货单元反馈取到货
+	notifyGoodsGetterLocation();	// 给取货单�? 商品的位置和深度
+	waitingGetterGotGoods();		// 等待取货单元反馈取到�?
 
 	feedbackGotGoodsResult();		// 反馈已经取到货物
 } 
 
 
 /**************************************************************************
-函数功能：step3:进入放货逻辑并反馈已经放货
+函数功能：step3:进入放货逻辑并反馈已经放�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void DropGoods(void)
 {
 	printf("\r\n enter DropGoods");
-	controlCarToGate();				// 控制小车到 放货点
+	controlCarToGate();				// 控制小车�?放货�?
 	notifyGoodsGetterLoseGoods();	// 通知取货单元放货
 	waitingGetterLoseGoods();		// 等待取货单元放货
 	feedbackLoseGoodsResult();		// 给服务端反馈 放货情况
@@ -684,17 +702,17 @@ void DropGoods(void)
 
 
 /**************************************************************************
-函数功能：step4:进入复位丢盘逻辑并反馈已经复位
+函数功能：step4:进入复位丢盘逻辑并反馈已经复�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void DropPan(void)
 {
 	printf("\r\n enter DropPan");
 
-	controlCarToDropPan();		// 控制小车到丢盘子的地方
-	notifyGoodsGetterDropPan();	// 通知取货单元丢盘子
-	waitingGetterLosePan();	// 等待取货单元丢盘子
+	controlCarToDropPan();		// 控制小车到丢盘子的地�?
+	notifyGoodsGetterDropPan();	// 通知取货单元丢盘�?
+	waitingGetterLosePan();	// 等待取货单元丢盘�?
 	controlCarToInitSpace();	// 控制小车到复位点
 	feedbackGoInit();			// 反馈已经复位
 }
@@ -702,9 +720,9 @@ void DropPan(void)
 
 
 /**************************************************************************
-函数功能：解析来自小车1的数据，串口2
+函数功能：解析来自小�?的数据，串口2
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void PaserCar1_State(void)
 {
@@ -730,8 +748,10 @@ void PaserCar1_State(void)
 			goto end;
 		}
 
+	//printf("\r\n car1 businessType:%s",orderValue->valuestring);
 
-	// 反馈小车的状态
+
+	// 反馈小车的状�?
 	if (strcmp(orderValue->valuestring, "0007")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "errorCode");  
@@ -755,16 +775,17 @@ void PaserCar1_State(void)
 
 		}
 
-	// 反馈小车的方向距离
+	// 反馈小车的方向距�?
 	if (strcmp(orderValue->valuestring, "0011")==0)  
 		{
+			//printf("\r\n0011");
 			orderValue = cJSON_GetObjectItem(root, "Co");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car1_CorrectState = orderValue->valuedouble;
+			Car1_CorrectState = orderValue->valueint;
 
 			orderValue = cJSON_GetObjectItem(root, "FD");  
 			if (!orderValue) {
@@ -788,7 +809,7 @@ void PaserCar1_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car1_moveState = orderValue->valuedouble;
+			Car1_moveState = orderValue->valueint;
 
 
 			goto end;
@@ -800,13 +821,14 @@ void PaserCar1_State(void)
 end :
 	cJSON_Delete(root);
 
+	USART2_Car1_jsonParseBuF[0] = '-' ;
 }
 
 
 /**************************************************************************
-函数功能：解析来自小车2的数据，串口5
+函数功能：解析来自小�?的数据，串口5
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void PaserCar2_State(void)
 {
@@ -832,9 +854,10 @@ void PaserCar2_State(void)
 			//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 			goto end;
 		}
+	//printf("\r\n car2 businessType:%s",orderValue->valuestring);
 
 
-	// 反馈小车的状态
+	// 反馈小车的状�?
 	if (strcmp(orderValue->valuestring, "0008")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "errorCode");  
@@ -858,16 +881,16 @@ void PaserCar2_State(void)
 
 		}
 
-	// 反馈小车的方向距离
+	// 反馈小车的方向距�?
 	if (strcmp(orderValue->valuestring, "0012")==0)  
-		{
+		{//printf("\r\n0012");
 			orderValue = cJSON_GetObjectItem(root, "Co");  
 			if (!orderValue) {
 					//printf("get name faild !\n");
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car2_CorrectState = orderValue->valuedouble;
+			Car2_CorrectState = orderValue->valueint;
 
 			orderValue = cJSON_GetObjectItem(root, "FD");  
 			if (!orderValue) {
@@ -891,7 +914,7 @@ void PaserCar2_State(void)
 					//printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 					goto end;
 				}
-			Car2_moveState = orderValue->valuedouble;
+			Car2_moveState = orderValue->valueint;
 
 
 			goto end;
@@ -902,14 +925,14 @@ void PaserCar2_State(void)
 
 end :
 	cJSON_Delete(root);
-
+	USART5_Car2_jsonParseBuF[0] = '-';
 
 }
 
 /**************************************************************************
-函数功能：解析来自取货单元的数据，串口4
+函数功能：解析来自取货单元的数据，串�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void PaserGoodsGetter_State(void)
 {
@@ -937,7 +960,7 @@ void PaserGoodsGetter_State(void)
 
 
 
-	// 取货单元给主控反馈 状态
+	// 取货单元给主控反�?状�?
 	if (strcmp(orderValue->valuestring, "0013")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "errorCode");  
@@ -962,7 +985,7 @@ void PaserGoodsGetter_State(void)
 
 		}
 
-	// 取货单元给主控反馈 取货情况
+	// 取货单元给主控反�?取货情况
 	if (strcmp(orderValue->valuestring, "0015")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Result");  
@@ -977,7 +1000,7 @@ void PaserGoodsGetter_State(void)
 
 		}
 
-	// 取货单元给主控反馈 卸货情况
+	// 取货单元给主控反�?卸货情况
 	if (strcmp(orderValue->valuestring, "0017")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Result");  
@@ -992,7 +1015,7 @@ void PaserGoodsGetter_State(void)
 
 		}
 
-		// 取货单元给主控反馈 丢盘子情况
+		// 取货单元给主控反�?丢盘子情�?
 	if (strcmp(orderValue->valuestring, "0019")==0)  
 		{
 			orderValue = cJSON_GetObjectItem(root, "Result");  
@@ -1011,12 +1034,14 @@ void PaserGoodsGetter_State(void)
 end :
 	cJSON_Delete(root);
 
+	USART4_Getter_jsonParseBuF[0] = '-';
+
 
 }
 
 
 /**************************************************************************
-函数功能：绝对值函数
+函数功能：绝对值函�?
 入口参数：double
 返回  值：unsigned int
 **************************************************************************/
@@ -1032,8 +1057,8 @@ double myabs_double(double a)
 
 /**************************************************************************
 函数功能：向服务端反馈收到的指令
-入口参数：businessTypeGot： 收到的指令
-返回  值：无
+入口参数：businessTypeGot�?收到的指�?
+返回  值：�?
 **************************************************************************/
 void feedbackGotOrder(int businessTypeGot)
 {
@@ -1044,11 +1069,11 @@ void feedbackGotOrder(int businessTypeGot)
 	int numS = 0;
 
 	char* strSend;
-	char send[200];
+	char send[100];
 	
 	sprintf(TypeGot, "%04d", businessTypeGot); 
 
-	//	给服务器发状态
+	//	给服务器发状�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0024");
@@ -1076,7 +1101,7 @@ void feedbackGotOrder(int businessTypeGot)
 
 	strSend[num] = '\n';
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -1086,17 +1111,19 @@ void feedbackGotOrder(int businessTypeGot)
 
 	WIFISend(send);
 
-	printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+	//printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
 	aiwacFree(strSend);
+	delay_ms(150);
+	printf("\r\nfeedback to server ,strSend:%s",send);
 
 
 }
 
 
 /**************************************************************************
-函数功能：向服务端反馈开始取货
+函数功能：向服务端反馈开始取�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void feedbackStartGetGoods(void)
 {
@@ -1109,7 +1136,7 @@ void feedbackStartGetGoods(void)
 	char* strSend;
 	char send[200];
 
-	//	给服务器发状态
+	//	给服务器发状�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0004");
@@ -1134,7 +1161,7 @@ void feedbackStartGetGoods(void)
 
 	strSend[num] = '\n';
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -1154,9 +1181,9 @@ void feedbackStartGetGoods(void)
 
 
 /**************************************************************************
-函数功能：控制小车到货物点
+函数功能：控制小车到货物�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void controlCarToGoodsSpace(void)
 {
@@ -1197,9 +1224,9 @@ void controlCarToGoodsSpace(void)
 
 
 /**************************************************************************
-函数功能：通知取货单元，商品 高度和深度
+函数功能：通知取货单元，商�?高度和深�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void notifyGoodsGetterLocation(void )
 {
@@ -1243,7 +1270,7 @@ void notifyGoodsGetterLocation(void )
 /**************************************************************************
 函数功能：等待取货单元反馈取到货
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void waitingGetterGotGoods(void)
 
@@ -1274,9 +1301,9 @@ void waitingGetterGotGoods(void)
 
 
 /**************************************************************************
-函数功能：向服务端反馈取货情况
+函数功能：向服务端反馈取货情�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void feedbackGotGoodsResult(void)
 {
@@ -1289,7 +1316,7 @@ void feedbackGotGoodsResult(void)
 	char* strSend;
 	char send[200];
 
-	//	给服务器发状态
+	//	给服务器发状�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0005");
@@ -1323,7 +1350,7 @@ void feedbackGotGoodsResult(void)
 
 	strSend[num] = '\n';
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -1344,14 +1371,14 @@ void feedbackGotGoodsResult(void)
 
 
 /**************************************************************************
-函数功能：控制小车到放货点
+函数功能：控制小车到放货�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void controlCarToGate(void)
 {
 	int goalSide = 0;
-	goalSide = 1;  // 出货门 在A  -> 1
+	goalSide = 1;  // 出货�?在A  -> 1
 
 
 
@@ -1370,7 +1397,7 @@ void controlCarToGate(void)
 /**************************************************************************
 函数功能：通知取货单元放货
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void notifyGoodsGetterLoseGoods(void )
 {
@@ -1403,15 +1430,15 @@ void notifyGoodsGetterLoseGoods(void )
 	uart4_sendString(strSend,7 + jsonSize);
 	aiwacFree(strJson);
 
-	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
+	printf("\r\n notifyGoodsGetterLoseGoods:%s",strSend);
 
 
 }
 
 /**************************************************************************
-函数功能：等待取货单元反馈放货
+函数功能：等待取货单元反馈放�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void waitingGetterLoseGoods(void)
 
@@ -1444,9 +1471,9 @@ void waitingGetterLoseGoods(void)
 
 
 /**************************************************************************
-函数功能：向服务端反馈放货情况
+函数功能：向服务端反馈放货情�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void feedbackLoseGoodsResult(void)
 {
@@ -1459,7 +1486,7 @@ void feedbackLoseGoodsResult(void)
 	char* strSend;
 	char send[200];
 
-	//	给服务器发状态
+	//	给服务器发状�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0006");
@@ -1493,7 +1520,7 @@ void feedbackLoseGoodsResult(void)
 
 	strSend[num] = '\n';
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -1514,12 +1541,12 @@ void feedbackLoseGoodsResult(void)
 /**************************************************************************
 函数功能：控制小车到丢盘子的地方
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void controlCarToDropPan(void)
 {
 	int goalSide = 0;
-	goalSide = 1;  // 丢盘子 在A  -> 1
+	goalSide = 1;  // 丢盘�?在A  -> 1
 
 	printf("\r\n controlCarToDropPan:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
@@ -1535,7 +1562,7 @@ void controlCarToDropPan(void)
 /**************************************************************************
 函数功能：通知取货单元，丢盘子
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void notifyGoodsGetterDropPan(void )
 {
@@ -1568,7 +1595,7 @@ void notifyGoodsGetterDropPan(void )
 	uart4_sendString(strSend,7 + jsonSize);
 	aiwacFree(strJson);
 
-	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
+	printf("\r\n notifyGoodsGetterDropPan:%s",strSend);
 
 
 }
@@ -1576,7 +1603,7 @@ void notifyGoodsGetterDropPan(void )
 /**************************************************************************
 函数功能：等待取货单元丢盘子
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void waitingGetterLosePan(void)
 
@@ -1608,14 +1635,14 @@ void waitingGetterLosePan(void)
 
 
 /**************************************************************************
-函数功能：控制小车到复位点
+函数功能：控制小车到复位�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void controlCarToInitSpace(void)
 {
 	int goalSide = 0;
-	goalSide = 2;  // 复位点 在B  -> 2
+	goalSide = 2;  // 复位�?在B  -> 2
 
 
 
@@ -1631,9 +1658,9 @@ void controlCarToInitSpace(void)
 }
 
 /**************************************************************************
-函数功能：向服务端反馈复位情况
+函数功能：向服务端反馈复位情�?
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void feedbackGoInit(void)
 {
@@ -1646,7 +1673,7 @@ void feedbackGoInit(void)
 	char* strSend;
 	char send[200];
 
-	//	给服务器发状态
+	//	给服务器发状�?
 	root=cJSON_CreateObject();
 
 	cJSON_AddStringToObject(root,"businessType", "0002");
@@ -1671,7 +1698,7 @@ void feedbackGoInit(void)
 
 	strSend[num] = '\n';
 
-	// 加协议头帧
+	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
 	send[1] = '!';
@@ -1689,9 +1716,9 @@ void feedbackGoInit(void)
 
 
 /**************************************************************************
-函数功能：	指定方向，运动到某方向剩余的距离处
-入口参数：	 direction：方向    		needDistance：剩余的距离
-返回  值：		无
+函数功能�?指定方向，运动到某方向剩余的距离�?
+入口参数�? direction：方�?   		needDistance：剩余的距离
+返回  值：		�?
 **************************************************************************/
 void goToLocation(int direction,double needDistance)
 {
@@ -1705,11 +1732,12 @@ void goToLocation(int direction,double needDistance)
 		}
 
 		printf("\r\n waiting for data from cars");	
+		printf("\r\nCar1_CorrectState:%d,Car2_CorrectState:%d",Car1_CorrectState,Car2_CorrectState);
 		delay_ms(100); 
 	}
 
 			
-	//起步阶段，需要两车平行起步
+	//起步阶段，需要两车平行起�?
 	goStartTogether(direction);
 
 	// 运动到某方向的，指定地点
@@ -1720,16 +1748,16 @@ void goToLocation(int direction,double needDistance)
 
 
 /**************************************************************************
-函数功能：	两车起步的逻辑，在指定方向让后面的车 移动到前面，然后等矫正
-入口参数： int direction  方向 
-返回  值：		无
+函数功能�?两车起步的逻辑，在指定方向让后面的�?移动到前面，然后等矫�?
+入口参数�?int direction  方向 
+返回  值：		�?
 **************************************************************************/
 void goStartTogether(int direction)
 {
 	double goalLocation = 0 ;
 	double TogetherGap = 0.02;
 
-	while(( Car1_moveState > 1 )|| (Car2_moveState > 1) ) //  当前有  小车在  转弯
+	while(( Car1_moveState > 1 )|| (Car2_moveState > 1) ) //  当前�? 小车�? 转弯
 	{
 		printf("\r\nwaiting for turing,  Car1_moveState :%d,  Car2_moveState:%d ",Car1_moveState ,Car2_moveState );
 		delay_ms(50); //   等待转完
@@ -1757,12 +1785,12 @@ void goStartTogether(int direction)
 
 	
 
-	//等校正
+	//等校�?
 	while (1) 
 		{
 			delay_ms(50);
 			
-			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校�? ok
 			{
 				
 				break;
@@ -1792,7 +1820,7 @@ void goStartTogether(int direction)
 				}
 
 				
-			if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap)  // 车1是标准位置
+			if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap)  // �?是标准位�?
 				{
 					printf("\r\n goStartTogether:study from car1 ");
 					
@@ -1801,7 +1829,7 @@ void goStartTogether(int direction)
 						delay_ms(80);
 	
 
-						if (myabs_double(Car2_FDistance- goalLocation) <= TogetherGap) // 车2 ok
+						if (myabs_double(Car2_FDistance- goalLocation) <= TogetherGap) // �? ok
 							{
 								printf("\r\n goStartTogether:CorrectState   ok");
 								AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
@@ -1809,13 +1837,13 @@ void goStartTogether(int direction)
 							}
 
 						
-						if( (Car2_FDistance)< goalLocation - TogetherGap) //走超了
+						if( (Car2_FDistance)< goalLocation - TogetherGap) //走超�?
 							{
 								AiwacMasterSendOrderCar2(-MIN_SPEED , STATE_STRAIGHT) ;
 								printf("\r\n goStartTogether:over");
 
 							}
-						else if ((Car2_FDistance)> 4*TogetherGap+ goalLocation) //还较远
+						else if ((Car2_FDistance)> 4*TogetherGap+ goalLocation) //还较�?
 							{
 
 								AiwacMasterSendOrderCar2(4*MIN_SPEED , STATE_STRAIGHT) ; 
@@ -1839,7 +1867,7 @@ void goStartTogether(int direction)
 						printf("\r\n Car1:Car1_CorrectState :%d,  Car1_FDistance:%f,   Car1_moveState:%d",Car1_CorrectState ,Car1_FDistance, Car1_moveState);
 						printf("\r\n Car2:Car2_CorrectState :%d,  Car2_FDistance:%f,   Car2_moveState:%d",Car2_CorrectState ,Car2_FDistance, Car2_moveState);
 
-						if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap) // 车1 ok
+						if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap) // �? ok
 							{
 								printf("\r\n goStartTogether:CorrectState   ok");
 								AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
@@ -1847,13 +1875,13 @@ void goStartTogether(int direction)
 							}
 
 						
-						if( (Car1_FDistance)< goalLocation - TogetherGap) //走超了
+						if( (Car1_FDistance)< goalLocation - TogetherGap) //走超�?
 							{
 								AiwacMasterSendOrderCar1(-MIN_SPEED , STATE_STRAIGHT) ;
 								printf("\r\n goStartTogether:over");
 
 							}
-						else if ((Car1_FDistance)> 4*TogetherGap+ goalLocation) //还较远
+						else if ((Car1_FDistance)> 4*TogetherGap+ goalLocation) //还较�?
 							{
 
 								AiwacMasterSendOrderCar1(4*MIN_SPEED , STATE_STRAIGHT) ; 
@@ -1889,7 +1917,7 @@ void goStartTogether(int direction)
 			}
 
 					
-			if (myabs_double(Car1_BDistance- goalLocation) <= TogetherGap)  // 车1是标准位置
+			if (myabs_double(Car1_BDistance- goalLocation) <= TogetherGap)  // �?是标准位�?
 			{
 				printf("\r\n goStartTogether:study from car1 ");
 				
@@ -1898,7 +1926,7 @@ void goStartTogether(int direction)
 					delay_ms(80);
 
 
-					if (myabs_double(Car2_BDistance- goalLocation) <= TogetherGap) // 车2 ok
+					if (myabs_double(Car2_BDistance- goalLocation) <= TogetherGap) // �? ok
 						{
 							printf("\r\n goStartTogether:CorrectState   ok");
 							AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
@@ -1906,13 +1934,13 @@ void goStartTogether(int direction)
 						}
 
 					
-					if( (Car2_BDistance)< goalLocation - TogetherGap) //走超了
+					if( (Car2_BDistance)< goalLocation - TogetherGap) //走超�?
 						{
 							AiwacMasterSendOrderCar2(MIN_SPEED , STATE_STRAIGHT) ;
 							printf("\r\n goStartTogether:over");
 
 						}
-					else if ((Car2_BDistance)> 4*TogetherGap+ goalLocation) //还较远
+					else if ((Car2_BDistance)> 4*TogetherGap+ goalLocation) //还较�?
 						{
 
 							AiwacMasterSendOrderCar2(-4*MIN_SPEED , STATE_STRAIGHT) ; 
@@ -1936,7 +1964,7 @@ void goStartTogether(int direction)
 					printf("\r\n Car1:Car1_CorrectState :%d,  Car1_FDistance:%f,   Car1_moveState:%d",Car1_CorrectState ,Car1_FDistance, Car1_moveState);
 					printf("\r\n Car2:Car2_CorrectState :%d,  Car2_FDistance:%f,   Car2_moveState:%d",Car2_CorrectState ,Car2_FDistance, Car2_moveState);
 */
-					if (myabs_double(Car1_BDistance- goalLocation) <= TogetherGap) // 车1 ok
+					if (myabs_double(Car1_BDistance- goalLocation) <= TogetherGap) // �? ok
 						{
 							printf("\r\n goStartTogether:CorrectState   ok");
 							AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
@@ -1944,13 +1972,13 @@ void goStartTogether(int direction)
 						}
 
 					
-					if( (Car1_BDistance)< goalLocation - TogetherGap) //走超了
+					if( (Car1_BDistance)< goalLocation - TogetherGap) //走超�?
 						{
 							AiwacMasterSendOrderCar1(MIN_SPEED , STATE_STRAIGHT) ;
 							printf("\r\n goStartTogether:over");
 
 						}
-					else if ((Car1_BDistance)> 4*TogetherGap+ goalLocation) //还较远
+					else if ((Car1_BDistance)> 4*TogetherGap+ goalLocation) //还较�?
 						{
 
 							AiwacMasterSendOrderCar1(-4*MIN_SPEED , STATE_STRAIGHT) ; 
@@ -1977,12 +2005,12 @@ void goStartTogether(int direction)
 
 
 
-	//等校正
+	//等校�?
 	while (1) 
 		{
 			delay_ms(50);
 			
-			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校�? ok
 			{
 				printf("\r\n step3  goStartTogether correction ok ");
 				break;
@@ -1998,14 +2026,14 @@ void goStartTogether(int direction)
 
 
 /**************************************************************************
-函数功能：	两车已经平行，在指定方向运动到目标地点
-入口参数： int direction  方向 
-返回  值：		无
+函数功能�?两车已经平行，在指定方向运动到目标地�?
+入口参数�?int direction  方向 
+返回  值：		�?
 **************************************************************************/
 void goGoalPosition(int direction,double NeedDistance)
 {
 	double goalGAP = 0.015;   //m
-	double iniTDistance = 0; // 起步距离，用于 渐进起步
+	double iniTDistance = 0; // 起步距离，用�?渐进起步
 	double needDistance = NeedDistance;
 	
 
@@ -2028,12 +2056,12 @@ void goGoalPosition(int direction,double NeedDistance)
 		}
 	
 
-	//等校正
+	//等校�?
 	while (1) 
 		{
 			delay_ms(80);
 			
-			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校�? ok
 			{
 				printf("\r\n step1  goGoalPosition correction ok ");
 				break;
@@ -2043,7 +2071,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 
 	
-	// 运动到目标地点
+	// 运动到目标地�?
 	if (direction == FRONT_DIRECTION)
 		{
 
@@ -2079,7 +2107,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 							
 						
-							// 车1 的情况
+							// �? 的情�?
 							if (Car1_FDistance >= (needDistance + goalGAP))
 								{
 								
@@ -2100,7 +2128,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 							
 						
-						// 车2 的情况
+						// �? 的情�?
 							if (Car2_FDistance >= (needDistance +goalGAP))
 								{
 								
@@ -2121,27 +2149,27 @@ void goGoalPosition(int direction,double NeedDistance)
 						}
 					else // 未到目标位置
 						{
-							if( myabs_double(Car1_FDistance - Car2_FDistance ) < goalGAP*4)  //  两车的	前进 距离ok
+							if( myabs_double(Car1_FDistance - Car2_FDistance ) < goalGAP*4)  //  两车�?前进 距离ok
 							{
 								// 下发  继续 默认前进 
 								AiwacMasterSendOrderCar1(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) , STATE_STRAIGHT) ;
 								AiwacMasterSendOrderCar2(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) , STATE_STRAIGHT) ;
 								printf("\r\ngo on straight");
 							}
-							else // 两车的  前进 距离  no
+							else // 两车�? 前进 距离  no
 							{
-								if (Car1_FDistance - Car2_FDistance >0)  // 1车在后 
+								if (Car1_FDistance - Car2_FDistance >0)  // 1车在�?
 									{
-										// 发送 2车默认速度，1车 比默认快点
-										AiwacMasterSendOrderCar1(designFSpeed2(Car1_FDistance, needDistance,iniTDistance)  +MIN_SPEED*2, STATE_STRAIGHT) ;
-										AiwacMasterSendOrderCar2((designFSpeed2(Car2_FDistance, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
+										// 发�?2车默认速度�?�?比默认快�?
+										AiwacMasterSendOrderCar1(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance)  +MIN_SPEED*2, STATE_STRAIGHT) ;
+										AiwacMasterSendOrderCar2((designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
 										printf("\r\n car1 needs to go fast");
 									}
 								else
 									{
-										// 发送 1车默认速度，2车 比默认快点
-										AiwacMasterSendOrderCar1(designFSpeed2(Car1_FDistance, needDistance,iniTDistance) , STATE_STRAIGHT) ;
-										AiwacMasterSendOrderCar2(designFSpeed2(Car2_FDistance, needDistance,iniTDistance)+ MIN_SPEED*2 , STATE_STRAIGHT) ;
+										// 发�?1车默认速度�?�?比默认快�?
+										AiwacMasterSendOrderCar1(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) , STATE_STRAIGHT) ;
+										AiwacMasterSendOrderCar2(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance)+ MIN_SPEED*2 , STATE_STRAIGHT) ;
 										printf("\r\n car2 needs to go fast");
 									}
 								
@@ -2151,7 +2179,7 @@ void goGoalPosition(int direction,double NeedDistance)
 				}
 
 	}
-	else		//后面的值
+	else		//后面的�?
 		{
 
 		iniTDistance = (Car2_BDistance + Car1_BDistance)/2;
@@ -2186,7 +2214,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 						
 					
-						// 车1 的情况
+						// �? 的情�?
 						if (Car1_BDistance >= (needDistance + goalGAP))
 							{
 							
@@ -2207,7 +2235,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 						
 					
-					// 车2 的情况
+					// �? 的情�?
 						if (Car2_BDistance >= (needDistance +goalGAP))
 							{
 							
@@ -2228,27 +2256,27 @@ void goGoalPosition(int direction,double NeedDistance)
 					}
 				else // 未到目标位置
 					{
-						if( myabs_double(Car1_BDistance - Car2_BDistance ) < goalGAP*4)  //  两车的	前进 距离ok
+						if( myabs_double(Car1_BDistance - Car2_BDistance ) < goalGAP*4)  //  两车�?前进 距离ok
 						{
 							// 下发  继续 默认前进 
 							AiwacMasterSendOrderCar1(-(designFSpeed2((Car1_BDistance+Car2_BDistance)/2, needDistance,iniTDistance)) , STATE_STRAIGHT) ;
 							AiwacMasterSendOrderCar2(-(designFSpeed2((Car1_BDistance+Car2_BDistance)/2, needDistance,iniTDistance)) , STATE_STRAIGHT) ;
 							printf("\r\ngo on straight");
 						}
-						else // 两车的  前进 距离  no
+						else // 两车�? 前进 距离  no
 						{
-							if (Car1_BDistance - Car2_BDistance >0)  // 1车在后 
+							if (Car1_BDistance - Car2_BDistance >0)  // 1车在�?
 								{
-									// 发送 2车默认速度，1车 比默认快点
-									AiwacMasterSendOrderCar1(-(designFSpeed2(Car1_BDistance, needDistance,iniTDistance)  +MIN_SPEED*2), STATE_STRAIGHT) ;
-									AiwacMasterSendOrderCar2(-(designFSpeed2(Car2_BDistance, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
+									// 发�?2车默认速度�?�?比默认快�?
+									AiwacMasterSendOrderCar1(-(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance)  +MIN_SPEED*2), STATE_STRAIGHT) ;
+									AiwacMasterSendOrderCar2(-(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
 									printf("\r\n car1 needs to go fast");
 								}
 							else
 								{
-									// 发送 1车默认速度，2车 比默认快点
-									AiwacMasterSendOrderCar1(-(designFSpeed2(Car1_BDistance, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
-									AiwacMasterSendOrderCar2(-(designFSpeed2(Car2_BDistance, needDistance,iniTDistance)+ MIN_SPEED*2) , STATE_STRAIGHT) ;
+									// 发�?1车默认速度�?�?比默认快�?
+									AiwacMasterSendOrderCar1(-(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) ), STATE_STRAIGHT) ;
+									AiwacMasterSendOrderCar2(-(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance)+ MIN_SPEED*2) , STATE_STRAIGHT) ;
 									printf("\r\n car2 needs to go fast");
 								}
 							
@@ -2267,12 +2295,12 @@ void goGoalPosition(int direction,double NeedDistance)
 	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
 	delay_ms(50);
 
-		//等校正
+		//等校�?
 	while (1) 
 		{
 			delay_ms(50);
 			
-			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校准  ok
+			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校�? ok
 			{
 				printf("\r\n step3  goGoalPosition correction ok ");
 				break;
@@ -2288,13 +2316,13 @@ void goGoalPosition(int direction,double NeedDistance)
 void sendTuringOrder(int Left_or_Right)
 {
 
-	//	转弯的  方向 要看 在 超市哪边
+	//	转弯�? 方向 要看 �?超市哪边
 	AiwacMasterSendOrderCar1(CAR_STOP , Left_or_Right) ;
 	AiwacMasterSendOrderCar2(CAR_STOP , Left_or_Right) ;
 	delay_ms(120);
 
 	//若未进入转弯
-	while ((Car2_moveState <2 ) || (Car1_moveState <2 ) )  //有车未转弯
+	while ((Car2_moveState <2 ) || (Car1_moveState <2 ) )  //有车未转�?
 		{
 
 			
@@ -2313,7 +2341,7 @@ void sendTuringOrder(int Left_or_Right)
 		}
 
 	
-	// 检查  是否结束
+	// 检�? 是否结束
 	while((( Car1_moveState > 1 )|| (Car2_moveState > 1) ))
 		{
 
@@ -2329,29 +2357,29 @@ void sendTuringOrder(int Left_or_Right)
 
 
 /**************************************************************************
-函数功能：	根据前方距离 定小车前进速度
-入口参数：	 前方
+函数功能�?根据前方距离 定小车前进速度
+入口参数�? 前方
 返回  值：		前方速度
 **************************************************************************/
 double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 {
 	double FSpeed = 30;		// 低速的速度 mm
 
-	double FDSMax = FD_MAX_SPEED;  // 规定的最大  前方速度  mm
+	double FDSMax = FD_MAX_SPEED;  // 规定的最�? 前方速度  mm
 
 	double startSpeed = 0;
-	FD_care = FD_care + 0.10 ;	// 前方警戒距离，需要  低速前进
+	FD_care = FD_care + 0.10 ;	// 前方警戒距离，需�? 低速前�?
 
 
 
-	if ((iniTDistance >=FD) || (iniTDistance -FD)*1000 <100)
+	if ((iniTDistance >=FD-0.05) || (iniTDistance -FD)*1000 <100)
 		{
-			startSpeed = (iniTDistance -FD)*1000*2+FSpeed;
+			startSpeed = (iniTDistance -FD)*700*2+FSpeed;
 	
 		}
 
 	
-	if (FD>FD_care)  // 离危险距离较远
+	if (FD>FD_care)  // 离危险距离较�?
 	{
 		FSpeed = (FD - FD_care)*700 + FSpeed;
 	}
@@ -2373,9 +2401,9 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 
 
 /**************************************************************************
-函数功能：	给小车1发 速度 和 小车的运动状态指令 
-入口参数：	 X_V  : X轴的速度,前进速度			     moveState：小车的运动状态指令
-返回  值：		无
+函数功能�?给小�?�?速度 �?小车的运动状态指�?
+入口参数�? X_V  : X轴的速度,前进速度			     moveState：小车的运动状态指�?
+返回  值：		�?
 **************************************************************************/
 void AiwacMasterSendOrderCar1(double X_V, int moveState)
 {
@@ -2425,9 +2453,9 @@ void AiwacMasterSendOrderCar1(double X_V, int moveState)
 
 
 /**************************************************************************
-函数功能：	给小车2发 速度 和 小车的运动状态指令 
-入口参数：	 X_V  : X轴的速度,前进速度			     moveState：小车的运动状态指令
-返回  值：		无
+函数功能�?给小�?�?速度 �?小车的运动状态指�?
+入口参数�? X_V  : X轴的速度,前进速度			     moveState：小车的运动状态指�?
+返回  值：		�?
 **************************************************************************/
 void AiwacMasterSendOrderCar2(double X_V, int moveState)
 {
@@ -2473,13 +2501,13 @@ void AiwacMasterSendOrderCar2(double X_V, int moveState)
 
 
 /**************************************************************************
-函数功能：	给定当前位置 和   目标位置 控制小车运动
+函数功能�?给定当前位置 �?  目标位置 控制小车运动
 入口参数：goalSide：目标边   ,		nowSide：当前边   	goDistance；按图的距离
-返回  值：		无
+返回  值：		�?
 **************************************************************************/
 void goToEverywhere(int goalSide,int nowSide, double goDistance)
 {
-	//按分区进行  主控逻辑
+	//按分区进�? 主控逻辑
 	if (strcmp("Area1", MASTER_ID)  == 0)
 	{
 
@@ -2493,12 +2521,15 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在A,去A
 			if (goalSide == 1)		
 			{
+				printf("\r\n A->A");
 				if (Car1_FDistance >= goDistance)
 				{
+					printf("\r\n (Car1_FDistance >= goDistance)");
 					goToLocation(FRONT_DIRECTION, goDistance);
 				}
 				else
 				{
+					printf("\r\n (Car1_FDistance < goDistance)");
 					goToLocation(BACK_DIRECTION, A_HALF_LEN - goDistance);
 				}
 
@@ -2508,6 +2539,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在A,去B
 			if (goalSide == 2)		
 			{
+				printf("\r\n A->B");
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, B_LEN - goDistance);
@@ -2518,6 +2550,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在A,去c
 			if (goalSide == 3)	
 			{
+				printf("\r\n A->C");
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
@@ -2536,6 +2569,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在B,去A
 			if (goalSide == 1) 		
 			{
+				printf("\r\n B->A");
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, goDistance);
@@ -2546,6 +2580,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在B,去B
 			if (goalSide == 2) 		
 			{
+				printf("\r\n B->B");
 				if (Car1_FDistance >= goDistance)
 					{
 						goToLocation(FRONT_DIRECTION, goDistance);
@@ -2562,6 +2597,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在B,去C
 			if (goalSide == 3) 		
 			{
+				printf("\r\n B->C");
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				goToLocation(BACK_DIRECTION, C_HALF_LEN - goDistance);
@@ -2579,6 +2615,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在C,去A
 			if (goalSide == 1) 		
 			{
+				printf("\r\n C->A");
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
@@ -2591,6 +2628,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在C,去B
 			if (goalSide == 2) 		
 			{
+				printf("\r\n C->B");
 				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_RIGHT);
 				goToLocation(FRONT_DIRECTION, goDistance);
@@ -2601,6 +2639,7 @@ void goToEverywhere(int goalSide,int nowSide, double goDistance)
 			// 在C,去C
 			if (goalSide == 3) 		
 			{
+				printf("\r\n C->C");
 				if (Car1_FDistance >= goDistance)
 					{
 						goToLocation(FRONT_DIRECTION, goDistance);
@@ -2780,7 +2819,7 @@ void test11(void)
 				}
 
 
-				orderValue = cJSON_GetObjectItem(root, "businessType");  //  ×?D￡×??é??
+				orderValue = cJSON_GetObjectItem(root, "businessType");  //  ×?D￡�??é??
 				if (!orderValue) {
 					printf("get name faild !\n");
 					printf("businessType :Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -2791,7 +2830,7 @@ void test11(void)
 
 				
 				businessType = atoi(orderValue->valuestring);
-				if (businessType == goalType)  //进行目标消息类型的处理
+				if (businessType == goalType)  //进行目标消息类型的处�?
 					{
 						if(goalType == 1)
 							{
@@ -2880,3 +2919,24 @@ void test11(void)
 
 }
 
+
+void checkORReconnect(void )
+{	u8 constate;
+	constate=atk_8266_consta_check();//得到连接状态
+	
+	if (constate != '+')
+	{
+		printf("\r\n rebuilt the net link");
+		
+		wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
+		sendMasterID2S();			//给服务端发送主控ID
+		atk_8266_at_response(1);
+
+	}
+	else
+	{
+		atk_8266_at_response(1);
+		printf("\r\n  the net link  ok\r\n");
+	}
+	
+}

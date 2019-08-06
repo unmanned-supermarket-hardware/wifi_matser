@@ -5,7 +5,7 @@
 
 
 extern u8 USART2_Car1_jsonParseBuF[300]; 
-extern u8 USART4_Getter_jsonParseBuF[300]; 
+extern u8 USART4_Getter_jsonParseBuF[200]; 
 extern u8 USART5_Car2_jsonParseBuF[300];
 
 

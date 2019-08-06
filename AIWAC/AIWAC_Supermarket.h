@@ -16,7 +16,7 @@
 #define MASTER_AREA_2 "Area2"
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
-#define AIWAC_IP "192.168.1.105"
+#define AIWAC_IP "192.168.43.165"
 //用户配置参数
 extern const u8* portnum;			//连接端口
 extern const u8* wifista_ssid;		//WIFI STA SSID
@@ -25,32 +25,32 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 
 
-// 各个关键位置对照参考图的位置
+// 各个关键位置对照参考图的位�?
 #define DROP_GOODS_SPACE 0.5   //出货口距A边中心的距离
-#define DROP_PAN_SPACE 0.9   //丢盘子的位置距A边中心的距离
+#define DROP_PAN_SPACE 0.7   //丢盘子的位置距A边中心的距离
 
 
-// 下面两个差不多吧，找时间整合下
-#define CAR_INIT_SPACE 1.6   //丢盘子的位置距A边中心的距离
+// 下面两个差不多吧，找时间整合�?
+#define CAR_INIT_SPACE 1   //丢盘子的位置距A边中心的距离
 #define MIDDLE_SPACE CAR_INIT_SPACE   		//复位点，m，在区的
 
 #define C_HALF_LEN      2 	//单位 ：m      
-#define B_LEN	    4   // 单位：m
-#define A_HALF_LEN      2   // 单位  ：m 
+#define B_LEN	    2   // 单位：m
+#define A_HALF_LEN      1.7   // 单位  ：m 
 
 
 
-#define TURING_DISTANCE 0.52  // 前方需要转弯的  时候 m
+#define TURING_DISTANCE 0.48  // 前方需要转弯的  时�?m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
 
-#define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离差 m
+#define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离�?m
 #define DEFUALT_SPEED 100  //  小车的默认速度
 #define MIN_SPEED 30  //小车 运动的最小速度   mm/s
 #define ACC_SPEED 150  //  小车的加速速度
 #define CAR_STOP 0  // 小车速度停止
-#define FD_MAX_SPEED 600  // 小车运动的 最大速度  mm/s
+#define FD_MAX_SPEED 500  // 小车运动�?最大速度  mm/s
 
-// 小车的运动状态
+// 小车的运动状�?
 #define STATE_STOP 0
 #define STATE_STRAIGHT 1
 #define STATE_TURN_RIGHT 2
@@ -58,7 +58,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 
 
-// 小车前进方向用
+// 小车前进方向�?
 #define FRONT_DIRECTION  1
 #define BACK_DIRECTION  2
 
@@ -70,7 +70,7 @@ extern int  printfNUM ; //打印计数
 extern int LocationNow;	//A:1  B:2  C:3
 
 
-// 全局存储  系统的  状态
+// 全局存储  系统�? 状�?
 struct systemState {
 	int car1State;
 	char car1Error[100];
@@ -79,7 +79,7 @@ struct systemState {
 	int goodsGetterState;
 	char goodsGetterEorror[100];
 	int masterState;  
-	char allErrorDesc[200];  // 嵌入式的状态
+	char allErrorDesc[200];  // 嵌入式的状�?
 }  ;
 extern struct systemState SystemState;
 
@@ -110,7 +110,7 @@ extern int GotGoodsResult;
 extern int LoseGoodsResult;
 extern int LosePanResult;
 
-
+extern int netTime;
 
 void initSysValue(void);
 void askState2other(void );
@@ -150,6 +150,7 @@ void controlCarToInitSpace(void);
 void controlCarToGate(void);
 void goToEverywhere(int goalSide,int nowSide, double goDistance);
 void test11(void);
+void checkORReconnect(void );
 
 
 

@@ -314,9 +314,9 @@
 	
 	
 	int USART4_dataLen = -1; // json字符串的长度
-	u8 USART4_jsonBuF[300]; // 在中断的时候 存储接收的json 字符串
+	u8 USART4_jsonBuF[200]; // 在中断的时候 存储接收的json 字符串
 	int USART4_jsonDataCount = 0; //当前接收的 json 字符串数
-	u8 USART4_Getter_jsonParseBuF[300]; 
+	u8 USART4_Getter_jsonParseBuF[200]; 
 	int uart4ByteNum = 0; // 串口2 接收符合协议的字节数目
 	u8 uart4CRC =0;
 	
@@ -505,7 +505,7 @@
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5,ENABLE);//使能UART5时钟
 		//2.设置引脚复用器映射 
 		GPIO_PinAFConfig(GPIOC,GPIO_PinSource12,GPIO_AF_UART5); //GPIOC12复用为UART5
-		GPIO_PinAFConfig(GPIOD,GPIO_PinSource2,GPIO_AF_UART5); //GPIOD2复用为UART4  
+		GPIO_PinAFConfig(GPIOD,GPIO_PinSource2,GPIO_AF_UART5); //GPIOD2复用为UART5  
 		//3.GPIO端口模式设置
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12; //GPIOC12初始化
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;//复用功能
