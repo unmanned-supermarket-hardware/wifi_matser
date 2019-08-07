@@ -105,7 +105,8 @@ void parseOrderFromS(int goalType)
 	int businessType =999;
 
 
-
+	double length = 0;	// 位置的各种信息
+	
 	while(1)
 	{
 		if(USART3_RX_STA&0X8000)		
@@ -186,8 +187,10 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.distance,orderValue->valuestring);
-
+								length =  atoi(orderValue->valuestring)/1000;
+								sprintf(GoodsLocation.distance,"%f",length);
+								//strcpy(GoodsLocation.distance,orderValue->valuestring);
+								//printf("\r\n")
 
 								orderValue = cJSON_GetObjectItem(data, "height");
 								if (!orderValue) {
@@ -197,7 +200,9 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.height,orderValue->valuestring);
+								//strcpy(GoodsLocation.height,orderValue->valuestring);
+								length =  atoi(orderValue->valuestring)/1000;
+								sprintf(GoodsLocation.height,"%f",length);
 
 								orderValue = cJSON_GetObjectItem(data, "depth");
 								if (!orderValue) {
@@ -207,7 +212,10 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								strcpy(GoodsLocation.depth,orderValue->valuestring);
+								//strcpy(GoodsLocation.depth,orderValue->valuestring);
+								length =  atoi(orderValue->valuestring)/1000;
+								sprintf(GoodsLocation.depth,"%f",length);
+								
 								printf("\r\nside:%s,distance:%s,height:%s,depth:%s",GoodsLocation.side, GoodsLocation.distance, GoodsLocation.height, GoodsLocation.depth);
 	
 							}
@@ -276,7 +284,7 @@ void sendMasterID2S()
 	int numS = 0;
 
 	char* strSend;
-	char send[300];
+	char send[200];
 
 
 	printf("\r\n start sendMasterID2S");
@@ -306,14 +314,6 @@ void sendMasterID2S()
 
 	strSend[num] = '\n';
 
-/*
-	// 加协议头�?
-	memset(send, 0, sizeof(send));
-	send[0] = '#';
-	send[1] = '!';
-	strncpy(send+2, strSend, num+1); 
-	*/
-
 	// 加协议头�?
 	memset(send, 0, sizeof(send));
 	send[0] = '#';
@@ -324,8 +324,10 @@ void sendMasterID2S()
 
 	WIFISend(send);
 
-	printf("\r\nstrSend:%s  LEN:%\d",strSend,strlen(strSend));
+	
 	aiwacFree(strSend);
+
+	printf("\r\nstrSend:%s",send);
 
 	printf("\r\n sendMasterID2S  OK");
 	
@@ -342,6 +344,7 @@ void sendMasterID2S()
 **************************************************************************/
 void WIFISend(char* MS)
 {
+	checkORReconnect();  // 检查连接是否在线
 
 	atk_8266_quit_trans();
 	atk_8266_send_cmd("AT+CIPSEND","OK",20);		 //开始透传 	   
@@ -2372,7 +2375,7 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 
 
 
-	if ((iniTDistance >=FD-0.05) || (iniTDistance -FD)*1000 <100)
+	if ((iniTDistance >=FD-0.05) || (iniTDistance -FD)*1000 <150)
 		{
 			startSpeed = (iniTDistance -FD)*700*2+FSpeed;
 	
