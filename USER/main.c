@@ -25,6 +25,7 @@
 int main(void)
 {     
 	//cJSON *root, *orderValue,*data;  //
+	//double length = 0;
 
 
 	int rlen = 0;
@@ -106,6 +107,7 @@ int main(void)
 
 		}
 */
+
 
 
 	

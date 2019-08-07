@@ -105,7 +105,7 @@ void parseOrderFromS(int goalType)
 	int businessType =999;
 
 
-	double length = 0;	// 位置的各种信息
+	float length = 0;	// 位置的各种信息
 	
 	while(1)
 	{
@@ -187,8 +187,11 @@ void parseOrderFromS(int goalType)
 									cJSON_Delete(root);
 									continue;
 								}	
-								length =  atoi(orderValue->valuestring)/1000;
+
+								printf("\r\norderValue->valuestring:%s,double:%f,double/1000:%f",orderValue->valuestring,atof(orderValue->valuestring), atof(orderValue->valuestring)/1000);
+								length =  atof(orderValue->valuestring)/1000;
 								sprintf(GoodsLocation.distance,"%f",length);
+								printf("\r\GoodsLocation.distance:%s",GoodsLocation.distance);
 								//strcpy(GoodsLocation.distance,orderValue->valuestring);
 								//printf("\r\n")
 
@@ -201,7 +204,7 @@ void parseOrderFromS(int goalType)
 									continue;
 								}	
 								//strcpy(GoodsLocation.height,orderValue->valuestring);
-								length =  atoi(orderValue->valuestring)/1000;
+								length =  atof(orderValue->valuestring)/1000;
 								sprintf(GoodsLocation.height,"%f",length);
 
 								orderValue = cJSON_GetObjectItem(data, "depth");
@@ -213,7 +216,7 @@ void parseOrderFromS(int goalType)
 									continue;
 								}	
 								//strcpy(GoodsLocation.depth,orderValue->valuestring);
-								length =  atoi(orderValue->valuestring)/1000;
+								length =  atof(orderValue->valuestring)/1000;
 								sprintf(GoodsLocation.depth,"%f",length);
 								
 								printf("\r\nside:%s,distance:%s,height:%s,depth:%s",GoodsLocation.side, GoodsLocation.distance, GoodsLocation.height, GoodsLocation.depth);
