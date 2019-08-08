@@ -82,9 +82,14 @@ void initSysValue(void)
 void wifi_Init(void)
 {
 	printf("\r\n start wifi_Init");
+
+	closeUart2_4_5();
+	
 	atk_8266_test();		//进入ATK_ESP8266
 	delay_ms(200);
 	atk_8266_at_response(1);
+	
+	openUart2_4_5();
 	printf("\r\n wifi_Init OK");
 }
 
@@ -106,6 +111,8 @@ void parseOrderFromS(int goalType)
 
 
 	float length = 0;	// 位置的各种信息
+
+	closeUart2_4_5();
 	
 	while(1)
 	{
@@ -226,6 +233,9 @@ void parseOrderFromS(int goalType)
 						USART3_RX_STA = 0;
 						cJSON_Delete(root);
 						printf("\r\n master get businessType:%d from server",businessType);
+
+
+						openUart2_4_5();
 						return ;  //get goalType.exit
 					}
 				else
@@ -347,12 +357,17 @@ void sendMasterID2S()
 **************************************************************************/
 void WIFISend(char* MS)
 {
+
+	closeUart2_4_5();
+
 	checkORReconnect();  // 检查连接是否在线
 
 	atk_8266_quit_trans();
 	atk_8266_send_cmd("AT+CIPSEND","OK",20);		 //开始透传 	   
 
 	u3_printf("%s",MS);
+
+	openUart2_4_5();
 	
 }
 
@@ -2945,4 +2960,71 @@ void checkORReconnect(void )
 		printf("\r\n  the net link  ok\r\n");
 	}
 	
+}
+
+
+
+/**************************************************************************
+函数功能：开启2 4 5 串口
+入口参数：无
+返回  值：无
+**************************************************************************/
+void closeUart2_4_5(void)
+{
+	// 串口2
+	 //开启中断
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(USART2, DISABLE);					  //使能串口 
+
+
+
+	// 串口4
+	// 开启中断
+	USART_ITConfig(UART4, USART_IT_RXNE, DISABLE);//开启中断  
+	// 使能串口 
+	USART_Cmd(UART4, DISABLE);					 //使能串口 
+
+
+
+	// 串口5
+	//开启中断
+	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(UART5, DISABLE);					 //使能串口 
+
+
+}
+
+
+
+/**************************************************************************
+函数功能：关闭2 4 5 串口
+入口参数：无
+返回  值：无
+**************************************************************************/
+void  openUart2_4_5(void)
+{
+	// 串口2
+	 //开启中断
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(USART2, ENABLE);					  //使能串口 
+
+
+
+	// 串口4
+	// 开启中断
+	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中断  
+	// 使能串口 
+	USART_Cmd(UART4, ENABLE);					 //使能串口 
+
+
+
+	// 串口5
+	//开启中断
+	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(UART5, ENABLE);					 //使能串口 
+
 }

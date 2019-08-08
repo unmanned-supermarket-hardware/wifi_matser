@@ -151,6 +151,10 @@ void controlCarToGate(void);
 void goToEverywhere(int goalSide,int nowSide, double goDistance);
 void test11(void);
 void checkORReconnect(void );
+void closeUart2_4_5(void);
+void openUart2_4_5(void);
+
+	
 
 
 
