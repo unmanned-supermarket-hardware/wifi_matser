@@ -87,9 +87,9 @@ extern struct systemState SystemState;
 // 存储安卓端下发的  货物位置信息
 struct goodsLocation {
 	char side[3];
-	char distance[20];
-	char height[20];
-	char depth[20];
+	char distance[12];
+	char height[12];
+	char depth[12];
 
 }  ;
 extern struct goodsLocation GoodsLocation;

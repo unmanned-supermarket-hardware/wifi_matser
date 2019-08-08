@@ -110,6 +110,8 @@ int main(void)
 
 
 
+
+
 	
 	// 保证车先对齐
 	printf("\r\n start");
@@ -124,6 +126,14 @@ int main(void)
 
 	AIWAC_MasterGetGoods();		// 主控取货的  总逻辑开始
 	
+
+/*
+	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
+	
+	sendMasterID2S();			//给服务端发送主控ID
+
+	 parseOrderFromS(3);
+	 */
 
 }
 

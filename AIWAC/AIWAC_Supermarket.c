@@ -190,7 +190,7 @@ void parseOrderFromS(int goalType)
 
 								printf("\r\norderValue->valuestring:%s,double:%f,double/1000:%f",orderValue->valuestring,atof(orderValue->valuestring), atof(orderValue->valuestring)/1000);
 								length =  atof(orderValue->valuestring)/1000;
-								sprintf(GoodsLocation.distance,"%f",length);
+								sprintf(GoodsLocation.distance,"%06.3f",length);
 								printf("\r\GoodsLocation.distance:%s",GoodsLocation.distance);
 								//strcpy(GoodsLocation.distance,orderValue->valuestring);
 								//printf("\r\n")
@@ -205,7 +205,7 @@ void parseOrderFromS(int goalType)
 								}	
 								//strcpy(GoodsLocation.height,orderValue->valuestring);
 								length =  atof(orderValue->valuestring)/1000;
-								sprintf(GoodsLocation.height,"%f",length);
+								sprintf(GoodsLocation.height,"%06.3f",length);
 
 								orderValue = cJSON_GetObjectItem(data, "depth");
 								if (!orderValue) {
@@ -217,7 +217,7 @@ void parseOrderFromS(int goalType)
 								}	
 								//strcpy(GoodsLocation.depth,orderValue->valuestring);
 								length =  atof(orderValue->valuestring)/1000;
-								sprintf(GoodsLocation.depth,"%f",length);
+								sprintf(GoodsLocation.depth,"%06.3f",length);
 								
 								printf("\r\nside:%s,distance:%s,height:%s,depth:%s",GoodsLocation.side, GoodsLocation.distance, GoodsLocation.height, GoodsLocation.depth);
 	
@@ -253,7 +253,7 @@ void parseOrderFromS(int goalType)
 		if (printfNUM ==10)
 			{
 				printf("\r\n waiting  order from  server!!!");
-				printf("\r\need businessType:%d",goalType);
+				printf("\r\n need businessType:%d",goalType);
 				
 				
 				printfNUM =0;
