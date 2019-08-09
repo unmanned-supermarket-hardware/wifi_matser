@@ -26,20 +26,134 @@ Project File Date:  08/05/2019
 
 <h2>Output:</h2>
 Build target 'Target 1'
-compiling main.c...
-main.c(125): warning:  #223-D: function "sendMasterID2S" declared implicitly
-        sendMasterID2S();                       //∏¯∑˛ŒÒ∂À∑¢ÀÕ÷˜øÿID
-main.c(31): warning:  #177-D: variable "rlen" was declared but never referenced
-        int rlen = 0;
-main.c(32): warning:  #177-D: variable "key" was declared but never referenced
-        u8 key,fontok=0; 
-main.c(32): warning:  #177-D: variable "fontok" was declared but never referenced
-        u8 key,fontok=0; 
-main.c: 4 warnings, 0 errors
+compiling AIWAC_Supermarket.c...
+..\AIWAC\AIWAC_Supermarket.c(88): warning:  #223-D: function "atk_8266_test" declared implicitly
+        atk_8266_test();                //ËøõÂÖ•ATK_ESP8266
+..\AIWAC\AIWAC_Supermarket.c(89): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(200);
+..\AIWAC\AIWAC_Supermarket.c(90): warning:  #223-D: function "atk_8266_at_response" declared implicitly
+        atk_8266_at_response(1);
+..\AIWAC\AIWAC_Supermarket.c(134): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *restrict"
+                                strncpy(getMS, USART3_RX_BUF+2, rlen-4);   //  ÂêéÈù¢Ë¶ÅÊµãËØï‰∏ã
+..\AIWAC\AIWAC_Supermarket.c(201): warning:  #192-D: unrecognized character escape sequence
+                                                                printf("\r\GoodsLocation.distance:%s",GoodsLocation.distance);
+..\AIWAC\AIWAC_Supermarket.c(260): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(200);
+..\AIWAC\AIWAC_Supermarket.c(365): warning:  #223-D: function "atk_8266_quit_trans" declared implicitly
+        atk_8266_quit_trans();
+..\AIWAC\AIWAC_Supermarket.c(366): warning:  #223-D: function "atk_8266_send_cmd" declared implicitly
+        atk_8266_send_cmd("AT+CIPSEND","OK",20);                 //ÂºÄÂßãÈÄè‰º†            
+..\AIWAC\AIWAC_Supermarket.c(391): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(431): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+                strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(434): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+                strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(437): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+                usart2_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(440): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(200);
+..\AIWAC\AIWAC_Supermarket.c(472): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+                strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(475): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+                strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(478): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+                uart5_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(481): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(200);
+..\AIWAC\AIWAC_Supermarket.c(511): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+                strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(514): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+                strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(517): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+                uart4_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(520): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(200);
+..\AIWAC\AIWAC_Supermarket.c(559): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(1000);
+..\AIWAC\AIWAC_Supermarket.c(652): warning:  #192-D: unrecognized character escape sequence
+        printf("\r\n state to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+..\AIWAC\AIWAC_Supermarket.c(758): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+        root = cJSON_Parse(USART2_Car1_jsonParseBuF);
+..\AIWAC\AIWAC_Supermarket.c(865): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+        root = cJSON_Parse(USART5_Car2_jsonParseBuF);
+..\AIWAC\AIWAC_Supermarket.c(968): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+        root = cJSON_Parse(USART4_Getter_jsonParseBuF);
+..\AIWAC\AIWAC_Supermarket.c(1137): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(150);
+..\AIWAC\AIWAC_Supermarket.c(1195): warning:  #192-D: unrecognized character escape sequence
+        printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+..\AIWAC\AIWAC_Supermarket.c(1230): warning:  #223-D: function "delay_ms" declared implicitly
+                                        delay_ms(1000);
+..\AIWAC\AIWAC_Supermarket.c(1276): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+        strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1279): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+        strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1282): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+        uart4_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1304): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(1317): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(1384): warning:  #192-D: unrecognized character escape sequence
+        printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+..\AIWAC\AIWAC_Supermarket.c(1445): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+        strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1448): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+        strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1451): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+        uart4_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1473): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(1485): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(1554): warning:  #192-D: unrecognized character escape sequence
+        printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+..\AIWAC\AIWAC_Supermarket.c(1610): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+        strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1613): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+        strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1616): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+        uart4_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(1638): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(1650): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(100);
+..\AIWAC\AIWAC_Supermarket.c(1732): warning:  #192-D: unrecognized character escape sequence
+        printf("\r\n feedback to server ,strSend:%s  LEN:%\d",strSend,strlen(strSend));
+..\AIWAC\AIWAC_Supermarket.c(1757): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(100); 
+..\AIWAC\AIWAC_Supermarket.c(1784): warning:  #223-D: function "delay_ms" declared implicitly
+                delay_ms(50); //   Á≠âÂæÖËΩ¨ÂÆå
+..\AIWAC\AIWAC_Supermarket.c(1791): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(1000);
+..\AIWAC\AIWAC_Supermarket.c(2065): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(300);
+..\AIWAC\AIWAC_Supermarket.c(2343): warning:  #223-D: function "delay_ms" declared implicitly
+        delay_ms(120);
+..\AIWAC\AIWAC_Supermarket.c(2464): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+        strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(2508): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+        strncpy(strSend+4,strJson,jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(2513): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "unsigned char *"
+        strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(2516): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *"
+        uart5_sendString(strSend,7 + jsonSize);
+..\AIWAC\AIWAC_Supermarket.c(2831): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
+                                strncpy(getMS, testChar+2, rlen-3); 
+..\AIWAC\AIWAC_Supermarket.c(2834): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+                                root = cJSON_Parse(getMS);
+..\AIWAC\AIWAC_Supermarket.c(2946): warning:  #223-D: function "atk_8266_consta_check" declared implicitly
+        constate=atk_8266_consta_check();//ÂæóÂà∞ËøûÊé•Áä∂ÊÄ?            ^
+..\AIWAC\AIWAC_Supermarket.c(2954): warning:  #223-D: function "atk_8266_at_response" declared implicitly
+                atk_8266_at_response(1);
+..\AIWAC\AIWAC_Supermarket.c(2959): warning:  #223-D: function "atk_8266_at_response" declared implicitly
+                atk_8266_at_response(1);
+..\AIWAC\AIWAC_Supermarket.c: 61 warnings, 0 errors
 linking...
-Program Size: Code=52894 RO-data=1998 RW-data=880 ZI-data=1224064  
+Program Size: Code=52902 RO-data=1998 RW-data=880 ZI-data=1224064  
 FromELF: creating hex file...
-"..\OBJ\ATK_ESP8266.axf" - 0 Error(s), 4 Warning(s).
+"..\OBJ\ATK_ESP8266.axf" - 0 Error(s), 61 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\0MySpace\aiwac_project\nobodySuperMarcket\wifi_master\wifi_matser\USER\RTE

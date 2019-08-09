@@ -1235,7 +1235,7 @@ void controlCarToGoodsSpace(void)
 
 	printf("\r\n controlCarToGoodsSpace:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
-	goToEverywhere(goalSide, LocationNow, atof(GoodsLocation.distance));
+	goToEverywhereForGoods(goalSide, LocationNow, atof(GoodsLocation.distance));
 	
 	LocationNow = goalSide;
 	printf("\r\n controlCarToGoodsSpace");
@@ -1405,7 +1405,7 @@ void controlCarToGate(void)
 
 	printf("\r\n controlCarToGate:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
-	goToEverywhere(goalSide, LocationNow, DROP_GOODS_SPACE);
+	goToEverywhereForGoods(goalSide, LocationNow, DROP_GOODS_SPACE);
 	
 	LocationNow = goalSide;
 	printf("\r\n controlCarToGate");
@@ -1571,7 +1571,7 @@ void controlCarToDropPan(void)
 
 	printf("\r\n controlCarToDropPan:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
-	goToEverywhere(goalSide, LocationNow, DROP_PAN_SPACE);
+	goToEverywhereForGoods(goalSide, LocationNow, DROP_PAN_SPACE);
 	
 	LocationNow = goalSide;
 	printf("\r\n controlCarToDropPan");
@@ -2056,6 +2056,7 @@ void goGoalPosition(int direction,double NeedDistance)
 	double goalGAP = 0.015;   //m
 	double iniTDistance = 0; // 起步距离，用�?渐进起步
 	double needDistance = NeedDistance;
+
 	
 
 	
@@ -2384,39 +2385,63 @@ void sendTuringOrder(int Left_or_Right)
 **************************************************************************/
 double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 {
-	double FSpeed = 30;		// 低速的速度 mm
+	double Speed = MIN_SPEED;		// 基本速度 mm
 
-	double FDSMax = FD_MAX_SPEED;  // 规定的最�? 前方速度  mm
+	//double FDSMax = FD_MAX_SPEED;  // 规定的最�? 前方速度  mm
 
-	double startSpeed = 0;
-	FD_care = FD_care + 0.10 ;	// 前方警戒距离，需�? 低速前�?
+	double increaseSpeed = MIN_SPEED;	// 加速曲线速度
+	double decreaseSpeed = MIN_SPEED;	// 减速曲线速度
+	
+	double SpeedChangeDistance = 300;  // 加速的距离  mm
+	double SpeedChangeRate = (FD_MAX_SPEED - MIN_SPEED)/ SpeedChangeDistance;
+	
+	FD_care = FD_care + 0.07 ;	// 前方警戒距离，需�? 低速前�?
 
 
-
-	if ((iniTDistance >=FD-0.05) || (iniTDistance -FD)*1000 <150)
+/*
+	if (( (iniTDistance+0.05) >=FD) && (iniTDistance -FD)*1000 <SpeedChangeDistance)  //缓慢增加
 		{
-			startSpeed = (iniTDistance -FD)*700*2+FSpeed;
+			increaseSpeed = (iniTDistance -FD+0.01)*1000*SpeedChangeRate+FSpeed;
 	
 		}
+*/
 
-	
-	if (FD>FD_care)  // 离危险距离较�?
+	// 加速曲线
+	increaseSpeed = (iniTDistance -FD+0.01)*1000*SpeedChangeRate+MIN_SPEED;
+
+
+	// 减速
+	if (FD>FD_care)  
 	{
-		FSpeed = (FD - FD_care)*700 + FSpeed;
+		decreaseSpeed = (FD - FD_care)*1000*SpeedChangeRate + MIN_SPEED;
+	}
+	else
+	{
+		decreaseSpeed = MIN_SPEED;
 	}
 
 
-	if (startSpeed >0)
-		FSpeed = (FSpeed>startSpeed) ? startSpeed:FSpeed;
 
-	
-	if (FSpeed > FDSMax)
+
+	// 速度抉择
+	if (decreaseSpeed > increaseSpeed)
 	{
-		FSpeed = FDSMax;
+		Speed = increaseSpeed;
+	}
+	else
+	{
+		Speed = decreaseSpeed;
 	}
 
 
-	return FSpeed;
+	
+	if (Speed > FD_MAX_SPEED)
+	{
+		Speed = FD_MAX_SPEED;
+	}
+
+	
+	return Speed;
 
 }
 
@@ -2522,7 +2547,7 @@ void AiwacMasterSendOrderCar2(double X_V, int moveState)
 
 
 /**************************************************************************
-函数功能�?给定当前位置 �?  目标位置 控制小车运动
+函数功能�?给定当前位置 �?  目标位置 控制小车运动，距离是激光达到轨道尽头的距离
 入口参数：goalSide：目标边   ,		nowSide：当前边   	goDistance；按图的距离
 返回  值：		�?
 **************************************************************************/
@@ -3028,3 +3053,395 @@ void  openUart2_4_5(void)
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
 
 }
+
+
+
+
+/**************************************************************************
+函数功能：把货物的位置转换为 激光照射的位置
+入口参数：direction：需要转换的方向     		      NeedDistance:货物到对面轨道的距离
+返回  值：
+**************************************************************************/
+double convertDistance(int direction,double NeedDistance)
+{
+	double distance2;
+	if (direction == FRONT_DIRECTION)
+		{
+			distance2 = NeedDistance - R_F_LEN;
+		}
+	else
+		{
+			distance2 = NeedDistance - R_B_LEN;
+		}
+
+	return distance2;
+
+}
+
+
+
+/**************************************************************************
+函数功能�?给定当前位置 �?  目标位置 控制小车运动,专门为服务端下发的 货盘到轨道的尽头距离
+入口参数：goalSide：目标边   ,		nowSide：当前边   	goDistance；按图的距离
+返回  值：		�?
+**************************************************************************/
+void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
+{
+	double goDistance1 = goDistance;
+	
+	//按分区进�? 主控逻辑
+	if (strcmp("Area1", MASTER_ID)  == 0)
+	{
+
+		// 当前在A 
+		
+		if ((nowSide == 1))
+		{
+			// 在A,去A
+			if (goalSide == 1)		
+			{
+				printf("\r\n A->A");
+				if (Car1_FDistance >= goDistance1)
+				{
+					printf("\r\n (Car1_FDistance >= goDistance)");
+					
+					goDistance1 = convertDistance(FRONT_DIRECTION, goDistance1)
+					printf("\r\n goDistance1:%f",goDistance1);
+					goToLocation(FRONT_DIRECTION, goDistance1);
+				}
+				else
+				{
+					printf("\r\n (Car1_FDistance < goDistance)");
+					goDistance1 = convertDistance(BACK_DIRECTION, A_HALF_LEN - goDistance1)
+					printf("\r\n goDistance1:%f",goDistance1);
+					goToLocation(BACK_DIRECTION, goDistance1);
+				}
+
+				return;
+			}
+				
+			// 在A,去B
+			if (goalSide == 2)		
+			{
+				printf("\r\n A->B");
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				
+				goDistance1 = convertDistance(BACK_DIRECTION,  B_LEN - goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(BACK_DIRECTION,  goDistance1);
+
+				return;
+			}
+			
+			// 在A,去c
+			if (goalSide == 3)	
+			{
+				printf("\r\n A->C");
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				
+				goDistance1 = convertDistance(BACK_DIRECTION, C_HALF_LEN - goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(BACK_DIRECTION, goDistance1);
+				return;
+			}
+
+		}
+		
+
+
+		// 当前在B 
+		if (nowSide == 2)
+		{
+			// 在B,去A
+			if (goalSide == 1) 		
+			{
+				printf("\r\n B->A");
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+
+				
+				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(FRONT_DIRECTION, goDistance1);
+				return;
+			
+			}
+			
+			// 在B,去B
+			if (goalSide == 2) 		
+			{
+				printf("\r\n B->B");
+				if (Car1_FDistance >= goDistance1)
+					{
+										
+						goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(FRONT_DIRECTION, goDistance1);
+					}
+				else
+					{
+						goDistance1 = convertDistance(BACK_DIRECTION,B_LEN - goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(BACK_DIRECTION,goDistance1);
+					}
+
+				return;
+
+			}
+
+			// 在B,去C
+			if (goalSide == 3) 		
+			{
+				printf("\r\n B->C");
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+
+				
+				goDistance1 = convertDistance(BACK_DIRECTION,C_HALF_LEN - goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(BACK_DIRECTION,  goDistance1);
+				return;
+			}
+
+		}
+
+
+
+		// 当前在C 
+		if (nowSide == 3)
+		{
+			
+			// 在C,去A
+			if (goalSide == 1) 		
+			{
+				printf("\r\n C->A");
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+
+				
+				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(FRONT_DIRECTION, goDistance1);
+				
+				return;
+			}
+
+			// 在C,去B
+			if (goalSide == 2) 		
+			{
+				printf("\r\n C->B");
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+
+				
+				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(FRONT_DIRECTION, goDistance1);
+
+				return;
+			}
+
+			// 在C,去C
+			if (goalSide == 3) 		
+			{
+				printf("\r\n C->C");
+				if (Car1_FDistance >= goDistance1)
+					{
+						
+						goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(FRONT_DIRECTION, goDistance1);
+					}
+				else
+					{
+						
+						goDistance1 = convertDistance(BACK_DIRECTION,C_HALF_LEN - goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(BACK_DIRECTION,goDistance1);
+					}
+				return;
+				
+			}
+
+		}
+
+	}
+	else	// Area2  master
+	{
+		// 当前在A 
+		if ((nowSide == 1))
+		{
+			// 在A,去A
+			if (goalSide == 1)		
+			{
+				if (Car1_BDistance >= goDistance1)
+				{
+						
+					goDistance1 = convertDistance(BACK_DIRECTION,goDistance1)
+					printf("\r\n goDistance1:%f",goDistance1);
+					goToLocation(BACK_DIRECTION, goDistance1);
+				}
+				else
+				{
+					
+					goDistance1 = convertDistance(FRONT_DIRECTION, A_HALF_LEN - goDistance1)
+					printf("\r\n goDistance1:%f",goDistance1);
+					goToLocation(FRONT_DIRECTION, goDistance1);
+				}
+				return;
+			}
+				
+			// 在A,去B
+			if (goalSide == 2)		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+
+					
+				goDistance1 = convertDistance(FRONT_DIRECTION, B_LEN - goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(FRONT_DIRECTION, goDistance1);
+
+				return;
+			}
+			
+			// 在A,去c
+			if (goalSide == 3)	
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+
+					
+				goDistance1 = convertDistance(FRONT_DIRECTION,C_HALF_LEN - goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(FRONT_DIRECTION, goDistance1);
+
+				return;
+			}
+
+		}
+		
+
+
+		// 当前在B 
+		if (nowSide == 2)
+		{
+			// 在B,去A
+			if (goalSide == 1) 		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+
+				goDistance1 = convertDistance(BACK_DIRECTION, goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(BACK_DIRECTION, goDistance1);
+				return;
+			}
+			
+			// 在B,去B
+			if (goalSide == 2) 		
+			{
+				if (Car1_BDistance >= goDistance1)
+					{
+
+					
+						goDistance1 = convertDistance(BACK_DIRECTION, goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(BACK_DIRECTION, goDistance1);
+					}
+				else
+					{
+					
+						goDistance1 = convertDistance(FRONT_DIRECTION,  B_LEN - goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(FRONT_DIRECTION, goDistance1);
+					}
+				return;
+
+			}
+
+			// 在B,去C
+			if (goalSide == 3) 		
+			{
+				goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_RIGHT);
+
+				
+				goDistance1 = convertDistance(FRONT_DIRECTION,  C_HALF_LEN - goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(FRONT_DIRECTION, goDistance1);
+				return;
+			}
+
+		}
+
+
+
+		// 当前在C 
+		if (nowSide == 3)
+		{
+			
+			// 在C,去A
+			if (goalSide == 1) 		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+
+				
+				goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(BACK_DIRECTION, goDistance1);
+				return;
+			
+			}
+
+			// 在C,去B
+			if (goalSide == 2) 		
+			{
+				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+				sendTuringOrder(STATE_TURN_LEFT);
+
+				
+				goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1)
+				printf("\r\n goDistance1:%f",goDistance1);
+				goToLocation(BACK_DIRECTION, goDistance1);
+				return;
+			}
+
+			// 在C,去C
+			if (goalSide == 3) 		
+			{
+				if (Car1_BDistance >= goDistance1)
+					{
+					
+						goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(BACK_DIRECTION, goDistance1);
+					}
+				else
+					{
+						
+						goDistance1 = convertDistance(FRONT_DIRECTION,   C_HALF_LEN - goDistance1)
+						printf("\r\n goDistance1:%f",goDistance1);
+						goToLocation(FRONT_DIRECTION, goDistance1);
+					}
+				return;
+			}
+
+		}
+	}
+
+
+
+}
+
