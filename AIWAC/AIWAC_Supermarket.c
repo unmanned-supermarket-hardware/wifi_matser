@@ -71,6 +71,27 @@ void initSysValue(void)
 }
 
 
+void initValueForOtherDevice(void )
+{
+	USART2_Car1_jsonParseBuF[0] = '-' ;
+	USART4_Getter_jsonParseBuF[0] = '-' ;
+	USART5_Car2_jsonParseBuF[0] = '-' ;
+
+
+
+	// 小车的情�?
+	Car1_CorrectState = -1;
+	 Car1_FDistance = -1;
+	Car1_BDistance = -1;
+	Car1_moveState = -1;
+
+	Car2_CorrectState = -1;
+	Car2_FDistance = -1;
+	Car2_BDistance = -1;
+	Car2_moveState = -1;
+	
+
+}
 
 
 
@@ -89,7 +110,7 @@ void wifi_Init(void)
 	delay_ms(200);
 	atk_8266_at_response(1);
 	
-	openUart2_4_5();
+	//openUart2_4_5();
 	printf("\r\n wifi_Init OK");
 }
 
@@ -235,7 +256,7 @@ void parseOrderFromS(int goalType)
 						printf("\r\n master get businessType:%d from server",businessType);
 
 
-						openUart2_4_5();
+						//openUart2_4_5();
 						return ;  //get goalType.exit
 					}
 				else
@@ -367,7 +388,7 @@ void WIFISend(char* MS)
 
 	u3_printf("%s",MS);
 
-	openUart2_4_5();
+	//openUart2_4_5();
 	
 }
 
@@ -407,6 +428,9 @@ void askState2other(void )
 	cJSON *root;
 	char *strJson;
 	u8 strSend[100];
+
+
+	openUart2_4_5();
 
 	while (1)
 	{
@@ -489,6 +513,9 @@ void askState2other(void )
 	}
 
 
+	closeUart2_5();
+
+
 	while (1)
 	{
 		// 查询取货单元
@@ -526,6 +553,8 @@ void askState2other(void )
 		printf("\r\nwaiting getter feedback State!!");
 		
 	}
+
+	closeUart2_4_5();
 	
 	printf("\r\n askState2other:master has gotten other state!!");
 
@@ -1209,6 +1238,8 @@ void feedbackStartGetGoods(void)
 void controlCarToGoodsSpace(void)
 {
 	int goalSide = 0;
+
+	openUart2_5();
 	
 	if (strcmp(GoodsLocation.side, "A") == 0)
 		{
@@ -1239,6 +1270,8 @@ void controlCarToGoodsSpace(void)
 	
 	LocationNow = goalSide;
 	printf("\r\n controlCarToGoodsSpace");
+
+	closeUart2_5();
 	
 
 }
@@ -1255,6 +1288,8 @@ void notifyGoodsGetterLocation(void )
 	cJSON *root;
 	char *strJson;
 	u8 strSend[300];
+
+	openUart4();
 
 	memset(strSend, 0, sizeof(strSend));
 	strSend[0] = '#';
@@ -1284,6 +1319,8 @@ void notifyGoodsGetterLocation(void )
 
 	printf("\r\n notifyGoodsGetterLocation:%s",strSend);
 
+	closeUart4();
+
 
 }
 
@@ -1298,6 +1335,8 @@ void waitingGetterGotGoods(void)
 {
 	GotGoodsResult = 666;
 	printfNUM = 0;
+
+	openUart4();
 	
 	while(1)
 	{
@@ -1317,6 +1356,8 @@ void waitingGetterGotGoods(void)
 	delay_ms(100);
 	
 	printf("\r\n waitingGetterGotGoods,result:%d",GotGoodsResult);
+
+	closeUart4();
 
 }
 
@@ -1401,7 +1442,7 @@ void controlCarToGate(void)
 	int goalSide = 0;
 	goalSide = 1;  // 出货�?在A  -> 1
 
-
+	openUart2_5();
 
 	printf("\r\n controlCarToGate:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
@@ -1409,6 +1450,9 @@ void controlCarToGate(void)
 	
 	LocationNow = goalSide;
 	printf("\r\n controlCarToGate");
+
+
+	closeUart2_5();
 		
 
 
@@ -1426,6 +1470,8 @@ void notifyGoodsGetterLoseGoods(void )
 	cJSON *root;
 	char *strJson;
 	u8 strSend[300];
+
+	openUart4();
 
 	memset(strSend, 0, sizeof(strSend));
 	strSend[0] = '#';
@@ -1453,6 +1499,8 @@ void notifyGoodsGetterLoseGoods(void )
 
 	printf("\r\n notifyGoodsGetterLoseGoods:%s",strSend);
 
+	closeUart4();
+
 
 }
 
@@ -1467,6 +1515,9 @@ void waitingGetterLoseGoods(void)
 	LoseGoodsResult = 666;
 
 	printfNUM = 0;
+
+
+	openUart4();
 	
 	while(1)
 	{
@@ -1485,6 +1536,8 @@ void waitingGetterLoseGoods(void)
 	delay_ms(100);
 	
 	printf("\r\n waitingGetterLoseGoods,result:%d",LoseGoodsResult);
+	
+	closeUart4();
 
 }
 
@@ -1569,12 +1622,17 @@ void controlCarToDropPan(void)
 	int goalSide = 0;
 	goalSide = 1;  // 丢盘�?在A  -> 1
 
+
+	openUart2_5();
+
 	printf("\r\n controlCarToDropPan:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
 	goToEverywhereForGoods(goalSide, LocationNow, DROP_PAN_SPACE);
 	
 	LocationNow = goalSide;
 	printf("\r\n controlCarToDropPan");
+
+	closeUart2_5();
 		
 
 }
@@ -1591,6 +1649,9 @@ void notifyGoodsGetterDropPan(void )
 	cJSON *root;
 	char *strJson;
 	u8 strSend[300];
+
+
+	openUart4();
 
 	memset(strSend, 0, sizeof(strSend));
 	strSend[0] = '#';
@@ -1618,6 +1679,8 @@ void notifyGoodsGetterDropPan(void )
 
 	printf("\r\n notifyGoodsGetterDropPan:%s",strSend);
 
+	closeUart4();
+
 
 }
 
@@ -1632,6 +1695,8 @@ void waitingGetterLosePan(void)
 	LosePanResult = 666;
 
 	printfNUM = 0;
+
+	openUart4();
 	
 	while(1)
 	{
@@ -1650,6 +1715,8 @@ void waitingGetterLosePan(void)
 	delay_ms(100);
 	
 	printf("\r\n waitingGetterLosePan,result:%d",LosePanResult);
+		
+	closeUart4();
 
 }
 
@@ -1665,13 +1732,15 @@ void controlCarToInitSpace(void)
 	int goalSide = 0;
 	goalSide = 2;  // 复位�?在B  -> 2
 
-
+	openUart2_5();
 
 	printf("\r\n controlCarToInitSpace:	goalSide:%d, LocationNow:%d",goalSide, LocationNow);
 	
 	goToEverywhere(goalSide, LocationNow, CAR_INIT_SPACE);
 	
 	LocationNow = goalSide;
+	
+	closeUart2_5();
 	
 	printf("\r\n controlCarToInitSpace OK");
 
@@ -3018,6 +3087,8 @@ void closeUart2_4_5(void)
 	//使能串口 
 	USART_Cmd(UART5, DISABLE);					 //使能串口 
 
+	//initValueForOtherDevice();
+
 
 }
 
@@ -3030,6 +3101,8 @@ void closeUart2_4_5(void)
 **************************************************************************/
 void  openUart2_4_5(void)
 {
+	initValueForOtherDevice();
+	
 	// 串口2
 	 //开启中断
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
@@ -3056,14 +3129,103 @@ void  openUart2_4_5(void)
 
 
 
+/**************************************************************************
+函数功能：开启2 、 5 串口
+入口参数：无
+返回  值：无
+**************************************************************************/
+void closeUart2_5(void)
+{
+	// 串口2
+	 //开启中断
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(USART2, DISABLE);					  //使能串口 
 
+
+
+	// 串口5
+	//开启中断
+	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(UART5, DISABLE);					 //使能串口 
+
+	//initValueForOtherDevice();
+}
+
+
+
+/**************************************************************************
+函数功能：关闭2 、 5 串口
+入口参数：无
+返回  值：无
+**************************************************************************/
+void  openUart2_5(void)
+{
+	initValueForOtherDevice();
+	
+	// 串口2
+	 //开启中断
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(USART2, ENABLE);					  //使能串口 
+
+
+
+	// 串口5
+	//开启中断
+	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中断  
+	//使能串口 
+	USART_Cmd(UART5, ENABLE);					 //使能串口 
+
+}
+
+/**************************************************************************
+函数功能：开启 4  串口
+入口参数：无
+返回  值：无
+**************************************************************************/
+void closeUart4(void)
+{
+
+	// 串口4
+	// 开启中断
+	USART_ITConfig(UART4, USART_IT_RXNE, DISABLE);//开启中断  
+	// 使能串口 
+	USART_Cmd(UART4, DISABLE);					 //使能串口 
+
+	//initValueForOtherDevice();
+}
+
+
+
+/**************************************************************************
+函数功能：关闭 4  串口
+入口参数：无
+返回  值：无
+**************************************************************************/
+void  openUart4(void)
+{
+	initValueForOtherDevice();
+
+	// 串口4
+	// 开启中断
+	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中断  
+	// 使能串口 
+	USART_Cmd(UART4, ENABLE);					 //使能串口 
+
+
+}
 /**************************************************************************
 函数功能：把货物的位置转换为 激光照射的位置
 入口参数：direction：需要转换的方向     		      NeedDistance:货物到对面轨道的距离
 返回  值：
 **************************************************************************/
 double convertDistance(int direction,double NeedDistance)
-{
+{
+
+
+
 	double distance2;
 	if (direction == FRONT_DIRECTION)
 		{
@@ -3105,14 +3267,14 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				{
 					printf("\r\n (Car1_FDistance >= goDistance)");
 					
-					goDistance1 = convertDistance(FRONT_DIRECTION, goDistance1)
+					goDistance1 = convertDistance(FRONT_DIRECTION, goDistance1);
 					printf("\r\n goDistance1:%f",goDistance1);
 					goToLocation(FRONT_DIRECTION, goDistance1);
 				}
 				else
 				{
 					printf("\r\n (Car1_FDistance < goDistance)");
-					goDistance1 = convertDistance(BACK_DIRECTION, A_HALF_LEN - goDistance1)
+					goDistance1 = convertDistance(BACK_DIRECTION, A_HALF_LEN - goDistance1);
 					printf("\r\n goDistance1:%f",goDistance1);
 					goToLocation(BACK_DIRECTION, goDistance1);
 				}
@@ -3127,7 +3289,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				
-				goDistance1 = convertDistance(BACK_DIRECTION,  B_LEN - goDistance1)
+				goDistance1 = convertDistance(BACK_DIRECTION,  B_LEN - goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(BACK_DIRECTION,  goDistance1);
 
@@ -3143,7 +3305,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 				
-				goDistance1 = convertDistance(BACK_DIRECTION, C_HALF_LEN - goDistance1)
+				goDistance1 = convertDistance(BACK_DIRECTION, C_HALF_LEN - goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(BACK_DIRECTION, goDistance1);
 				return;
@@ -3164,7 +3326,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 
 				
-				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(FRONT_DIRECTION, goDistance1);
 				return;
@@ -3178,13 +3340,13 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				if (Car1_FDistance >= goDistance1)
 					{
 										
-						goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+						goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(FRONT_DIRECTION, goDistance1);
 					}
 				else
 					{
-						goDistance1 = convertDistance(BACK_DIRECTION,B_LEN - goDistance1)
+						goDistance1 = convertDistance(BACK_DIRECTION,B_LEN - goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(BACK_DIRECTION,goDistance1);
 					}
@@ -3201,7 +3363,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_LEFT);
 
 				
-				goDistance1 = convertDistance(BACK_DIRECTION,C_HALF_LEN - goDistance1)
+				goDistance1 = convertDistance(BACK_DIRECTION,C_HALF_LEN - goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(BACK_DIRECTION,  goDistance1);
 				return;
@@ -3225,7 +3387,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 
 				
-				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(FRONT_DIRECTION, goDistance1);
 				
@@ -3240,7 +3402,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 
 				
-				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+				goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(FRONT_DIRECTION, goDistance1);
 
@@ -3254,14 +3416,14 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				if (Car1_FDistance >= goDistance1)
 					{
 						
-						goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1)
+						goDistance1 = convertDistance(FRONT_DIRECTION,goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(FRONT_DIRECTION, goDistance1);
 					}
 				else
 					{
 						
-						goDistance1 = convertDistance(BACK_DIRECTION,C_HALF_LEN - goDistance1)
+						goDistance1 = convertDistance(BACK_DIRECTION,C_HALF_LEN - goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(BACK_DIRECTION,goDistance1);
 					}
@@ -3283,14 +3445,14 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				if (Car1_BDistance >= goDistance1)
 				{
 						
-					goDistance1 = convertDistance(BACK_DIRECTION,goDistance1)
+					goDistance1 = convertDistance(BACK_DIRECTION,goDistance1);
 					printf("\r\n goDistance1:%f",goDistance1);
 					goToLocation(BACK_DIRECTION, goDistance1);
 				}
 				else
 				{
 					
-					goDistance1 = convertDistance(FRONT_DIRECTION, A_HALF_LEN - goDistance1)
+					goDistance1 = convertDistance(FRONT_DIRECTION, A_HALF_LEN - goDistance1);
 					printf("\r\n goDistance1:%f",goDistance1);
 					goToLocation(FRONT_DIRECTION, goDistance1);
 				}
@@ -3304,7 +3466,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 
 					
-				goDistance1 = convertDistance(FRONT_DIRECTION, B_LEN - goDistance1)
+				goDistance1 = convertDistance(FRONT_DIRECTION, B_LEN - goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(FRONT_DIRECTION, goDistance1);
 
@@ -3320,7 +3482,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 
 					
-				goDistance1 = convertDistance(FRONT_DIRECTION,C_HALF_LEN - goDistance1)
+				goDistance1 = convertDistance(FRONT_DIRECTION,C_HALF_LEN - goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(FRONT_DIRECTION, goDistance1);
 
@@ -3340,7 +3502,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 				sendTuringOrder(STATE_TURN_LEFT);
 
-				goDistance1 = convertDistance(BACK_DIRECTION, goDistance1)
+				goDistance1 = convertDistance(BACK_DIRECTION, goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(BACK_DIRECTION, goDistance1);
 				return;
@@ -3353,14 +3515,14 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 					{
 
 					
-						goDistance1 = convertDistance(BACK_DIRECTION, goDistance1)
+						goDistance1 = convertDistance(BACK_DIRECTION, goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(BACK_DIRECTION, goDistance1);
 					}
 				else
 					{
 					
-						goDistance1 = convertDistance(FRONT_DIRECTION,  B_LEN - goDistance1)
+						goDistance1 = convertDistance(FRONT_DIRECTION,  B_LEN - goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(FRONT_DIRECTION, goDistance1);
 					}
@@ -3375,7 +3537,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_RIGHT);
 
 				
-				goDistance1 = convertDistance(FRONT_DIRECTION,  C_HALF_LEN - goDistance1)
+				goDistance1 = convertDistance(FRONT_DIRECTION,  C_HALF_LEN - goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(FRONT_DIRECTION, goDistance1);
 				return;
@@ -3398,7 +3560,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_LEFT);
 
 				
-				goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1)
+				goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(BACK_DIRECTION, goDistance1);
 				return;
@@ -3412,7 +3574,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				sendTuringOrder(STATE_TURN_LEFT);
 
 				
-				goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1)
+				goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1);
 				printf("\r\n goDistance1:%f",goDistance1);
 				goToLocation(BACK_DIRECTION, goDistance1);
 				return;
@@ -3424,14 +3586,14 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 				if (Car1_BDistance >= goDistance1)
 					{
 					
-						goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1)
+						goDistance1 = convertDistance(BACK_DIRECTION,  goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(BACK_DIRECTION, goDistance1);
 					}
 				else
 					{
 						
-						goDistance1 = convertDistance(FRONT_DIRECTION,   C_HALF_LEN - goDistance1)
+						goDistance1 = convertDistance(FRONT_DIRECTION,   C_HALF_LEN - goDistance1);
 						printf("\r\n goDistance1:%f",goDistance1);
 						goToLocation(FRONT_DIRECTION, goDistance1);
 					}

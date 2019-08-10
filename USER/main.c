@@ -115,8 +115,13 @@ int main(void)
 	
 	// 保证车先对齐
 	printf("\r\n start");
+	
+	closeUart2_4_5();
 	initSysValue(); 			// 初始化系统的全局变量
+
+	openUart2_5();
 	goStartTogether(FRONT_DIRECTION);	// 先对齐再进行后面操作
+	closeUart2_5();
 
 	
 	

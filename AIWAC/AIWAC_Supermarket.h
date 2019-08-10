@@ -155,6 +155,11 @@ void test11(void);
 void checkORReconnect(void );
 void closeUart2_4_5(void);
 void openUart2_4_5(void);
+void closeUart2_5(void);
+void openUart2_5(void);
+void closeUart4(void);
+void openUart4(void);
+void initValueForOtherDevice(void );
 double convertDistance(int direction,double NeedDistance);
 void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance);
 
