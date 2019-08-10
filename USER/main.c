@@ -106,9 +106,26 @@ int main(void)
 			delay_ms(1000);
 
 		}
+*//*
+		goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+			sendTuringOrder(STATE_TURN_RIGHT);
+			
+			goToLocation(FRONT_DIRECTION, 0.4);
 */
+/*
+	goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+	sendTuringOrder(STATE_TURN_LEFT);
+	
+	goToLocation(BACK_DIRECTION, 2.1);
 
 
+	while(1)
+		{
+			printf("\r\n start");
+			delay_ms(1000);
+
+		}
+*/
 
 
 

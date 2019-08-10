@@ -26,7 +26,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 
 // 各个关键位置对照参考图的位�?
-#define DROP_GOODS_SPACE 0.5   //出货口距A边中心的距离
+#define DROP_GOODS_SPACE 1   //出货口距A边中心的距离
 #define DROP_PAN_SPACE 0.7   //丢盘子的位置距A边中心的距离
 
 
@@ -35,14 +35,14 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 #define MIDDLE_SPACE CAR_INIT_SPACE   		//复位点，m，在区的
 
 #define C_HALF_LEN      (3.477/2) 	//单位 ：m      
-#define B_LEN	    	(2.3)   // 单位：m  上架要(3.175)
+#define B_LEN	    	(3.175)   // 单位：m  上架要(3.175)
 #define A_HALF_LEN      (3.477/2)   // 单位  ：m 
-#define R_F_LEN   		0.02  //  小车前进方向的车里货物架的距离       	     单位：m   需要测量
-#define R_B_LEN   		0.02  //  小车后退方向的车里货物架的距离       	     单位：m需要测量
+#define R_F_LEN   		0.2  //  小车前进方向的车里货物架的距离       	     单位：m   需要测量
+#define R_B_LEN   		0.2  //  小车后退方向的车里货物架的距离       	     单位：m需要测量
 
 
 
-#define TURING_DISTANCE 0.447  // 前方需要转弯的  时�?m
+#define TURING_DISTANCE 0.464  // 前方需要转弯的  时�?m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
 
 #define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离�?m
@@ -50,7 +50,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 #define MIN_SPEED 30  //小车 运动的最小速度   mm/s
 #define ACC_SPEED 150  //  小车的加速速度
 #define CAR_STOP 0  // 小车速度停止
-#define FD_MAX_SPEED 200  // 小车运动�?最大速度  mm/s
+#define FD_MAX_SPEED 400  // 小车运动�?最大速度  mm/s
 
 // 小车的运动状�?
 #define STATE_STOP 0

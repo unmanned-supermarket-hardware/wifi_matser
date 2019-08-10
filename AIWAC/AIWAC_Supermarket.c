@@ -432,37 +432,40 @@ void askState2other(void )
 
 	openUart2_4_5();
 
+
+	///////////////////////////////////////////////////////////////////
+	// 查询car1
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0007");
+
+	strJson  =cJSON_PrintUnformatted(root);
+	cJSON_Delete(root); 
+
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	
+	// 需要打开
+
 	while (1)
 	{
-		// 查询car1
-		memset(strSend, 0, sizeof(strSend));
-		strSend[0] = '#';
-		strSend[1] = '!';
-
-
-		root=cJSON_CreateObject();
-
-		cJSON_AddStringToObject(root,"businessType", "0007");
-
-		strJson  =cJSON_PrintUnformatted(root);
-		cJSON_Delete(root); 
-
-		jsonSize = strlen(strJson);
-
-		strSend[2] = jsonSize >> 8;
-		strSend[3] = jsonSize;
-
-		strncpy(strSend+4,strJson,jsonSize);
-
-		strSend[jsonSize+4] = '*';
-		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
-		strSend[jsonSize+6] = '&';
 		printf("\r\nusart2_sendString F!!");
-		// 需要打开
 		usart2_sendString(strSend,7 + jsonSize);
 		printf("\r\nusart2_sendString B!!");
-		aiwacFree(strJson);
-		printf("\r\naiwacFree F!!");
+
 
 		delay_ms(200);
 		if(SystemState.car1State>0)
@@ -473,37 +476,42 @@ void askState2other(void )
 		printf("\r\nwaiting car1  feedback State!!");
 		
 	}
+
+	aiwacFree(strJson);
+	printf("\r\naiwacFree F!!");
 	
 
+
+	///////////////////////////////////////////////////////////////////
+	// 查询car2
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0008");
+
+	strJson  =cJSON_PrintUnformatted(root);
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// 需要打开
 
 	while (1)
 	{
 
-		// 查询car2
-		memset(strSend, 0, sizeof(strSend));
-		strSend[0] = '#';
-		strSend[1] = '!';
-
-		root=cJSON_CreateObject();
-
-		cJSON_AddStringToObject(root,"businessType", "0008");
-
-		strJson  =cJSON_PrintUnformatted(root);
-		cJSON_Delete(root); 
-		
-		jsonSize = strlen(strJson);
-
-		strSend[2] = jsonSize >> 8;
-		strSend[3] = jsonSize;
-
-		strncpy(strSend+4,strJson,jsonSize);
-		
-		strSend[jsonSize+4] = '*';
-		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
-		strSend[jsonSize+6] = '&';
-		// 需要打开
 		uart5_sendString(strSend,7 + jsonSize);
-		aiwacFree(strJson);
+		
 		
 		delay_ms(200);
 		if(SystemState.car2State>0)
@@ -514,38 +522,43 @@ void askState2other(void )
 		printf("\r\nwaiting car2  feedback State!!");
 		
 	}
+	aiwacFree(strJson);
+	printf("\r\naiwacFree F!!");
 
 
 	closeUart2_5();
 
 
+	///////////////////////////////////////////////////////////////////
+	// 查询取货单元
+	memset(strSend, 0, sizeof(strSend));
+	strSend[0] = '#';
+	strSend[1] = '!';
+
+	root=cJSON_CreateObject();
+
+	cJSON_AddStringToObject(root,"businessType", "0013");
+
+	strJson  =cJSON_PrintUnformatted(root);
+	cJSON_Delete(root); 
+	
+	jsonSize = strlen(strJson);
+
+	strSend[2] = jsonSize >> 8;
+	strSend[3] = jsonSize;
+
+	strncpy(strSend+4,strJson,jsonSize);
+	
+	strSend[jsonSize+4] = '*';
+	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
+	strSend[jsonSize+6] = '&';
+	// 需要打开
+
 	while (1)
 	{
-		// 查询取货单元
-		memset(strSend, 0, sizeof(strSend));
-		strSend[0] = '#';
-		strSend[1] = '!';
-
-		root=cJSON_CreateObject();
-
-		cJSON_AddStringToObject(root,"businessType", "0013");
-
-		strJson  =cJSON_PrintUnformatted(root);
-		cJSON_Delete(root); 
 		
-		jsonSize = strlen(strJson);
-
-		strSend[2] = jsonSize >> 8;
-		strSend[3] = jsonSize;
-
-		strncpy(strSend+4,strJson,jsonSize);
-		
-		strSend[jsonSize+4] = '*';
-		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
-		strSend[jsonSize+6] = '&';
-		// 需要打开
 		uart4_sendString(strSend,7 + jsonSize);
-		aiwacFree(strJson);
+		
 
 		delay_ms(200);
 		if(SystemState.goodsGetterState>0)
@@ -556,6 +569,9 @@ void askState2other(void )
 		printf("\r\nwaiting getter feedback State!!");
 		
 	}
+	aiwacFree(strJson);
+
+	
 
 	closeUart2_4_5();
 	
@@ -1244,6 +1260,7 @@ void controlCarToGoodsSpace(void)
 
 	openUart2_5();
 	
+	
 	if (strcmp(GoodsLocation.side, "A") == 0)
 		{
 			goalSide = 1;
@@ -1443,7 +1460,7 @@ void feedbackGotGoodsResult(void)
 void controlCarToGate(void)
 {
 	int goalSide = 0;
-	goalSide = 1;  // 出货�?在A  -> 1
+	goalSide = 2;  // 出货�?在A  -> 1
 
 	openUart2_5();
 
@@ -1534,6 +1551,7 @@ void waitingGetterLoseGoods(void)
 		if (printfNUM == 10)
 			{
 				printf("\r\n wating losing Goods");
+				printfNUM = 0;
 			}
 	}
 	delay_ms(100);
@@ -1623,7 +1641,7 @@ void feedbackLoseGoodsResult(void)
 void controlCarToDropPan(void)
 {
 	int goalSide = 0;
-	goalSide = 1;  // 丢盘�?在A  -> 1
+	goalSide = 3;  // 丢盘�?在A  -> 1
 
 
 	openUart2_5();
@@ -2125,7 +2143,7 @@ void goStartTogether(int direction)
 **************************************************************************/
 void goGoalPosition(int direction,double NeedDistance)
 {
-	double goalGAP = 0.015;   //m
+	double goalGAP = 0.018;   //m
 	double iniTDistance = 0; // 起步距离，用�?渐进起步
 	double needDistance = NeedDistance;
 
@@ -2466,10 +2484,10 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 	double increaseSpeed = 0;	// 加速曲线速度
 	double decreaseSpeed = 0;	// 减速曲线速度
 	
-	double SpeedChangeDistance = 300;  // 加速的距离  mm
+	double SpeedChangeDistance = 200;  // 加速的距离  mm
 	double SpeedChangeRate = (FD_MAX_SPEED - MIN_SPEED)/ SpeedChangeDistance;
 	
-	FD_care = FD_care + 0.18 ;	// 前方警戒距离，需�? 低速前�?
+	FD_care = FD_care + 0.15 ;	// 前方警戒距离，需�? 低速前�?
 
 
 
@@ -3155,7 +3173,8 @@ void closeUart2_4_5(void)
 void  openUart2_4_5(void)
 {
 	initValueForOtherDevice();
-	
+
+	printf("\r\nopenUart2_4_5 F");
 	// 串口2
 	 //开启中断
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
@@ -3178,7 +3197,31 @@ void  openUart2_4_5(void)
 	//使能串口 
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
 
-	printf("\r\nopenUart2_4_5");
+
+	
+
+	printfNUM = 0;
+	while(1)
+	{
+		if ((Car1_FDistance > 0) && (Car1_BDistance>0)
+		&& (Car2_FDistance >0) && (Car2_BDistance >0))
+			{
+				break;
+			}
+		
+		delay_ms(200);
+		printfNUM++;
+
+		if (printfNUM == 10)
+			{
+				printf("\r\n openUart2_4_5 ,wating Car1_FD  BD,CAR FD  BD  >0");
+				printfNUM =0;
+			}
+		
+	}
+
+
+	printf("\r\nopenUart2_4_5 B");
 
 }
 
@@ -3219,22 +3262,48 @@ void  openUart2_5(void)
 {
 
 	initValueForOtherDevice();
-	
+
 	// 串口2
 	 //开启中断
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
+
 	//使能串口 
 	USART_Cmd(USART2, ENABLE);					  //使能串口 
+
 
 
 
 	// 串口5
 	//开启中断
 	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中断  
+
 	//使能串口 
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
 
-	printf("\r\nopenUart2_5");
+
+	printfNUM = 0;
+	while(1)
+	{
+		if ((Car1_FDistance > 0) && (Car1_BDistance>0)
+		&& (Car2_FDistance >0) && (Car2_BDistance >0))
+			{
+				break;
+			}
+		
+		delay_ms(200);
+		printfNUM++;
+
+		if (printfNUM == 10)
+			{
+				printf("\r\n openUart2_5 ,wating Car1_FD  BD,CAR FD  BD  >0");
+				printf("\r\n openUart2_5 ,Car1_FDistance:%f,Car2_FDistance:%f",Car1_FDistance,Car2_FDistance);
+				printfNUM =0;
+
+			}
+		
+	}
+
+	printf("\r\nopenUart2_5 B");
 
 }
 
@@ -3272,6 +3341,9 @@ void  openUart4(void)
 	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中断  
 	// 使能串口 
 	USART_Cmd(UART4, ENABLE);					 //使能串口 
+
+
+	delay_ms(300);
 
 	printf("\r\nopenUart4");
 
@@ -3324,6 +3396,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 			if (goalSide == 1)		
 			{
 				printf("\r\n A->A");
+				printf("\r\nCar1_FDistance:%f",Car1_FDistance);
 				if (Car1_FDistance >= goDistance1)
 				{
 					printf("\r\n (Car1_FDistance >= goDistance)");
@@ -3398,6 +3471,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 			if (goalSide == 2) 		
 			{
 				printf("\r\n B->B");
+				printf("\r\nCar1_FDistance:%f",Car1_FDistance);
 				if (Car1_FDistance >= goDistance1)
 					{
 										
@@ -3474,6 +3548,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 			if (goalSide == 3) 		
 			{
 				printf("\r\n C->C");
+				printf("\r\nCar1_FDistance:%f",Car1_FDistance);
 				if (Car1_FDistance >= goDistance1)
 					{
 						
@@ -3503,6 +3578,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 			// 在A,去A
 			if (goalSide == 1)		
 			{
+				printf("\r\Car1_BDistance:%f",Car1_BDistance);
 				if (Car1_BDistance >= goDistance1)
 				{
 						
@@ -3572,6 +3648,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 			// 在B,去B
 			if (goalSide == 2) 		
 			{
+				printf("\r\Car1_BDistance:%f",Car1_BDistance);
 				if (Car1_BDistance >= goDistance1)
 					{
 
@@ -3644,6 +3721,7 @@ void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance)
 			// 在C,去C
 			if (goalSide == 3) 		
 			{
+				printf("\r\Car1_BDistance:%f",Car1_BDistance);
 				if (Car1_BDistance >= goDistance1)
 					{
 					
