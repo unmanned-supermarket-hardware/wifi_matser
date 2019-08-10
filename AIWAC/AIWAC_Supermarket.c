@@ -457,9 +457,12 @@ void askState2other(void )
 		strSend[jsonSize+4] = '*';
 		strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 		strSend[jsonSize+6] = '&';
+		printf("\r\nusart2_sendString F!!");
 		// 需要打开
 		usart2_sendString(strSend,7 + jsonSize);
+		printf("\r\nusart2_sendString B!!");
 		aiwacFree(strJson);
+		printf("\r\naiwacFree F!!");
 
 		delay_ms(200);
 		if(SystemState.car1State>0)
@@ -2454,53 +2457,63 @@ void sendTuringOrder(int Left_or_Right)
 **************************************************************************/
 double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 {
+	
+
 	double Speed = MIN_SPEED;		// 基本速度 mm
 
 	//double FDSMax = FD_MAX_SPEED;  // 规定的最�? 前方速度  mm
 
-	double increaseSpeed = MIN_SPEED;	// 加速曲线速度
-	double decreaseSpeed = MIN_SPEED;	// 减速曲线速度
+	double increaseSpeed = 0;	// 加速曲线速度
+	double decreaseSpeed = 0;	// 减速曲线速度
 	
 	double SpeedChangeDistance = 300;  // 加速的距离  mm
 	double SpeedChangeRate = (FD_MAX_SPEED - MIN_SPEED)/ SpeedChangeDistance;
 	
-	FD_care = FD_care + 0.07 ;	// 前方警戒距离，需�? 低速前�?
+	FD_care = FD_care + 0.18 ;	// 前方警戒距离，需�? 低速前�?
 
 
-/*
-	if (( (iniTDistance+0.05) >=FD) && (iniTDistance -FD)*1000 <SpeedChangeDistance)  //缓慢增加
-		{
-			increaseSpeed = (iniTDistance -FD+0.01)*1000*SpeedChangeRate+FSpeed;
-	
-		}
-*/
 
-	// 加速曲线
-	increaseSpeed = (iniTDistance -FD+0.01)*1000*SpeedChangeRate+MIN_SPEED;
+	//缓慢增加
+	if (( (iniTDistance+0.05) >=FD) &&( (iniTDistance -FD)*1000 <SpeedChangeDistance) ) 
+	{
+		increaseSpeed = (iniTDistance -FD+0.01)*1000*SpeedChangeRate+MIN_SPEED;
+
+	}
 
 
 	// 减速
-	if (FD>FD_care)  
+	if ( (FD < FD_care +SpeedChangeDistance)  &&  (FD >FD_care))
 	{
 		decreaseSpeed = (FD - FD_care)*1000*SpeedChangeRate + MIN_SPEED;
 	}
-	else
-	{
-		decreaseSpeed = MIN_SPEED;
-	}
+
 
 
 
 
 	// 速度抉择
-	if (decreaseSpeed > increaseSpeed)
+	
+	if ((increaseSpeed >0) && (decreaseSpeed>0))
 	{
-		Speed = increaseSpeed;
+		if (decreaseSpeed > increaseSpeed)
+		{
+			Speed = increaseSpeed;
+		}
+		else
+		{
+			Speed = decreaseSpeed;
+		}
+	
 	}
-	else
+
+	
+
+	if ((FD > FD_care +SpeedChangeDistance/1000)  && ((iniTDistance -FD)*1000 >SpeedChangeDistance))  // 注意单位
 	{
-		Speed = decreaseSpeed;
+		Speed = FD_MAX_SPEED;
+
 	}
+
 
 
 	
@@ -2511,6 +2524,46 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 
 	
 	return Speed;
+
+	
+
+
+
+	/*
+	double FSpeed = 30; 	// 雿��漲 mm
+	
+		double FDSMax = FD_MAX_SPEED;  // 閫���憭? ��漲  mm
+	
+		double startSpeed = 0;
+		FD_care = FD_care + 0.10 ;	// �霅行�頝氖嚗�閬? 雿�餈?
+	
+	
+	
+		if ((iniTDistance >=FD-0.05) || (iniTDistance -FD)*1000 <150)
+			{
+				startSpeed = (iniTDistance -FD)*700*2+FSpeed;
+		
+			}
+	
+		
+		if (FD>FD_care)  // 蝳餃�抵�蝳餉�餈?
+		{
+			FSpeed = (FD - FD_care)*700 + FSpeed;
+		}
+	
+	
+		if (startSpeed >0)
+			FSpeed = (FSpeed>startSpeed) ? startSpeed:FSpeed;
+	
+		
+		if (FSpeed > FDSMax)
+		{
+			FSpeed = FDSMax;
+		}
+	
+	
+		return FSpeed;
+		*/
 
 }
 
@@ -3125,6 +3178,8 @@ void  openUart2_4_5(void)
 	//使能串口 
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
 
+	printf("\r\nopenUart2_4_5");
+
 }
 
 
@@ -3162,6 +3217,7 @@ void closeUart2_5(void)
 **************************************************************************/
 void  openUart2_5(void)
 {
+
 	initValueForOtherDevice();
 	
 	// 串口2
@@ -3177,6 +3233,8 @@ void  openUart2_5(void)
 	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中断  
 	//使能串口 
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
+
+	printf("\r\nopenUart2_5");
 
 }
 
@@ -3206,6 +3264,7 @@ void closeUart4(void)
 **************************************************************************/
 void  openUart4(void)
 {
+	//printf("\r\nopenUart4");
 	initValueForOtherDevice();
 
 	// 串口4
@@ -3213,6 +3272,8 @@ void  openUart4(void)
 	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中断  
 	// 使能串口 
 	USART_Cmd(UART4, ENABLE);					 //使能串口 
+
+	printf("\r\nopenUart4");
 
 
 }
