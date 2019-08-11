@@ -116,7 +116,21 @@ int main(void)
 	goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 	sendTuringOrder(STATE_TURN_LEFT);
 	
-	goToLocation(BACK_DIRECTION, 2.1);
+	goToLocation(BACK_DIRECTION, 1.8);
+
+	while(1)
+		{
+			printf("\r\n start");
+			delay_ms(1000);
+
+		}
+
+
+*/
+/*
+	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
+
+	sendMasterID2S();			//给服务端发送主控ID
 
 
 	while(1)
@@ -125,9 +139,7 @@ int main(void)
 			delay_ms(1000);
 
 		}
-*/
-
-
+			*/
 
 	
 	// 保证车先对齐

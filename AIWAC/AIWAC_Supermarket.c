@@ -3,12 +3,12 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid="redmi";			//路由器SSID�?
+const u8* wifista_ssid="AiwacMarket";			//路由器SSI  	"AiwacMarket"
 const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="tangyuan"; 	//连接密码
+const u8* wifista_password="aiwac2019"; 	//连接密码  "aiwac2019"
 
 //连接端口�?8086,可自行修改为其他端口.
-const u8* portnum="8890";	
+const u8* portnum="8899";	
 
 
 struct systemState SystemState;
