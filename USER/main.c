@@ -111,7 +111,7 @@ int main(void)
 			sendTuringOrder(STATE_TURN_RIGHT);
 			
 			goToLocation(FRONT_DIRECTION, 0.4);
-*/
+			
 /*
 	goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 	sendTuringOrder(STATE_TURN_LEFT);
@@ -125,8 +125,8 @@ int main(void)
 
 		}
 
-
 */
+
 /*
 	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
 
@@ -141,7 +141,7 @@ int main(void)
 		}
 			*/
 
-	
+
 	// 保证车先对齐
 	printf("\r\n start");
 	

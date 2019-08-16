@@ -16,7 +16,7 @@
 #define MASTER_AREA_2 "Area2"
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
-#define AIWAC_IP "172.16.0.103"  //"172.16.0.101"  "192.168.43.165"
+#define AIWAC_IP "192.168.43.10"  //"172.16.0.103"  "192.168.43.165"
 //用户配置参数
 extern const u8* portnum;			//连接端口
 extern const u8* wifista_ssid;		//WIFI STA SSID
@@ -27,11 +27,11 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 // 各个关键位置对照参考图的位�?
 #define DROP_GOODS_SPACE 1   //出货口距A边中心的距离
-#define DROP_PAN_SPACE 0.7   //丢盘子的位置距A边中心的距离
+#define DROP_PAN_SPACE 1   //丢盘子的位置距A边中心的距离
 
 
 // 下面两个差不多吧，找时间整合�?
-#define CAR_INIT_SPACE 1   //丢盘子的位置距A边中心的距离
+#define CAR_INIT_SPACE 2   //丢盘子的位置距A边中心的距离
 #define MIDDLE_SPACE CAR_INIT_SPACE   		//复位点，m，在区的
 
 #define C_HALF_LEN      (3.477/2) 	//单位 ：m      
@@ -42,7 +42,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 
 
-#define TURING_DISTANCE 0.447  // 前方需要转弯的  时�?m
+#define TURING_DISTANCE 0.437  // 前方需要转弯的  时�?m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
 
 #define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离�?m
@@ -146,10 +146,6 @@ double designFSpeed2(double FD, double FD_care,double iniTDistance);
 void sendTuringOrder(int Left_or_Right);
 void AiwacMasterSendOrderCar1(double X_V, int moveState);
 void AiwacMasterSendOrderCar2(double X_V, int moveState);
-void controlCarToGoodsSpace(void);
-void controlCarToDropPan(void);
-void controlCarToInitSpace(void);
-void controlCarToGate(void);
 void goToEverywhere(int goalSide,int nowSide, double goDistance);
 void test11(void);
 void checkORReconnect(void );
@@ -162,6 +158,10 @@ void openUart4(void);
 void initValueForOtherDevice(void );
 double convertDistance(int direction,double NeedDistance);
 void goToEverywhereForGoods(int goalSide,int nowSide, double goDistance);
+void controlCarToGoodsSpace(void);
+void controlCarToDropPan(void);
+void controlCarToInitSpace(void);
+void controlCarToGate(void);
 
 	
 

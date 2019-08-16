@@ -3,9 +3,9 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid="AiwacMarket";			//路由器SSI  	"AiwacMarket"
+const u8* wifista_ssid= 	"52552";			//路由器SSI  	"AiwacMarket"
 const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="aiwac2019"; 	//连接密码  "aiwac2019"
+const u8* wifista_password="123456789qwe"; 	//连接密码  "aiwac2019"
 
 //连接端口�?8086,可自行修改为其他端口.
 const u8* portnum="8899";	
@@ -271,6 +271,7 @@ void parseOrderFromS(int goalType)
 			{
 				printf("\r\n the ms   error!!!");
 				printf("\r\n USART3_RX_BUF:%s!!!",USART3_RX_BUF);
+				printf("\r\nrlen:%d,USART3_RX_BUF[0]:%c,USART3_RX_BUF[1]:%c,USART3_RX_BUF[rlen-2]:%c",rlen,USART3_RX_BUF[0],USART3_RX_BUF[1],USART3_RX_BUF[rlen-2]);
 			}
 
 			USART3_RX_STA = 0;
@@ -411,6 +412,15 @@ void  AIWAC_MasterGetGoods(void)
 		DropPan();					// 放盘子，并复�?
 		delay_ms(100);
 		printf("\r\n finish one time !!");
+		/*
+		while(1)
+			{
+				delay_ms(1000);
+				printf("\r\n  take video");
+
+			}
+
+			*/
 	}
 
 }
@@ -1317,8 +1327,11 @@ void notifyGoodsGetterLocation(void )
 
 	root=cJSON_CreateObject();
 	cJSON_AddStringToObject(root,"businessType", "0014");
+
+
 	cJSON_AddNumberToObject(root,"Height", atof(GoodsLocation.height));
 	cJSON_AddNumberToObject(root,"Depth",  atof(GoodsLocation.depth));
+
 
 	strJson  =cJSON_PrintUnformatted(root);
 	cJSON_Delete(root); 
@@ -1334,6 +1347,7 @@ void notifyGoodsGetterLocation(void )
 	strSend[jsonSize+5] = crc8_calculate(strJson, jsonSize);
 	strSend[jsonSize+6] = '&';
 	// 需要打开
+
 	uart4_sendString(strSend,7 + jsonSize);
 	aiwacFree(strJson);
 
@@ -1460,7 +1474,7 @@ void feedbackGotGoodsResult(void)
 void controlCarToGate(void)
 {
 	int goalSide = 0;
-	goalSide = 2;  // 出货�?在A  -> 1
+	goalSide = 1;  // 出货�?在A  -> 1
 
 	openUart2_5();
 
@@ -1641,7 +1655,7 @@ void feedbackLoseGoodsResult(void)
 void controlCarToDropPan(void)
 {
 	int goalSide = 0;
-	goalSide = 3;  // 丢盘�?在A  -> 1
+	goalSide = 1;  // 丢盘�?在A  -> 1
 
 
 	openUart2_5();
@@ -2487,7 +2501,7 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 	double SpeedChangeDistance = 200;  // 加速的距离  mm
 	double SpeedChangeRate = (FD_MAX_SPEED - MIN_SPEED)/ SpeedChangeDistance;
 	
-	FD_care = FD_care + 0.15 ;	// 前方警戒距离，需�? 低速前�?
+	FD_care = FD_care + 0.10 ;	// 前方警戒距离，需�? 低速前�?
 
 
 
