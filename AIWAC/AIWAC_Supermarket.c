@@ -3,9 +3,9 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid= 	"52552";			//路由器SSI  	"AiwacMarket"
+const u8* wifista_ssid= 	"yangjun";			//路由器SSI  	"AiwacMarket"
 const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="123456789qwe"; 	//连接密码  "aiwac2019"
+const u8* wifista_password="yuang123456"; 	//连接密码  "aiwac2019"
 
 //连接端口�?8086,可自行修改为其他端口.
 const u8* portnum="8899";	
@@ -1474,7 +1474,7 @@ void feedbackGotGoodsResult(void)
 void controlCarToGate(void)
 {
 	int goalSide = 0;
-	goalSide = 1;  // 出货�?在A  -> 1
+	goalSide = 3;  // 出货�?在A  -> 1
 
 	openUart2_5();
 
@@ -1655,7 +1655,7 @@ void feedbackLoseGoodsResult(void)
 void controlCarToDropPan(void)
 {
 	int goalSide = 0;
-	goalSide = 1;  // 丢盘�?在A  -> 1
+	goalSide = 3;  // 丢盘�?在A  -> 1
 
 
 	openUart2_5();
