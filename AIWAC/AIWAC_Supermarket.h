@@ -16,7 +16,7 @@
 #define MASTER_AREA_2 "Area2"
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
-#define AIWAC_IP "192.168.43.165"  //"172.16.0.103"  "192.168.43.165"
+#define AIWAC_IP "192.168.43.127"  //"172.16.0.103"  "192.168.43.165"
 //用户配置参数
 extern const u8* portnum;			//连接端口
 extern const u8* wifista_ssid;		//WIFI STA SSID
@@ -50,7 +50,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 #define MIN_SPEED 30  //小车 运动的最小速度   mm/s
 #define ACC_SPEED 150  //  小车的加速速度
 #define CAR_STOP 0  // 小车速度停止
-#define FD_MAX_SPEED 200  // 小车运动�?最大速度  mm/s
+#define FD_MAX_SPEED 150  // 小车运动�?最大速度  mm/s
 
 // 小车的运动状�?
 #define STATE_STOP 0

@@ -112,11 +112,17 @@ int main(void)
 			
 			goToLocation(FRONT_DIRECTION, 0.4);
 			
-/*
-	goToLocation(BACK_DIRECTION, TURING_DISTANCE);
-	sendTuringOrder(STATE_TURN_LEFT);
+*/
+	/*	closeUart2_4_5();
+		initSysValue(); 			// 初始化系统的全局变量
+
+		openUart2_5();
+	//goStartTogether(FRONT_DIRECTION);	// 先对齐再进行后面操作
+	goToLocation(FRONT_DIRECTION, 0.8);
+	closeUart2_5();
+	//sendTuringOrder(STATE_TURN_LEFT);
 	
-	goToLocation(BACK_DIRECTION, 1.8);
+	//goToLocation(BACK_DIRECTION, 1.8);
 
 	while(1)
 		{
@@ -147,11 +153,11 @@ int main(void)
 	
 	closeUart2_4_5();
 	initSysValue(); 			// 初始化系统的全局变量
-
+/*
 	openUart2_5();
 	goStartTogether(FRONT_DIRECTION);	// 先对齐再进行后面操作
 	closeUart2_5();
-
+*/
 	
 	
 	wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻

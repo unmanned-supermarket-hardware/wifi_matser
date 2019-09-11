@@ -3,9 +3,9 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid= 	"yangjun";			//路由器SSI  	"AiwacMarket"
+const u8* wifista_ssid= 	"52552";			//路由器SSI  	"AiwacMarket"
 const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="yuang123456"; 	//连接密码  "aiwac2019"
+const u8* wifista_password="123456789qwe"; 	//连接密码  "aiwac2019"
 
 //连接端口�?8086,可自行修改为其他端口.
 const u8* portnum="8899";	
@@ -134,7 +134,9 @@ void parseOrderFromS(int goalType)
 	float length = 0;	// 位置的各种信息
 
 	closeUart2_4_5();
-	
+
+	USART3_RX_STA = 0;
+	 
 	while(1)
 	{
 		if(USART3_RX_STA&0X8000)		
@@ -405,7 +407,7 @@ void  AIWAC_MasterGetGoods(void)
 	while(1)
 	{   
 		initSysValue();				// 初始化系统的全局变量
-		controlCarToInitSpace();	// 回到复位�?
+		//controlCarToInitSpace();	// 回到复位�?
 		waitingSAskState();			// 等待服务端查询状态，并反�?
 		waitingSSendLocation();		// 获取位置，取�?
 		DropGoods();				// 放货
@@ -756,7 +758,7 @@ void waitingSSendLocation(void)
 	parseOrderFromS(3);  			// 等待 android端向主控提供需要取的货物的位置信息�?
 	feedbackGotOrder(3); 			// 向服务端反馈收到额指�?
 	feedbackStartGetGoods(); 		// 通知服务端开始取�?
-	controlCarToGoodsSpace();		// 控制小车运动到货物点
+	//controlCarToGoodsSpace();		// 控制小车运动到货物点
 	notifyGoodsGetterLocation();	// 给取货单�? 商品的位置和深度
 	waitingGetterGotGoods();		// 等待取货单元反馈取到�?
 
@@ -772,7 +774,7 @@ void waitingSSendLocation(void)
 void DropGoods(void)
 {
 	printf("\r\n enter DropGoods");
-	controlCarToGate();				// 控制小车�?放货�?
+	//controlCarToGate();				// 控制小车�?放货�?
 	notifyGoodsGetterLoseGoods();	// 通知取货单元放货
 	waitingGetterLoseGoods();		// 等待取货单元放货
 	feedbackLoseGoodsResult();		// 给服务端反馈 放货情况
@@ -789,10 +791,10 @@ void DropPan(void)
 {
 	printf("\r\n enter DropPan");
 
-	controlCarToDropPan();		// 控制小车到丢盘子的地�?
+	//controlCarToDropPan();		// 控制小车到丢盘子的地�?
 	notifyGoodsGetterDropPan();	// 通知取货单元丢盘�?
 	waitingGetterLosePan();	// 等待取货单元丢盘�?
-	controlCarToInitSpace();	// 控制小车到复位点
+	//controlCarToInitSpace();	// 控制小车到复位点
 	feedbackGoInit();			// 反馈已经复位
 }
 
@@ -1384,6 +1386,7 @@ void waitingGetterGotGoods(void)
 		if (printfNUM == 10)
 			{
 				printf("\r\n wating to geting  Goods");
+				printfNUM = 0;
 			}
 		
 	}
@@ -1745,6 +1748,7 @@ void waitingGetterLosePan(void)
 		if (printfNUM == 10)
 			{
 				printf("\r\n wating losing Pan");
+				printfNUM = 0;
 			}
 	}
 	delay_ms(100);
@@ -2275,7 +2279,7 @@ void goGoalPosition(int direction,double NeedDistance)
 						}
 					else // 未到目标位置
 						{
-							if( myabs_double(Car1_FDistance - Car2_FDistance ) < goalGAP*4)  //  两车�?前进 距离ok
+							if( myabs_double(Car1_FDistance - Car2_FDistance ) < goalGAP*2)  //  两车�?前进 距离ok
 							{
 								// 下发  继续 默认前进 
 								AiwacMasterSendOrderCar1(designFSpeed2((Car1_FDistance+Car2_FDistance)/2, needDistance,iniTDistance) , STATE_STRAIGHT) ;
@@ -2382,7 +2386,7 @@ void goGoalPosition(int direction,double NeedDistance)
 					}
 				else // 未到目标位置
 					{
-						if( myabs_double(Car1_BDistance - Car2_BDistance ) < goalGAP*4)  //  两车�?前进 距离ok
+						if( myabs_double(Car1_BDistance - Car2_BDistance ) < goalGAP*2)  //  两车�?前进 距离ok
 						{
 							// 下发  继续 默认前进 
 							AiwacMasterSendOrderCar1(-(designFSpeed2((Car1_BDistance+Car2_BDistance)/2, needDistance,iniTDistance)) , STATE_STRAIGHT) ;
