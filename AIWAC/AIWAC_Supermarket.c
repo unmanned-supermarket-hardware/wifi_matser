@@ -134,6 +134,7 @@ void parseOrderFromS(int goalType)
 	float length = 0;	// 位置的各种信息
 
 	closeUart2_4_5();
+	USART3_RX_STA = 0;  // 清wifi 的缓存
 	
 	while(1)
 	{
