@@ -37,7 +37,7 @@ int main(void)
 	uart_init(115200);		//初始化串口波特率为115200
 	usart3_init(115200);  	//初始化串口3波特率为115200
 	uart2_init(115200); 	// car1
-	uart4_init(115200); 	// getter
+	uart4_init(9600); 	// getter
 	uart5_init(115200); 	// car2
 
 	
@@ -112,7 +112,7 @@ int main(void)
 			
 			goToLocation(FRONT_DIRECTION, 0.4);
 			
-/*
+
 	goToLocation(BACK_DIRECTION, TURING_DISTANCE);
 	sendTuringOrder(STATE_TURN_LEFT);
 	
@@ -140,8 +140,32 @@ int main(void)
 
 		}
 			*/
+/*
+	goToLocation(BACK_DIRECTION, 0.8);
 
+	while(1)
+		{
+			printf("\r\n start");
+			delay_ms(1000);
 
+		}
+
+*/
+
+/*
+	goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+	sendTuringOrder(STATE_TURN_RIGHT);
+	
+	goToLocation(FRONT_DIRECTION, 0.8);
+
+	while(1)
+		{
+			printf("\r\n start");
+			delay_ms(1000);
+
+		}
+
+*/
 	// 保证车先对齐
 	printf("\r\n start");
 	

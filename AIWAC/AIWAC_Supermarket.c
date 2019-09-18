@@ -3,9 +3,9 @@
 
 
 //WIFI STA模式,设置要去连接的路由器无线参数,请根据你自己的路由器设置,自行修改.
-const u8* wifista_ssid= 	"yangjun";			//路由器SSI  	"AiwacMarket"
+const u8* wifista_ssid= 	"52552";			//路由器SSI  	"AiwacMarket"
 const u8* wifista_encryption="WPA";	//wpa/wpa2 aes加密方式
-const u8* wifista_password="yuang123456"; 	//连接密码  "aiwac2019"
+const u8* wifista_password="123456789qwe"; 	//连接密码  "aiwac2019"
 
 //连接端口�?8086,可自行修改为其他端口.
 const u8* portnum="8899";	
@@ -1382,9 +1382,10 @@ void waitingGetterGotGoods(void)
 			}
 		
 		printfNUM++;
-		if (printfNUM == 10)
+		if (printfNUM == 20)
 			{
 				printf("\r\n wating to geting  Goods");
+				printfNUM = 0;
 			}
 		
 	}
@@ -2158,7 +2159,7 @@ void goStartTogether(int direction)
 **************************************************************************/
 void goGoalPosition(int direction,double NeedDistance)
 {
-	double goalGAP = 0.018;   //m
+	double goalGAP = 0.009;   //m
 	double iniTDistance = 0; // 起步距离，用�?渐进起步
 	double needDistance = NeedDistance;
 
@@ -2168,7 +2169,7 @@ void goGoalPosition(int direction,double NeedDistance)
 	AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
 
-	delay_ms(300);
+	delay_ms(150);
 
 	while (1)
 		{
@@ -2226,7 +2227,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 									AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 									AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
-									delay_ms(200);
+									delay_ms(100);
 									break;
 
 								}
@@ -2333,7 +2334,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 								AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 								AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
-								delay_ms(200);
+								delay_ms(100);
 								break;
 
 							}

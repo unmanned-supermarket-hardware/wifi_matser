@@ -16,7 +16,7 @@
 #define MASTER_AREA_2 "Area2"
 #define MASTER_ID MASTER_AREA_1   // 烧录不同的主控的时候需要改
 
-#define AIWAC_IP "192.168.43.165"  //"172.16.0.103"  "192.168.43.165"
+#define AIWAC_IP "192.168.43.127"  //"172.16.0.103"  "192.168.43.165"
 //用户配置参数
 extern const u8* portnum;			//连接端口
 extern const u8* wifista_ssid;		//WIFI STA SSID
@@ -26,23 +26,23 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 
 // 各个关键位置对照参考图的位�?
-#define DROP_GOODS_SPACE 1   //出货口距A边中心的距离
+#define DROP_GOODS_SPACE 0.8   //出货口距A边中心的距离
 #define DROP_PAN_SPACE 1   //丢盘子的位置距A边中心的距离
 
 
 // 下面两个差不多吧，找时间整合�?
-#define CAR_INIT_SPACE 2   //丢盘子的位置距A边中心的距离
+#define CAR_INIT_SPACE 1   //复位点
 #define MIDDLE_SPACE CAR_INIT_SPACE   		//复位点，m，在区的
 
 #define C_HALF_LEN      (3.477/2) 	//单位 ：m      
 #define B_LEN	    	(3.175)   // 单位：m  上架要(3.175)
 #define A_HALF_LEN      (3.477/2)   // 单位  ：m 
-#define R_F_LEN   		0.2  //  小车前进方向的车里货物架的距离       	     单位：m   需要测量
-#define R_B_LEN   		0.2  //  小车后退方向的车里货物架的距离       	     单位：m需要测量
+#define R_F_LEN   		0.43  //  小车前进方向的车里货物架的距离       	     单位：m   需要测量
+#define R_B_LEN   		(-0.01)  //  小车后退方向的车里货物架的距离       	     单位：m需要测量
 
 
 
-#define TURING_DISTANCE 0.447  // 前方需要转弯的  时�?m
+#define TURING_DISTANCE 0.47  // 前方需要转弯的  时�?m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
 
 #define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离�?m
