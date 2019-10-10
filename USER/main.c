@@ -152,20 +152,44 @@ int main(void)
 
 */
 
-/*
 	goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 	sendTuringOrder(STATE_TURN_RIGHT);
-	
-	goToLocation(FRONT_DIRECTION, 0.8);
+	goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
 
 	while(1)
 		{
-			printf("\r\n start");
+			printf("\r\n ok");
 			delay_ms(1000);
 
 		}
 
-*/
+
+	goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+	sendTuringOrder(STATE_TURN_RIGHT);
+	goToLocation(FRONT_DIRECTION,2);
+
+
+	goToLocation(BACK_DIRECTION, TURING_DISTANCE);
+	sendTuringOrder(STATE_TURN_LEFT);
+	goToLocation(BACK_DIRECTION, 0.5);
+
+	goToLocation(FRONT_DIRECTION, TURING_DISTANCE);
+	sendTuringOrder(STATE_TURN_RIGHT);
+	goToLocation(FRONT_DIRECTION,2);
+
+
+
+
+
+
+	while(1)
+		{
+			printf("\r\n ok");
+			delay_ms(1000);
+
+		}
+
+
 	// 保证车先对齐
 	printf("\r\n start");
 	

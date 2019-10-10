@@ -131,10 +131,10 @@ void parseOrderFromS(int goalType)
 	int businessType =999;
 
 
-	float length = 0;	// 位置的各种信息
+	float length = 0;	// 位置的各种信�?
 
 	closeUart2_4_5();
-	USART3_RX_STA = 0;  // 清wifi 的缓存
+	USART3_RX_STA = 0;  // 清wifi 的缓�?
 	
 	while(1)
 	{
@@ -383,7 +383,7 @@ void WIFISend(char* MS)
 
 	closeUart2_4_5();
 
-	checkORReconnect();  // 检查连接是否在线
+	checkORReconnect();  // 检查连接是否在�?
 
 	atk_8266_quit_trans();
 	atk_8266_send_cmd("AT+CIPSEND","OK",20);		 //开始透传 	   
@@ -1894,7 +1894,7 @@ void goStartTogether(int direction)
 
 	AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
-	delay_ms(1000);
+	delay_ms(100);
 
 	while (1)
 		{
@@ -1922,7 +1922,7 @@ void goStartTogether(int direction)
 				
 				break;
 			}
-			printf("\r\n waiting	goStartTogether correction ");
+			printf("\r\n waiting	goStartTogether correction ,Car1_CorrectState:%d,Car2_CorrectState:%d",Car1_CorrectState,Car2_CorrectState);
 
 		}
 	
@@ -1958,7 +1958,7 @@ void goStartTogether(int direction)
 
 						if (myabs_double(Car2_FDistance- goalLocation) <= TogetherGap) // �? ok
 							{
-								printf("\r\n goStartTogether:CorrectState   ok");
+								printf("\r\n Car2 goStartTogether:CorrectState   ok");
 								AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
 								break;
 							}
@@ -1967,19 +1967,19 @@ void goStartTogether(int direction)
 						if( (Car2_FDistance)< goalLocation - TogetherGap) //走超�?
 							{
 								AiwacMasterSendOrderCar2(-MIN_SPEED , STATE_STRAIGHT) ;
-								printf("\r\n goStartTogether:over");
+								printf("\r\n Car2 goStartTogether:over");
 
 							}
 						else if ((Car2_FDistance)> 4*TogetherGap+ goalLocation) //还较�?
 							{
 
 								AiwacMasterSendOrderCar2(4*MIN_SPEED , STATE_STRAIGHT) ; 
-								printf("\r\n goStartTogether:too far");
+								printf("\r\n Car2 goStartTogether:too far");
 							}
 						else if ((Car2_FDistance)> TogetherGap+ goalLocation) //较近
 							{
 								AiwacMasterSendOrderCar2(MIN_SPEED , STATE_STRAIGHT) ; 
-								printf("\r\n goStartTogether: far");
+								printf("\r\n Car2 goStartTogether: far");
 							}
 
 					}
@@ -1996,7 +1996,7 @@ void goStartTogether(int direction)
 
 						if (myabs_double(Car1_FDistance- goalLocation) <= TogetherGap) // �? ok
 							{
-								printf("\r\n goStartTogether:CorrectState   ok");
+								printf("\r\n Car1 goStartTogether:CorrectState   ok");
 								AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 								break;
 							}
@@ -2005,19 +2005,19 @@ void goStartTogether(int direction)
 						if( (Car1_FDistance)< goalLocation - TogetherGap) //走超�?
 							{
 								AiwacMasterSendOrderCar1(-MIN_SPEED , STATE_STRAIGHT) ;
-								printf("\r\n goStartTogether:over");
+								printf("\r\n Car1 goStartTogether:over");
 
 							}
 						else if ((Car1_FDistance)> 4*TogetherGap+ goalLocation) //还较�?
 							{
 
 								AiwacMasterSendOrderCar1(4*MIN_SPEED , STATE_STRAIGHT) ; 
-								printf("\r\n goStartTogether:too far");
+								printf("\r\n Car1 goStartTogether:too far");
 							}
 						else if ((Car1_FDistance)> TogetherGap+ goalLocation) //较近
 							{
 								AiwacMasterSendOrderCar1(MIN_SPEED , STATE_STRAIGHT) ; 
-								printf("\r\n goStartTogether: far");
+								printf("\r\n Car1 goStartTogether: far");
 							}
 	
 
@@ -2127,7 +2127,7 @@ void goStartTogether(int direction)
 
 		AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 		AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
-		delay_ms(1000);
+		delay_ms(200);
 
 
 
@@ -2135,13 +2135,17 @@ void goStartTogether(int direction)
 	//等校�?
 	while (1) 
 		{
-			delay_ms(50);
+			
 			
 			if (  (Car1_CorrectState  == 1) && ( Car2_CorrectState == 1) )//姿态校�? ok
 			{
 				printf("\r\n step3  goStartTogether correction ok ");
 				break;
 			}
+			delay_ms(100);
+
+			printf("\r\n waiting for step3  goStartTogether correction ok ");
+			printf("\r\nCar1_CorrectState:%d,Car2_CorrectState:%d",Car1_CorrectState,Car2_CorrectState);
 
 		}
 
@@ -2161,7 +2165,7 @@ void goGoalPosition(int direction,double NeedDistance)
 {
 	double goalGAP = 0.009;   //m
 	double iniTDistance = 0; // 起步距离，用�?渐进起步
-	double needDistance = NeedDistance;
+	double needDistance = NeedDistance ;
 
 	
 
@@ -2215,16 +2219,17 @@ void goGoalPosition(int direction,double NeedDistance)
 
 
 				
-					if (( ( myabs_double(Car1_FDistance- needDistance ) <  goalGAP*10 ) || ( ( myabs_double(Car2_FDistance- needDistance ) <  goalGAP*10 )) )
+					if (( ( myabs_double(Car1_FDistance- needDistance ) <  goalGAP*6 ) || ( ( myabs_double(Car2_FDistance- needDistance ) <  goalGAP*6 )) )
 
 					||((Car1_FDistance- needDistance )<0)  || (Car2_FDistance- needDistance ) <0)
 						{
 
 							// 到达目的位置
-							if ( ( myabs_double(Car1_FDistance- needDistance ) <  goalGAP ) && ( ( myabs_double(Car2_FDistance- needDistance ) <  goalGAP )) )
+							if ( ( myabs_double(Car1_FDistance- needDistance ) <  goalGAP*2 ) && ( ( myabs_double(Car2_FDistance- needDistance ) <  goalGAP*2 )) )
 								{
 
-
+									printf("\r\n get goalLocation :needDistance:%f,Car1_FDistance:%f,Car2_FDistance:%f",needDistance,Car1_FDistance,Car2_FDistance);
+									
 									AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 									AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
 									delay_ms(100);
@@ -2250,7 +2255,7 @@ void goGoalPosition(int direction,double NeedDistance)
 							
 							else{
 									AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
-									printf("\r\ncar1  wait for turing order");
+									printf("\r\ncar1  reach at the goal");
 								}
 
 
@@ -2270,7 +2275,7 @@ void goGoalPosition(int direction,double NeedDistance)
 								}
 								else{
 									AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
-									printf("\r\ncar2  wait for turing order");
+									printf("\r\ncar2   reach at the goal");
 								}
 
 
@@ -2322,13 +2327,13 @@ void goGoalPosition(int direction,double NeedDistance)
 
 
 			
-				if (( ( myabs_double(Car1_BDistance- needDistance ) <  goalGAP*10 ) || ( ( myabs_double(Car2_BDistance- needDistance ) <  goalGAP*10 )) )
+				if (( ( myabs_double(Car1_BDistance- needDistance ) <  goalGAP*6 ) || ( ( myabs_double(Car2_BDistance- needDistance ) <  goalGAP*6 )) )
 
 				||((Car1_BDistance- needDistance )<0)  || (Car2_BDistance- needDistance ) <0)
 					{
 
 						// 到达目的位置
-						if ( ( myabs_double(Car1_BDistance- needDistance ) <  goalGAP ) && ( ( myabs_double(Car2_BDistance- needDistance ) <  goalGAP )) )
+						if ( ( myabs_double(Car1_BDistance- needDistance ) <  goalGAP*2 ) && ( ( myabs_double(Car2_BDistance- needDistance ) <  goalGAP*2 )) )
 							{
 
 
@@ -2357,7 +2362,7 @@ void goGoalPosition(int direction,double NeedDistance)
 						
 						else{
 								AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
-								printf("\r\ncar1  wait for turing order");
+								printf("\r\ncar1   reach at the goal");
 							}
 
 
@@ -2377,7 +2382,7 @@ void goGoalPosition(int direction,double NeedDistance)
 							}
 							else{
 								AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
-								printf("\r\ncar2  wait for turing order");
+								printf("\r\ncar2   reach at the goal");
 							}
 
 
@@ -2418,6 +2423,7 @@ void goGoalPosition(int direction,double NeedDistance)
 
 
 
+	printf("\r\n goGoalPosition   send STATE_STOP  for out");
 
 	AiwacMasterSendOrderCar1(CAR_STOP , STATE_STOP) ;
 	AiwacMasterSendOrderCar2(CAR_STOP , STATE_STOP) ;
@@ -2434,6 +2440,9 @@ void goGoalPosition(int direction,double NeedDistance)
 				break;
 			}
 
+			printf("\r\n waiting for  step3  goGoalPosition correction ok ,Car1_CorrectState:%d,Car2_CorrectState:%d",Car1_CorrectState,Car2_CorrectState);
+			
+
 		}
 
 
@@ -2444,10 +2453,13 @@ void goGoalPosition(int direction,double NeedDistance)
 void sendTuringOrder(int Left_or_Right)
 {
 
+	printf("\r\n enter sendTuringOrder");
+	
 	//	转弯�? 方向 要看 �?超市哪边
 	AiwacMasterSendOrderCar1(CAR_STOP , Left_or_Right) ;
 	AiwacMasterSendOrderCar2(CAR_STOP , Left_or_Right) ;
-	delay_ms(120);
+	delay_ms(200);
+	printf("\r\n send Left_or_Right order");
 
 	//若未进入转弯
 	while ((Car2_moveState <2 ) || (Car1_moveState <2 ) )  //有车未转�?
@@ -2465,7 +2477,10 @@ void sendTuringOrder(int Left_or_Right)
 						AiwacMasterSendOrderCar2(CAR_STOP , Left_or_Right) ;
 				}
 			delay_ms(70);
+
 			
+			printf("\r\n sendTuringOrder: Car1_moveState:%d,Car2_moveState:%d",Car1_moveState,Car2_moveState);
+			printf("\r\nCar1_FDistance:%f,Car2_FDistance:%f",Car1_FDistance,Car2_FDistance);
 		}
 
 	
@@ -2474,7 +2489,7 @@ void sendTuringOrder(int Left_or_Right)
 		{
 
 			printf("\r\nwaiting for turing,  Car1_moveState :%d,  Car2_moveState:%d ",Car1_moveState ,Car2_moveState );
-			delay_ms(10);
+			delay_ms(700);
 		}
 
 	
@@ -2515,7 +2530,7 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 	}
 
 
-	// 减速
+	// 减�?
 	if ( (FD < FD_care +SpeedChangeDistance)  &&  (FD >FD_care))
 	{
 		decreaseSpeed = (FD - FD_care)*1000*SpeedChangeRate + MIN_SPEED;
@@ -2564,12 +2579,12 @@ double  designFSpeed2(double FD, double FD_care,double iniTDistance)
 
 
 	/*
-	double FSpeed = 30; 	// 雿��漲 mm
+	double FSpeed = 30; 	// 雿���?mm
 	
-		double FDSMax = FD_MAX_SPEED;  // 閫���憭? ��漲  mm
+		double FDSMax = FD_MAX_SPEED;  // 閫����? ��漲  mm
 	
 		double startSpeed = 0;
-		FD_care = FD_care + 0.10 ;	// �霅行�頝氖嚗�閬? 雿�餈?
+		FD_care = FD_care + 0.10 ;	// �霅行�頝氖嚗��? 雿��?
 	
 	
 	
@@ -3124,13 +3139,13 @@ void test11(void)
 
 void checkORReconnect(void )
 {	u8 constate;
-	constate=atk_8266_consta_check();//得到连接状态
+	constate=atk_8266_consta_check();//得到连接状�?
 	
 	if (constate != '+')
 	{
 		printf("\r\n rebuilt the net link");
 		
-		wifi_Init();				// wifi模块初始化，完成连路由器，连服务端逻
+		wifi_Init();				// wifi模块初始化，完成连路由器，连服务端�?
 		sendMasterID2S();			//给服务端发送主控ID
 		atk_8266_at_response(1);
 
@@ -3146,31 +3161,31 @@ void checkORReconnect(void )
 
 
 /**************************************************************************
-函数功能：开启2 4 5 串口
+函数功能：开�? 4 5 串口
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void closeUart2_4_5(void)
 {
 	// 串口2
-	 //开启中断
-	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);//开启中断  
+	 //开启中�?
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);//开启中�? 
 	//使能串口 
 	USART_Cmd(USART2, DISABLE);					  //使能串口 
 
 
 
 	// 串口4
-	// 开启中断
-	USART_ITConfig(UART4, USART_IT_RXNE, DISABLE);//开启中断  
+	// 开启中�?
+	USART_ITConfig(UART4, USART_IT_RXNE, DISABLE);//开启中�? 
 	// 使能串口 
 	USART_Cmd(UART4, DISABLE);					 //使能串口 
 
 
 
 	// 串口5
-	//开启中断
-	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启中断  
+	//开启中�?
+	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启中�? 
 	//使能串口 
 	USART_Cmd(UART5, DISABLE);					 //使能串口 
 
@@ -3182,9 +3197,9 @@ void closeUart2_4_5(void)
 
 
 /**************************************************************************
-函数功能：关闭2 4 5 串口
+函数功能：关�? 4 5 串口
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void  openUart2_4_5(void)
 {
@@ -3192,24 +3207,24 @@ void  openUart2_4_5(void)
 
 	printf("\r\nopenUart2_4_5 F");
 	// 串口2
-	 //开启中断
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
+	 //开启中�?
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中�? 
 	//使能串口 
 	USART_Cmd(USART2, ENABLE);					  //使能串口 
 
 
 
 	// 串口4
-	// 开启中断
-	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中断  
+	// 开启中�?
+	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中�? 
 	// 使能串口 
 	USART_Cmd(UART4, ENABLE);					 //使能串口 
 
 
 
 	// 串口5
-	//开启中断
-	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中断  
+	//开启中�?
+	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中�? 
 	//使能串口 
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
 
@@ -3244,23 +3259,23 @@ void  openUart2_4_5(void)
 
 
 /**************************************************************************
-函数功能：开启2 、 5 串口
+函数功能：开�? �?5 串口
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void closeUart2_5(void)
 {
 	// 串口2
-	 //开启中断
-	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);//开启中断  
+	 //开启中�?
+	USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);//开启中�? 
 	//使能串口 
 	USART_Cmd(USART2, DISABLE);					  //使能串口 
 
 
 
 	// 串口5
-	//开启中断
-	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启中断  
+	//开启中�?
+	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启中�? 
 	//使能串口 
 	USART_Cmd(UART5, DISABLE);					 //使能串口 
 
@@ -3270,9 +3285,9 @@ void closeUart2_5(void)
 
 
 /**************************************************************************
-函数功能：关闭2 、 5 串口
+函数功能：关�? �?5 串口
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void  openUart2_5(void)
 {
@@ -3280,8 +3295,8 @@ void  openUart2_5(void)
 	initValueForOtherDevice();
 
 	// 串口2
-	 //开启中断
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中断  
+	 //开启中�?
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);//开启中�? 
 
 	//使能串口 
 	USART_Cmd(USART2, ENABLE);					  //使能串口 
@@ -3290,8 +3305,8 @@ void  openUart2_5(void)
 
 
 	// 串口5
-	//开启中断
-	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中断  
+	//开启中�?
+	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启中�? 
 
 	//使能串口 
 	USART_Cmd(UART5, ENABLE);					 //使能串口 
@@ -3324,16 +3339,16 @@ void  openUart2_5(void)
 }
 
 /**************************************************************************
-函数功能：开启 4  串口
+函数功能：开�?4  串口
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void closeUart4(void)
 {
 
 	// 串口4
-	// 开启中断
-	USART_ITConfig(UART4, USART_IT_RXNE, DISABLE);//开启中断  
+	// 开启中�?
+	USART_ITConfig(UART4, USART_IT_RXNE, DISABLE);//开启中�? 
 	// 使能串口 
 	USART_Cmd(UART4, DISABLE);					 //使能串口 
 
@@ -3343,9 +3358,9 @@ void closeUart4(void)
 
 
 /**************************************************************************
-函数功能：关闭 4  串口
+函数功能：关�?4  串口
 入口参数：无
-返回  值：无
+返回  值：�?
 **************************************************************************/
 void  openUart4(void)
 {
@@ -3353,8 +3368,8 @@ void  openUart4(void)
 	initValueForOtherDevice();
 
 	// 串口4
-	// 开启中断
-	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中断  
+	// 开启中�?
+	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);//开启中�? 
 	// 使能串口 
 	USART_Cmd(UART4, ENABLE);					 //使能串口 
 
@@ -3392,7 +3407,7 @@ double convertDistance(int direction,double NeedDistance)
 
 
 /**************************************************************************
-函数功能�?给定当前位置 �?  目标位置 控制小车运动,专门为服务端下发的 货盘到轨道的尽头距离
+函数功能�?给定当前位置 �?  目标位置 控制小车运动,专门为服务端下发�?货盘到轨道的尽头距离
 入口参数：goalSide：目标边   ,		nowSide：当前边   	goDistance；按图的距离
 返回  值：		�?
 **************************************************************************/

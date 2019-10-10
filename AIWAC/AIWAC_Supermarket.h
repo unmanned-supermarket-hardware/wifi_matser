@@ -42,7 +42,7 @@ extern const u8* wifista_password; 	//WIFI STA 密码
 
 
 
-#define TURING_DISTANCE 0.47  // 前方需要转弯的  时�?m
+#define TURING_DISTANCE 0.60  // 前方需要转弯的  时�?m
 #define TURING_DISTANCE_GAP 0.015  // 转弯区间 m
 
 #define FRONT_DISTANCEGAP  0.02  //  两车  前后 距离�?m
